@@ -1,38 +1,29 @@
-const express = require("express");
-const connectDB = require("./utils/db");
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import connectDB from "./utils/db.js";
+import authRoutes from "./routes/authRoutes.js";
+
+dotenv.config();
 
 const app = express();
+
+// ⚙️ Bật CORS trước middleware khác
+app.use(cors());
+
+// Middleware để parse JSON
+app.use(express.json());
 
 // Kết nối MongoDB
 connectDB();
 
-// Middleware
-app.use(express.json());
-
-// Test route
+// Route test
 app.get("/", (req, res) => {
-  res.send("🚀 TicketNow Backend is running!");
+  res.send("TicketNow API running...");
 });
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
+// 🧩 Route đăng ký / đăng nhập
+app.use("/api/auth", authRoutes);
 
-const Role = require("./model/Role"); // import model Role
-
-async function testRoles() {
-  const roles = [
-    { _id: "role_admin", name: "admin" },
-    { _id: "role_user", name: "user" },
-    { _id: "role_organizer", name: "organizer" },
-  ];
-
-  for (const r of roles) {
-    await Role.updateOne({ _id: r._id }, r, { upsert: true });
-  }
-
-  console.log(await Role.find());
-}
-
-// Gọi hàm test khi server chạy
-testRoles();
-
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
