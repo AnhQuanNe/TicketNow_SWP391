@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "/App.css"
+import "../../App.css";
+import "../css/Banner.css";
 function Banner({ bannerIndex, nextBanner, prevBanner, selectBanner }) {
   const [events, setEvents] = useState([]);
 

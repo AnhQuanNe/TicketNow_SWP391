@@ -11,13 +11,13 @@ import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Banner from "./user/Banner";
-import Categories from "./user/Categories";
-import EventSection from "./user/EventSection";
-import Favorites from "./user/Favourites";
-import Footer from "./user/Footer";
-import Header from "./user/Header";
-import MyNavbar from "./user/MyNavbar";
+import Banner from "./user/js/Banner";
+import Categories from "./user/js/Categories";
+import EventSection from "./user/js/EventSection";
+import Favourites from "./user/js/Favourites";
+import Footer from "./user/js/Footer";
+import Header from "./user/js/Header";
+import MyNavbar from "./user/js/MyNavbar";
 
 // Trang chính
 function HomePage() {
@@ -110,7 +110,7 @@ function HomePage() {
         );
       })}
 
-      <Favorites
+      <Favourites
         eventsFromDB={events}
         favorites={favorites}
         toggleFavorite={toggleFavorite}

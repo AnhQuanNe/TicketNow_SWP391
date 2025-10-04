@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./user_css/Categories.css";
+import "../css/Categories.css";
 
 function Categories({ categoriesFromBackend = [] }) {
   // Danh sách category cố định để hiển thị dưới menu
