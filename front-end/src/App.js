@@ -1,108 +1,140 @@
 import React, { useState, useEffect } from "react";
+import "./user/css/Banner.css";
+import "./user/css/Categories.css";
+import "./user/css/EventSection.css";
+import "./user/css/Favourites.css";
+import "./user/css/Footer.css";
+import "./user/css/Header.css";
+import "./user/css/MyNavbar.css";
 import "./App.css";
-import { demoEvents } from "./share/data";
+
 import "bootstrap/dist/css/bootstrap.min.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Banner from "./components/Banner";
-import Categories from "./components/Categories";
-import EventSection from "./components/EventSection";
-import Favorites from "./components/Favorites";
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import MyNavbar from "./components/MyNavbar";
+import Banner from "./user/Banner";
+import Categories from "./user/Categories";
+import EventSection from "./user/EventSection";
+import Favorites from "./user/Favourites";
+import Footer from "./user/Footer";
+import Header from "./user/Header";
+import MyNavbar from "./user/MyNavbar";
 
-
-const categories = [
-  { key: "all", label: "Tất cả" },
-  { key: "music", label: "Âm nhạc" },
-  { key: "workshop", label: "Hội thảo" },
-  { key: "competition", label: "Cuộc thi" },
-  { key: "market", label: "Hội chợ" },
-];
-
-function App() {
+// Trang chính
+function HomePage() {
   const [bannerIndex, setBannerIndex] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const [favorites, setFavorites] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
+  // Fetch categories từ backend
   useEffect(() => {
-    const interval = setInterval(() => {
-      setBannerIndex((prev) =>
-        demoEvents.length > 0 ? (prev + 1) % demoEvents.length : 0
-      );
-    }, 5000);
-    return () => clearInterval(interval);
+    fetch("/api/categories")
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error(err));
   }, []);
 
-  const nextBanner = () => setBannerIndex((prev) => (prev + 1) % demoEvents.length);
-  const prevBanner = () => setBannerIndex((prev) => (prev === 0 ? demoEvents.length - 1 : prev - 1));
-  const selectBanner = (index) => setBannerIndex(index);
+  // Fetch events từ backend
+  useEffect(() => {
+    fetch("/api/events")
+      .then(res => res.json())
+      .then(data => setEvents(data))
+      .catch(err => console.error(err));
+  }, []);
 
-  const toggleFavorite = (id) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+  // Banner auto slide
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBannerIndex(prev => (events.length > 0 ? (prev + 1) % events.length : 0));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [events.length]);
+
+  const nextBanner = () => setBannerIndex(prev => (prev + 1) % events.length);
+  const prevBanner = () => setBannerIndex(prev => (prev === 0 ? events.length - 1 : prev - 1));
+  const selectBanner = index => setBannerIndex(index);
+
+  const toggleFavorite = id => {
+    setFavorites(prev =>
+      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
     );
   };
 
+  // Sections cố định
+  const sectionNames = ["Thịnh hành", "Âm nhạc", "Hội thảo", "Thể thao", "Hội chợ", "Dành cho bạn"];
+
   return (
-    <div className="App">
-      <Header />
-      <MyNavbar />
+    <>
       <Banner
-        demoEvents={demoEvents}
+        eventsFromDB={events}
         bannerIndex={bannerIndex}
         nextBanner={nextBanner}
         prevBanner={prevBanner}
         selectBanner={selectBanner}
       />
+
+      {/* Menu chọn category */}
       <Categories
-        categories={categories}
+        categories={[{ _id: "all", name: "Tất cả" }, ...categories]}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
       />
 
-      <EventSection
-        title="Thịnh hành"
-        events={demoEvents.filter(
-          (ev) => selectedCategory === "all" || ev.category === selectedCategory
-        )}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-      />
+      {/* Các section scroll ngang */}
+      {sectionNames.map(name => {
+        let filteredEvents = [];
+        if (name === "Thịnh hành") {
+          filteredEvents = events;
+        } else if (name === "Dành cho bạn") {
+          filteredEvents = events.filter(ev => favorites.includes(ev._id));
+        } else {
+          const cat = categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+          filteredEvents = cat ? events.filter(ev => ev.categoryId === cat._id) : [];
+        }
 
-      <EventSection
-        title="Âm nhạc"
-        events={demoEvents.filter((ev) => ev.category === "music")}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-      />
-      <EventSection
-        title="Hội thảo"
-        events={demoEvents.filter((ev) => ev.category === "workshop")}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-      />
-      <EventSection
-        title="Cuộc thi"
-        events={demoEvents.filter((ev) => ev.category === "competition")}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-      />
-      <EventSection
-        title="Hội chợ"
-        events={demoEvents.filter((ev) => ev.category === "market")}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-      />
+        // Áp filter theo menu chọn category
+        if (selectedCategory !== "all") {
+          const selectedCat = categories.find(c => c.name === selectedCategory);
+          filteredEvents = filteredEvents.filter(ev => ev.categoryId === selectedCat?._id);
+        }
+
+        return (
+          <EventSection
+            key={name}
+            title={name}
+            events={filteredEvents}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+          />
+        );
+      })}
 
       <Favorites
-        demoEvents={demoEvents}
+        eventsFromDB={events}
         favorites={favorites}
         toggleFavorite={toggleFavorite}
       />
+    </>
+  );
+}
 
+// Trang category riêng
+function CategoryPage() {
+  return <div>Category Page</div>;
+}
+
+function App() {
+  return (
+    <Router>
+      <Header />
+      <MyNavbar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/category/:id" element={<CategoryPage />} />
+      </Routes>
       <Footer />
-    </div>
+    </Router>
   );
 }
 

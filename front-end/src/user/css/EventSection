@@ -1,0 +1,170 @@
+/* Event Section Styles */
+.event-section {
+  padding: 40px 50px;
+  background: white;
+  margin: 20px 0;
+}
+
+.event-section h2 {
+  font-size: 28px;
+  color: black;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+.event-section > p {
+  color: #666;
+  font-size: 16px;
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* Scroll Row */
+.scroll-row {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-row::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-row::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+.scroll-row::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.scroll-row::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Event Card Styles */
+.suggest-card {
+  position: relative;
+  min-width: 280px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  background: #1a1a1a;
+  cursor: pointer;
+  border: 1px solid #222;
+}
+
+.suggest-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+  border-color: #333;
+}
+
+.suggest-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.suggest-card h4 {
+  padding: 15px 15px 5px;
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 600;
+  margin: 0;
+}
+
+.suggest-card p {
+  padding: 0 15px 15px;
+  color: #888;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Favorite Button */
+.fav-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.fav-btn:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.fav-btn.active {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .event-section {
+    padding: 30px 20px;
+  }
+  
+  .event-section h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  
+  .suggest-card {
+    min-width: 220px;
+  }
+  
+  .suggest-card img {
+    height: 160px;
+  }
+  
+  .suggest-card h4 {
+    font-size: 16px;
+    padding: 12px 12px 5px;
+  }
+  
+  .suggest-card p {
+    font-size: 13px;
+    padding: 0 12px 12px;
+  }
+  
+  .fav-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-section {
+    padding: 25px 15px;
+  }
+  
+  .event-section h2 {
+    font-size: 20px;
+  }
+  
+  .suggest-card {
+    min-width: 200px;
+  }
+  
+  .suggest-card img {
+    height: 140px;
+  }
+}
