@@ -1,0 +1,175 @@
+/* Navigation Styles */
+.nav-links {
+  background: white;
+  padding: 18px 50px;
+  display: flex;
+  gap: 35px;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Navigation Links */
+.nav-links a {
+  color: #333;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: #000;
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #000;
+  background: #f5f5f5;
+}
+
+.nav-links a:hover::after {
+  width: 60%;
+}
+
+.nav-links a.active {
+  color: #000;
+  background: #f0f0f0;
+}
+
+/* Buttons */
+.my-ticket,
+.create-events {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+.my-ticket {
+  background: black;
+  color: white;
+  margin-left: auto;
+  border: 2px solid #e0e0e0;
+}
+
+.my-ticket:hover {
+  background: #000;
+  color: white;
+  border-color: #000;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.create-events {
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  color: white;
+  border: 2px solid #000;
+}
+
+.create-events:hover {
+  background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.create-events:active,
+.my-ticket:active {
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .nav-links {
+    padding: 15px 30px;
+    gap: 25px;
+  }
+  
+  .nav-links a {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    padding: 15px 20px;
+    gap: 15px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .nav-links::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .nav-links::-webkit-scrollbar-track {
+    background: #f0f0f0;
+  }
+  
+  .nav-links::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+  }
+  
+  .nav-links::-webkit-scrollbar-thumb:hover {
+    background: #999;
+  }
+  
+  .nav-links a {
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+  
+  .nav-links a::after {
+    display: none;
+  }
+  
+  .my-ticket,
+  .create-events {
+    padding: 8px 18px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  
+  .my-ticket {
+    margin-left: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-links {
+    padding: 12px 15px;
+    gap: 12px;
+  }
+  
+  .nav-links a {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  
+  .my-ticket,
+  .create-events {
+    padding: 7px 15px;
+    font-size: 12px;
+  }
+}

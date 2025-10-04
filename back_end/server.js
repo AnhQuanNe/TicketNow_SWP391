@@ -1,38 +1,64 @@
 const express = require("express");
-const connectDB = require("./utils/db");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
-
-// Kết nối MongoDB
-connectDB();
-
-// Middleware
+app.use(cors());
 app.use(express.json());
 
-// Test route
-app.get("/", (req, res) => {
-  res.send("🚀 TicketNow Backend is running!");
+// Kết nối MongoDB
+mongoose.connect("mongodb://localhost:27017/TicketNow", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error("MongoDB connection error:", err));
+
+// Schema cho Category
+const categorySchema = new mongoose.Schema({
+  name: String,
+  description: String,
+});
+
+const Category = mongoose.model("Category", categorySchema, "Categories");
+
+// Schema cho Event
+const eventSchema = new mongoose.Schema({
+  title: String,
+  categoryId: String, // đồng bộ với frontend
+  banner: String,
+  startDate: String,
+  endDate: String,
+  location: String,
+});
+
+const Event = mongoose.model("Event", eventSchema, "Events");
+
+// API: Lấy toàn bộ categories
+app.get("/api/categories", async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// API: Lấy toàn bộ events, có filter categoryId
+app.get("/api/events", async (req, res) => {
+  try {
+    const { categoryId } = req.query;
+    let events;
+    if (categoryId) {
+      events = await Event.find({ categoryId });
+    } else {
+      events = await Event.find();
+    }
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 const PORT = 5000;
-app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
-
-const Role = require("./model/Role"); // import model Role
-
-async function testRoles() {
-  const roles = [
-    { _id: "role_admin", name: "admin" },
-    { _id: "role_user", name: "user" },
-    { _id: "role_organizer", name: "organizer" },
-  ];
-
-  for (const r of roles) {
-    await Role.updateOne({ _id: r._id }, r, { upsert: true });
-  }
-
-  console.log(await Role.find());
-}
-
-// Gọi hàm test khi server chạy
-testRoles();
-
+app.listen(PORT, () => console.log(`Server chạy tại http://localhost:${PORT}`));
