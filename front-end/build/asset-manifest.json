@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/TicketNow_SWP391/static/css/main.0fe62375.css",
+    "main.js": "/TicketNow_SWP391/static/js/main.32ec4b69.js",
+    "static/js/453.9d2e5b0c.chunk.js": "/TicketNow_SWP391/static/js/453.9d2e5b0c.chunk.js",
+    "index.html": "/TicketNow_SWP391/index.html",
+    "main.0fe62375.css.map": "/TicketNow_SWP391/static/css/main.0fe62375.css.map",
+    "main.32ec4b69.js.map": "/TicketNow_SWP391/static/js/main.32ec4b69.js.map",
+    "453.9d2e5b0c.chunk.js.map": "/TicketNow_SWP391/static/js/453.9d2e5b0c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0fe62375.css",
+    "static/js/main.32ec4b69.js"
+  ]
+}
