@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function Header() {
+function Header({ onSearch, searchTerm }) {   // ✅ Nhận props từ cha
   const [showModal, setShowModal] = useState(null); // null | "login" | "register"
 
   const openModal = type => setShowModal(type);
@@ -17,10 +17,12 @@ function Header() {
       </div>
 
       <div className="search-login">
+        {/* ✅ Khi người dùng gõ, gọi onSearch */}
         <input
           type="text"
           placeholder="Tìm kiếm sự kiện..."
           className="search-input"
+          onChange={(e) => onSearch(e.target.value)}  // 🔥 Thêm dòng này
         />
         <div className="auth-links">
           <button className="auth-link" onClick={() => openModal("login")}>Đăng nhập</button>
