@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function EventSection({ title, events, favorites, toggleFavorite }) {
   if (!events || events.length === 0) {
@@ -19,6 +20,13 @@ function EventSection({ title, events, favorites, toggleFavorite }) {
             <img src={ev.banner} alt={ev.title} />
             <h4>{ev.title}</h4>
             <p>{ev.categoryName || ev.categoryId}</p>
+            {/* Bắt đầu thêm: nút View Detail */}
+            <Link to={`/event/${ev._id}`}> {/* Link tới route chi tiết */}
+              <button className="btn btn-info my-2">
+                View Detail
+              </button>
+            </Link>
+            {/* Kết thúc thêm */}
             <button
               className={`fav-btn ${favorites.includes(ev._id) ? "active" : ""}`}
               onClick={() => toggleFavorite(ev._id)}
