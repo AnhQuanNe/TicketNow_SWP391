@@ -227,12 +227,36 @@ header {
   .brand > div:last-child > div:first-child {
     font-size: 24px;
   }
-  
+
   .modal {
     padding: 25px 20px;
   }
-  
+
   .modal h2 {
     font-size: 22px;
   }
+}
+
+/* =========================
+   USER INFO (sau khi đăng nhập)
+========================= */
+.user-name {
+  font-weight: 600;
+  color: #1a73e8; /* xanh dương nổi bật */
+  margin-right: 10px;
+}
+
+.logout-btn {
+  background: #e74c3c;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
 }

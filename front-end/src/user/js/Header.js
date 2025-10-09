@@ -1,10 +1,20 @@
 import React, { useState } from "react";
+import LoginRegisterModal from "./LoginRegisterModal";
+import "../css/Header.css";
 
-function Header({ onSearch, searchTerm }) {   // ✅ Nhận props từ cha
+function Header({ onSearch, searchTerm }) {
   const [showModal, setShowModal] = useState(null); // null | "login" | "register"
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
 
-  const openModal = type => setShowModal(type);
+  const openModal = (type) => setShowModal(type);
   const closeModal = () => setShowModal(null);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+  };
 
   return (
     <header>
@@ -17,35 +27,48 @@ function Header({ onSearch, searchTerm }) {   // ✅ Nhận props từ cha
       </div>
 
       <div className="search-login">
-        {/* ✅ Khi người dùng gõ, gọi onSearch */}
         <input
           type="text"
           placeholder="Tìm kiếm sự kiện..."
           className="search-input"
-          onChange={(e) => onSearch(e.target.value)}  // 🔥 Thêm dòng này
+          onChange={(e) => onSearch(e.target.value)}
         />
         <div className="auth-links">
-          <button className="auth-link" onClick={() => openModal("login")}>Đăng nhập</button>
-          <span className="divider">|</span>
-          <button className="auth-link" onClick={() => openModal("register")}>Đăng ký</button>
+          {user ? (
+            <>
+              <span className="user-name">{user.name}</span>
+              <button className="logout-btn" onClick={handleLogout}>
+                Đăng xuất
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="auth-link" onClick={() => openModal("login")}>
+                Đăng nhập
+              </button>
+              <span className="divider">|</span>
+              <button
+                className="auth-link"
+                onClick={() => openModal("register")}
+              >
+                Đăng ký
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Modal Overlay */}
+      {/* ✅ Dùng modal riêng thay cho modal cũ */}
       {showModal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <button className="close-btn" onClick={closeModal}>×</button>
-            {showModal === "login" && <h2>Đăng nhập</h2>}
-            {showModal === "register" && <h2>Đăng ký</h2>}
-            {/* Form login/register */}
-            <form>
-              <input type="text" placeholder="Tên đăng nhập" />
-              <input type="password" placeholder="Mật khẩu" />
-              <button type="submit">{showModal === "login" ? "Đăng nhập" : "Đăng ký"}</button>
-            </form>
-          </div>
-        </div>
+        <LoginRegisterModal
+          type={showModal}
+          onClose={closeModal}
+          switchType={openModal}
+          onLoginSuccess={(data) => {
+            setUser(data); // ✅ cập nhật tên hiển thị
+            localStorage.setItem("user", JSON.stringify(data)); // ✅ lưu vào localStorage
+          }}
+        />
       )}
     </header>
   );
