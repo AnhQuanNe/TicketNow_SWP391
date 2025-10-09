@@ -2,6 +2,13 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import dotenv from "dotenv";
+
+// 🧩 Import router cho login/register
+import authRoutes from "./routes/authRoutes.js";
+
+// 🟢 Cấu hình dotenv để đọc .env
+dotenv.config();
 
 // 🟢 Khởi tạo app
 const app = express();
@@ -10,7 +17,7 @@ app.use(express.json());
 
 // 🟢 Kết nối MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/TicketNow", {
+  .connect(process.env.MONGO_URI || "mongodb://localhost:27017/TicketNow", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -73,6 +80,11 @@ app.get("/api/events/:id", async (req, res) => {
   }
 });
 
+// 🟢 🔑 API: Đăng ký & đăng nhập người dùng
+app.use("/api/auth", authRoutes);
+
 // 🟢 Chạy server
-const PORT = 5000;
-app.listen(PORT, () => console.log(`🚀 Server chạy tại http://localhost:${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`🚀 Server chạy tại http://localhost:${PORT}`)
+);
