@@ -16,6 +16,7 @@ import MyNavbar from "./user/js/MyNavbar";
 import Footer from "./user/js/Footer";
 import EventDetail from "./user/js/EventDetail";
 import HomePage from "./user/js/HomePage";
+import ImageUpload from "./components/ImageUpload";
 
 function CategoryPage() {
   return <div>Category Page</div>;
@@ -47,6 +48,8 @@ function App() {
         />
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/event/:id" element={<EventDetail />} />
+        {/* ✅ Thêm route test upload ảnh */}
+        <Route path="/upload" element={<ImageUpload />} />
       </Routes>
       <Footer />
     </Router>
