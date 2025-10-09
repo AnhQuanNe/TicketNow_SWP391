@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./user/css/Banner.css";
-import "./user/css/Categories.css";
 import "./user/css/EventSection.css";
 import "./user/css/Favourites.css";
 import "./user/css/Footer.css";
@@ -16,6 +15,8 @@ import MyNavbar from "./user/js/MyNavbar";
 import Footer from "./user/js/Footer";
 import EventDetail from "./user/js/EventDetail";
 import HomePage from "./user/js/HomePage";
+import OrganizerLayout from "./organizer/OrganizerLayout";
+
 
 function CategoryPage() {
   return <div>Category Page</div>;
@@ -47,6 +48,7 @@ function App() {
         />
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/event/:id" element={<EventDetail />} />
+        <Route path="/organizer/*" element={<OrganizerLayout />} />
       </Routes>
       <Footer />
     </Router>

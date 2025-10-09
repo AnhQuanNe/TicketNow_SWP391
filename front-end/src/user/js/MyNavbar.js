@@ -1,14 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function MyNavbar({ categories }) {
+  const navigate = useNavigate();
+  const handleCreateEvent = () => {
+    navigate("/organizer");
+  }
   return (
     <nav className="nav-links">
-      <Link to="/">Trang chủ</Link>
-      <Link to="/about">Giới thiệu</Link>
-      <Link to="/news">Tin tức</Link>
-      <button className="my-ticket">Vé của tôi</button>
-      <button className="create-events">Tạo sự kiện</button>
+      <Link to="/music">Âm nhạc</Link>
+      <Link to="/workshop">Hội thảo</Link>
+      <Link to="/sport">Thể thao</Link>
+      <Link to="s/sport">Hội chợ</Link>
+      <button className="my-ticket"onClick= {handleCreateEvent}>Vé của tôi</button>
+      <button className="create-events"onClick= {handleCreateEvent}>Tạo sự kiện</button>
 
       {/* Menu category chuyển sang trang riêng */}
       {categories && categories.map(cat => (

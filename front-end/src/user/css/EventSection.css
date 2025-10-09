@@ -1,154 +1,303 @@
-/* Event Section Styles */
+/* Event Section Container */
 .event-section {
-  padding: 40px 50px;
-  background: white;
-  margin: 20px 0;
+  margin: 80px 0;
+  padding: 0 40px;
+  position: relative;
 }
 
+/* Section Header với Pastel Pink */
+.section-header h2,
 .event-section h2 {
-  font-size: 28px;
-  color: black;
-  font-weight: 600;
-  margin-bottom: 25px;
+  font-size: 1.5rem;
+  color: #f862ad;
+  margin-bottom: 40px;
+  padding-left: 30px;
+  position: relative;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-.event-section > p {
-  color: #666;
-  font-size: 16px;
-  text-align: center;
-  padding: 40px 0;
+/* Decorative Line */
+.section-header h2::before,
+.event-section h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 50px;
+  background: linear-gradient(180deg, #e0a3ff, #ffb3d9, #ffc4e1);
+  border-radius: 3px;
+  box-shadow: 0 0 15px rgba(224, 163, 255, 0.4);
+  animation: lineGlow 2s ease-in-out infinite;
+}
+
+@keyframes lineGlow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(224, 163, 255, 0.4);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 25px rgba(224, 163, 255, 0.6);
+  }
+}
+
+/* Underline Effect */
+.section-header h2::after,
+.event-section h2::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 30px;
+  width: 200px;
+  height: 3px;
+  background: linear-gradient(90deg, #e0a3ff, transparent);
+  box-shadow: 0 0 10px rgba(224, 163, 255, 0.5);
 }
 
 /* Scroll Row */
 .scroll-row {
   display: flex;
-  gap: 20px;
+  gap: 30px;
   overflow-x: auto;
-  padding-bottom: 10px;
-  -webkit-overflow-scrolling: touch;
+  padding: 30px 0;
+  scroll-behavior: smooth;
+  position: relative;
 }
 
+/* Custom Scrollbar với Pink Theme */
 .scroll-row::-webkit-scrollbar {
-  height: 8px;
+  height: 10px;
 }
 
 .scroll-row::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: rgba(255, 245, 247, 0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(224, 163, 255, 0.2);
 }
 
 .scroll-row::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: linear-gradient(90deg, #e0a3ff, #ffb3d9, #ffc4e1);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(224, 163, 255, 0.4);
 }
 
 .scroll-row::-webkit-scrollbar-thumb:hover {
-  background: #444;
+  background: linear-gradient(90deg, #ffc4e1, #ffb3d9, #e0a3ff);
+  box-shadow: 0 0 20px rgba(224, 163, 255, 0.6);
 }
 
-/* Event Card Styles */
+/* Event Card - Pastel Pink Design */
 .suggest-card {
-  position: relative;
-  min-width: 280px;
-  border-radius: 15px;
+  min-width: 340px;
+  background: #ffffff;
+  border: 2px solid rgba(224, 163, 255, 0.3);
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  transition: all 0.3s ease;
-  background: #1a1a1a;
-  cursor: pointer;
-  border: 1px solid #222;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  box-shadow: 0 8px 25px rgba(224, 163, 255, 0.15);
+}
+
+/* Glowing Border Animation */
+.suggest-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    #e0a3ff, 
+    #ffb3d9, 
+    #ffc4e1, 
+    #e0a3ff
+  );
+  border-radius: 20px;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.5s ease;
+  animation: borderRotate 3s linear infinite;
+  background-size: 300% 300%;
+}
+
+@keyframes borderRotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.suggest-card:hover::before {
+  opacity: 1;
 }
 
 .suggest-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
-  border-color: #333;
+  transform: translateY(-10px);
+  box-shadow: 0 15px 40px rgba(224, 163, 255, 0.3);
+  border-color: rgba(224, 163, 255, 0.5);
+}
+
+/* Image Container with Overlay */
+.suggest-card .image-container {
+  position: relative;
+  overflow: hidden;
+  height: 220px;
 }
 
 .suggest-card img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
+  transition: transform 0.6s ease;
+  filter: brightness(0.95);
 }
 
+.suggest-card:hover img {
+  transform: scale(1.1);
+  filter: brightness(1);
+}
+
+/* Soft Overlay */
+.suggest-card .image-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(to top, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(255, 255, 255, 0.5) 40%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+/* Card Content */
 .suggest-card h4 {
-  padding: 15px 15px 5px;
-  font-size: 18px;
-  color: #ffffff;
-  font-weight: 600;
+  padding: 25px 25px 10px;
+  color: #333333;
+  font-size: 1.4rem;
   margin: 0;
+  font-weight: 700;
+  position: relative;
+  z-index: 3;
 }
 
 .suggest-card p {
-  padding: 0 15px 15px;
-  color: #888;
-  font-size: 14px;
-  margin: 0;
+  padding: 0 25px;
+  color: #f862ad;
+  font-size: 0.95rem;
+  margin: 0 0 20px 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* Favorite Button */
-.fav-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 20px;
+/* View Detail Button - Pastel Pink Style */
+.suggest-card .btn {
+  margin: 0 25px 25px;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #e0a3ff, #ffb3d9);
+  border: 2px solid rgba(224, 163, 255, 0.3);
+  border-radius: 25px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(224, 163, 255, 0.2);
+}
+
+.suggest-card .btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.suggest-card .btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.suggest-card .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(224, 163, 255, 0.4);
+  background: linear-gradient(135deg, #ffb3d9, #ffc4e1);
+  border-color: rgba(224, 163, 255, 0.5);
+}
+.fav-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(224, 163, 255, 0.3);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(224, 163, 255, 0.2);
+  color: #e0a3ff;
+}
+
+.fav-btn::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #e0a3ff, #ffb3d9);
+  border-radius: 50%;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.fav-btn:hover::before {
+  opacity: 1;
 }
 
 .fav-btn:hover {
-  transform: scale(1.1);
-  background: rgba(0, 0, 0, 0.9);
-  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.15);
+  box-shadow: 0 6px 20px rgba(224, 163, 255, 0.3);
+  color: #ffffff;
 }
 
 .fav-btn.active {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: white;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .event-section {
-    padding: 30px 20px;
-  }
-  
-  .event-section h2 {
-    font-size: 22px;
-    margin-bottom: 20px;
-  }
-  
-  .suggest-card {
-    min-width: 220px;
-  }
-  
-  .suggest-card img {
-    height: 160px;
-  }
-  
-  .suggest-card h4 {
-    font-size: 16px;
-    padding: 12px 12px 5px;
-  }
-  
-  .suggest-card p {
-    font-size: 13px;
-    padding: 0 12px 12px;
-  }
-  
-  .fav-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
-  }
+  background: linear-gradient(135deg, #ffb3d9, #ffc4e1);
+  border-color: rgba(255, 179, 217, 0.5);
+  animation: heartBeat 0.5s ease;
+  box-shadow: 0 0 25px rgba(255, 179, 217, 0.5);
+  color: #ffffff;
 }
 
 @media (max-width: 480px) {

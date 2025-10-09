@@ -1,23 +1,29 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // click trỏ logo
 
 function Header({ onSearch, searchTerm }) {   // ✅ Nhận props từ cha
   const [showModal, setShowModal] = useState(null); // null | "login" | "register"
+  const navigate = useNavigate();  
 
   const openModal = type => setShowModal(type);
   const closeModal = () => setShowModal(null);
 
+
+  const goHome = () => {
+    navigate("/"); // điều hướng về trang home
+  };
+
   return (
     <header>
       <div className="brand">
-        <div className="logo">TN</div>
-        <div>
+      <div className="logo"onClick={goHome}>TN</div>
+      <div>
           <div>TicketNow</div>
           <div className="subtitle">Your Events, One Click Away</div>
         </div>
       </div>
 
       <div className="search-login">
-        {/* ✅ Khi người dùng gõ, gọi onSearch */}
         <input
           type="text"
           placeholder="Tìm kiếm sự kiện..."
