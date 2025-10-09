@@ -16,7 +16,7 @@ import MyNavbar from "./user/js/MyNavbar";
 import Footer from "./user/js/Footer";
 import EventDetail from "./user/js/EventDetail";
 import HomePage from "./user/js/HomePage";
-import ImageUpload from "./components/ImageUpload";
+import ImageUpload from "./api/ImageUpload";
 
 function CategoryPage() {
   return <div>Category Page</div>;
