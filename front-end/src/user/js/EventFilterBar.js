@@ -11,7 +11,7 @@ function EventFilterBar({ onSearch, onCategoryChange, onSortChange }) {
                 className="border border-gray-300 rounded-xl px-4 py-2 w-80"
             />
 
-            {/* Lọc theo thể loại */}
+            {/* Lọc theo thể loại
             <select
                 onChange={(e) => onCategoryChange(e.target.value)}
                 className="border border-gray-300 rounded-xl px-3 py-2"
@@ -22,7 +22,7 @@ function EventFilterBar({ onSearch, onCategoryChange, onSortChange }) {
                 <option value="cat_conference">Hội thảo</option>
                 <option value="cat_fair">Hội chợ</option>
 
-            </select>
+            </select> */}
 
             {/* Sắp xếp */}
             <select
