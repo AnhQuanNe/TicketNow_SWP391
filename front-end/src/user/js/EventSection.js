@@ -17,7 +17,10 @@ function EventSection({ title, events, favorites, toggleFavorite }) {
       <div className="scroll-row">
         {events.map(ev => (
           <div className="suggest-card" key={ev._id}>
-            <img src={ev.banner} alt={ev.title} />
+            <img
+              src={ev.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
+              alt={ev.title}
+            />
             <h4>{ev.title}</h4>
             <p>{ev.categoryName || ev.categoryId}</p>
             {/* Bắt đầu thêm: nút View Detail */}
