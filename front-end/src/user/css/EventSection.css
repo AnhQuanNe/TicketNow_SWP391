@@ -9,11 +9,11 @@
 .section-header h2,
 .event-section h2 {
   font-size: 1.5rem;
-  color: #f862ad;
+  color: black;
   margin-bottom: 40px;
   padding-left: 30px;
   position: relative;
-  font-weight: 800;
+  font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -28,21 +28,10 @@
   transform: translateY(-50%);
   width: 6px;
   height: 50px;
-  background: linear-gradient(180deg, #e0a3ff, #ffb3d9, #ffc4e1);
+  background: linear-gradient(180deg, #ff8c42, #ffa726, #ffb347);
   border-radius: 3px;
-  box-shadow: 0 0 15px rgba(224, 163, 255, 0.4);
+  box-shadow: 0 0 15px rgba(255, 140, 66, 0.4);
   animation: lineGlow 2s ease-in-out infinite;
-}
-
-@keyframes lineGlow {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 15px rgba(224, 163, 255, 0.4);
-  }
-  50% {
-    opacity: 0.7;
-    box-shadow: 0 0 25px rgba(224, 163, 255, 0.6);
-  }
 }
 
 /* Underline Effect */
@@ -54,8 +43,8 @@
   left: 30px;
   width: 200px;
   height: 3px;
-  background: linear-gradient(90deg, #e0a3ff, transparent);
-  box-shadow: 0 0 10px rgba(224, 163, 255, 0.5);
+  background: linear-gradient(180deg, #ff8c42, #ffa726, #ffb347);
+  box-shadow: 0 0 10px rgba(255, 140, 66, 0.5);
 }
 
 /* Scroll Row */
@@ -74,32 +63,32 @@
 }
 
 .scroll-row::-webkit-scrollbar-track {
-  background: rgba(255, 245, 247, 0.3);
+  background: rgba(255, 250, 245, 0.3);
   border-radius: 10px;
-  border: 1px solid rgba(224, 163, 255, 0.2);
+  border: 1px solid rgba(255, 140, 66, 0.2);
 }
 
 .scroll-row::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, #e0a3ff, #ffb3d9, #ffc4e1);
+  background: linear-gradient(90deg, #ff8c42, #ffa726, #ffb347);
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(224, 163, 255, 0.4);
+  box-shadow: 0 0 10px rgba(255, 140, 66, 0.4);
 }
 
 .scroll-row::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(90deg, #ffc4e1, #ffb3d9, #e0a3ff);
-  box-shadow: 0 0 20px rgba(224, 163, 255, 0.6);
+  background: linear-gradient(90deg, #ffb347, #ffa726, #ff8c42);
+  box-shadow: 0 0 20px rgba(255, 140, 66, 0.6);
 }
 
 /* Event Card - Pastel Pink Design */
 .suggest-card {
   min-width: 340px;
   background: #ffffff;
-  border: 2px solid rgba(224, 163, 255, 0.3);
+  border: 2px solid rgba(255, 140, 66, 0.3);
   border-radius: 20px;
   overflow: hidden;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  box-shadow: 0 8px 25px rgba(224, 163, 255, 0.15);
+  box-shadow: 0 8px 25px rgba(255, 140, 66, 0.15);
 }
 
 /* Glowing Border Animation */
@@ -110,12 +99,7 @@
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(45deg, 
-    #e0a3ff, 
-    #ffb3d9, 
-    #ffc4e1, 
-    #e0a3ff
-  );
+  background: rgba(255, 140, 66, 0.3);
   border-radius: 20px;
   opacity: 0;
   z-index: -1;

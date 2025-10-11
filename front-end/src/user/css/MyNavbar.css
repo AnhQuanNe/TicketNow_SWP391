@@ -1,17 +1,17 @@
 /* Navigation Links Container */
 .nav-links {
-  background: linear-gradient(135deg, #fff5f7 0%, #ffe8ec 100%);
+  background: white;
   padding: 1rem 3rem;
   display: flex;
   gap: 2.5rem;
-  box-shadow: 0 2px 12px rgba(255, 173, 210, 0.1);
-  border-bottom: 2px solid #ffe8f5;
+  box-shadow: 0 2px 12px rgba(255, 140, 66, 0.1);
+  border-bottom: 2px solid #ffe8df;
   align-items: center;
 }
 
 /* Navigation Link Items */
 .nav-links a {
-  color: #140f11;
+  color: #333333;
   text-decoration: none;
   padding: 12px 24px;
   border-radius: 15px;
@@ -25,18 +25,18 @@
 }
 
 .nav-links a:hover {
-  background: rgba(224, 163, 255, 0.12);
+  background: rgba(255, 140, 66, 0.12);
   transform: translateY(-2px);
-  border-color: rgba(224, 163, 255, 0.2);
+  border-color: rgba(255, 140, 66, 0.2);
 }
 
 .nav-links button {
   margin-left: auto;
   padding: 0.6rem 1.5rem;
-  border: 2px solid #ffc1d9;
+  border: 2px solid #ff8c42;
   border-radius: 50px;
-  background: white;
-  color: #ffadd2;
+  background: linear-gradient(135deg, #ff8c42, #ffa726);
+  color: white;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -45,10 +45,10 @@
 }
 
 .nav-links button:hover {
-  background: linear-gradient(135deg, #ffc1d9, #ffb3d9);
-  color: white;
+  background: white;
+  color: #ff8c42;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255, 193, 217, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
 }
 .nav-links button + button {
   margin-left: 0.1rem;
