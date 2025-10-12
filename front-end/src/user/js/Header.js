@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // click trỏ logo
 import LoginRegisterModal from "./LoginRegisterModal";
 import "../css/Header.css";
+import UserDropdown from "./UserDropdown";
 
 function Header({ onSearch, searchTerm }) {
   const [showModal, setShowModal] = useState(null); // null | "login" | "register"
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
@@ -18,7 +19,6 @@ function Header({ onSearch, searchTerm }) {
     setUser(null);
   };
 
-
   const goHome = () => {
     navigate("/"); // điều hướng về trang home
   };
@@ -26,8 +26,10 @@ function Header({ onSearch, searchTerm }) {
   return (
     <header>
       <div className="brand">
-      <div className="logo"onClick={goHome}>TN</div>
-      <div>
+        <div className="logo" onClick={goHome}>
+          TN
+        </div>
+        <div>
           <div>TicketNow</div>
           <div className="subtitle">Your Events, One Click Away</div>
         </div>
@@ -41,13 +43,8 @@ function Header({ onSearch, searchTerm }) {
           onChange={(e) => onSearch(e.target.value)}
         />
         <div className="auth-links">
-          {user ? (
-            <>
-              <span className="user-name">{user.name}</span>
-              <button className="logout-btn" onClick={handleLogout}>
-                Đăng xuất
-              </button>
-            </>
+          {user && user.name ? (
+            <UserDropdown user={user} onLogout={handleLogout} />
           ) : (
             <>
               <button className="auth-link" onClick={() => openModal("login")}>

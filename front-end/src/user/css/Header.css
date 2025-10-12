@@ -12,6 +12,8 @@ header {
   align-items: center;
   transition: all 0.4s ease;
   min-height: 70px;
+  overflow: visible; /* ✅ cho phép dropdown hiển thị */
+
 }
 
 /* Brand Section - Compact */
