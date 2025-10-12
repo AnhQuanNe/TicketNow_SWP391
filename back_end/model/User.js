@@ -1,17 +1,20 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
-  phone: { type: String, unique: true, sparse: true },
-  studentId: { type: String, unique: true, sparse: true },
-  createdAt: { type: Date, default: Date.now },
-  avatar: {
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    passwordHash: { type: String, required: true },
+    phone: { type: String, unique: true, sparse: true },
+    studentId: { type: String, unique: true, sparse: true },
+    createdAt: { type: Date, default: Date.now },
+    avatar: {
       type: String,
       default: "", // link ảnh, lưu URL hoặc base64
     },
+    dob: { type: String, default: "" },
+    gender: { type: String, default: "" },
   },
   { timestamps: true }
 );

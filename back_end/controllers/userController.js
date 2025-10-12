@@ -1,11 +1,12 @@
 import User from "../model/User.js";
 import multer from "multer";
 import path from "path";
+import dayjs from "dayjs";
 
 // 🧩 Cấu hình nơi lưu file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // 📁 thư mục gốc trong backend
+    cb(null, "uploads/"); // 📁 thư mục gốc để lưu ảnh
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -24,30 +25,64 @@ export const getUserById = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("❌ getUserById error:", err);
+    res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại." });
   }
 };
 
-// 🔹 Cập nhật thông tin người dùng (name, studentId, avatar dạng string)
+// 🔹 Cập nhật thông tin người dùng (tên, số điện thoại, ngày sinh, giới tính, studentId)
 export const updateUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // ❌ Không cho sửa email & phone
+    // ❌ Không cho đổi email
     if (req.body.email) delete req.body.email;
-    if (req.body.phone) delete req.body.phone;
 
-    // 🔒 Không cho đổi studentId nếu đã có
-    if (user.studentId && req.body.studentId && req.body.studentId !== user.studentId) {
-      delete req.body.studentId;
+    // ✅ Cập nhật tên
+    if (req.body.name) user.name = req.body.name;
+
+    // ✅ Kiểm tra & cập nhật số điện thoại
+    if (req.body.phone) {
+      if (!/^[0-9]{10}$/.test(req.body.phone)) {
+        return res
+          .status(400)
+          .json({ message: "Số điện thoại phải gồm đúng 10 chữ số!" });
+      }
+
+      const phoneExist = await User.findOne({
+        phone: req.body.phone,
+        _id: { $ne: user._id },
+      });
+
+      if (phoneExist) {
+        return res.status(400).json({ message: "Số điện thoại đã tồn tại!" });
+      }
+
+      user.phone = req.body.phone;
     }
 
-    // ✅ Cho phép đổi name & avatar vô hạn lần
-    user.name = req.body.name || user.name;
-    user.avatar = req.body.avatar || user.avatar;
+    // ✅ Kiểm tra ngày sinh hợp lệ (≥18 tuổi)
+    if (req.body.dob) {
+      const birthDate = dayjs(req.body.dob);
+      const age = dayjs().diff(birthDate, "year");
 
-    // ✅ Nếu chưa có studentId thì cho nhập 1 lần
+      if (age < 18) {
+        return res
+          .status(400)
+          .json({ message: "Người dùng phải đủ 18 tuổi trở lên!" });
+      }
+
+      user.dob = req.body.dob;
+    }
+
+    // ✅ Cập nhật giới tính
+    if (req.body.gender) user.gender = req.body.gender;
+
+    // ✅ Avatar có thể cập nhật bằng URL string
+    if (req.body.avatar) user.avatar = req.body.avatar;
+
+    // ✅ studentId chỉ cho nhập 1 lần
     if (!user.studentId && req.body.studentId) {
       user.studentId = req.body.studentId;
     }
@@ -55,7 +90,8 @@ export const updateUser = async (req, res) => {
     const updatedUser = await user.save();
     res.json(updatedUser);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("❌ updateUser error:", err);
+    res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại." });
   }
 };
 
@@ -64,11 +100,12 @@ export const updateAvatar = async (req, res) => {
   try {
     const userId = req.params.id;
     if (!req.file) {
-      return res.status(400).json({ message: "Không có file ảnh nào được tải lên!" });
+      return res
+        .status(400)
+        .json({ message: "Không có file ảnh nào được tải lên!" });
     }
 
-    const avatarPath = `/uploads/${req.file.filename}`; // đường dẫn ảnh để frontend hiển thị
-
+    const avatarPath = `/uploads/${req.file.filename}`; // đường dẫn để frontend hiển thị
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { avatar: avatarPath },
@@ -84,7 +121,7 @@ export const updateAvatar = async (req, res) => {
       avatar: updatedUser.avatar,
     });
   } catch (err) {
-    console.error("❌ Lỗi cập nhật avatar:", err);
-    res.status(500).json({ message: err.message });
+    console.error("❌ updateAvatar error:", err);
+    res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại." });
   }
 };

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import dayjs from "dayjs";
 import "../css/MyAccount.css";
 
 export default function MyAccount() {
@@ -9,13 +12,15 @@ export default function MyAccount() {
     email: "",
     phone: "",
     studentId: "",
-    avatarFile: null,
+    avatar: "",
+    dob: "",
+    gender: "",
   });
   const [preview, setPreview] = useState("");
   const [message, setMessage] = useState("");
   const token = localStorage.getItem("token");
 
-  // ✅ Lấy thông tin user từ localStorage khi vào trang
+  // ✅ Lấy user từ localStorage khi vào trang
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
     if (savedUser) {
@@ -25,83 +30,90 @@ export default function MyAccount() {
         email: savedUser.email || "",
         phone: savedUser.phone || "",
         studentId: savedUser.studentId || "",
-        avatarFile: null,
+        avatar: savedUser.avatar || "",
+        dob: savedUser.dob || "",
+        gender: savedUser.gender || "",
       });
-      setPreview(
-        savedUser.avatar
-          ? `http://localhost:5000${savedUser.avatar}`
-          : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-      );
+      setPreview(savedUser.avatar || "");
     }
   }, []);
 
-  // ✅ Khi người dùng nhập vào input
+  // ✅ Khi người dùng thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // ✅ Khi người dùng chọn ảnh mới (chỉ preview, chưa upload)
-  const handleAvatarChange = (e) => {
+  // ✅ Khi chọn ảnh đại diện mới
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result);
-      setFormData({ ...formData, avatarFile: file });
-    };
+    reader.onloadend = () => setPreview(reader.result);
     reader.readAsDataURL(file);
+
+    const fd = new FormData();
+    fd.append("avatar", file);
+
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/users/${user._id}/avatar`,
+        fd,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.data.avatar) {
+        const updated = { ...user, avatar: res.data.avatar };
+        localStorage.setItem("user", JSON.stringify(updated));
+        setUser(updated);
+        setPreview(`http://localhost:5000${res.data.avatar}`);
+      }
+    } catch (err) {
+      console.error("❌ Upload avatar lỗi:", err);
+    }
   };
 
-  // ✅ Khi nhấn "Lưu thay đổi"
+  // ✅ Lưu thay đổi thông tin
   const handleSave = async () => {
     try {
-      // 🟢 1️⃣ Gửi thông tin text (name, studentId)
-      const info = {
+      const body = {
         name: formData.name,
+        phone: formData.phone,
+        dob: formData.dob,
+        gender: formData.gender,
         studentId: user.studentId ? user.studentId : formData.studentId,
       };
 
-      await axios.put(
+      const res = await axios.put(
         `http://localhost:5000/api/users/${user._id}`,
-        info,
-        { headers: { Authorization: `Bearer ${token}` } }
+        body,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
-      // 🟠 2️⃣ Nếu có chọn ảnh mới → upload qua API riêng
-      if (formData.avatarFile) {
-        const fileData = new FormData();
-        fileData.append("avatar", formData.avatarFile);
-
-        const res = await axios.put(
-          `http://localhost:5000/api/users/${user._id}/avatar`,
-          fileData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (res.data.avatar) {
-          const updated = { ...user, avatar: res.data.avatar, name: formData.name };
-          localStorage.setItem("user", JSON.stringify(updated));
-          setUser(updated);
+      if (res.data) {
+        setMessage("✅ Cập nhật thông tin thành công!");
+        localStorage.setItem("user", JSON.stringify(res.data));
+        setUser(res.data);
+        if (res.data.avatar)
           setPreview(`http://localhost:5000${res.data.avatar}`);
-        }
-      } else {
-        // Nếu không có ảnh mới, chỉ cập nhật name
-        const updated = { ...user, name: formData.name };
-        localStorage.setItem("user", JSON.stringify(updated));
-        setUser(updated);
       }
-
-      setMessage("✅ Cập nhật thông tin thành công!");
-      window.dispatchEvent(new Event("storage"));
     } catch (err) {
-      console.error("❌ Lỗi cập nhật:", err);
-      setMessage("❌ Cập nhật thất bại, vui lòng thử lại.");
+      console.error("❌ Update error:", err);
+
+      // ⚠️ Hiển thị thông báo thật từ backend nếu có
+      const msg =
+        err.response?.data?.message ||
+        "❌ Cập nhật thất bại, vui lòng thử lại.";
+
+      setMessage(msg);
     }
   };
 
@@ -113,7 +125,16 @@ export default function MyAccount() {
         {/* 🟠 Ảnh đại diện */}
         <div className="avatar-section">
           <div className="avatar-wrapper">
-            <img src={preview} alt="avatar" />
+            <img
+              src={
+                preview?.startsWith("http")
+                  ? preview
+                  : `http://localhost:5000${
+                      preview || user.avatar || "/uploads/default.png"
+                    }`
+              }
+              alt="avatar"
+            />
             <label htmlFor="avatar-upload" className="upload-icon">
               📷
             </label>
@@ -141,7 +162,41 @@ export default function MyAccount() {
           <input name="email" type="email" value={formData.email} disabled />
 
           <label>Số điện thoại</label>
-          <input name="phone" type="text" value={formData.phone} disabled />
+          <input
+            name="phone"
+            type="text"
+            value={formData.phone}
+            onChange={handleChange}
+          />
+
+          <label>Ngày sinh</label>
+          <DatePicker
+            selected={formData.dob ? new Date(formData.dob) : null}
+            onChange={(date) =>
+              setFormData({
+                ...formData,
+                dob: dayjs(date).format("YYYY-MM-DD"),
+              })
+            }
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Chọn ngày sinh"
+          />
+
+          <label>Giới tính</label>
+          <div className="gender-options">
+            {["Nam", "Nữ", "Khác"].map((g) => (
+              <label key={g}>
+                <input
+                  type="radio"
+                  name="gender"
+                  value={g}
+                  checked={formData.gender === g}
+                  onChange={handleChange}
+                />
+                {g}
+              </label>
+            ))}
+          </div>
 
           <label>Mã sinh viên</label>
           <input
@@ -157,7 +212,15 @@ export default function MyAccount() {
             💾 Lưu thay đổi
           </button>
 
-          {message && <p className="status-msg">{message}</p>}
+          {message && (
+            <p
+              className={`status-msg ${
+                message.startsWith("✅") ? "success" : "error"
+              }`}
+            >
+              {message}
+            </p>
+          )}
         </div>
       </div>
     </div>
