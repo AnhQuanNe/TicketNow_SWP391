@@ -7,6 +7,8 @@ import dotenv from "dotenv";
 // 🧩 Import router cho login/register
 import authRoutes from "./routes/authRoutes.js";
 
+import userRoutes from "./routes/userRoutes.js"; 
+
 // 🟢 Cấu hình dotenv để đọc .env
 dotenv.config();
 
@@ -82,6 +84,8 @@ app.get("/api/events/:id", async (req, res) => {
 
 // 🟢 🔑 API: Đăng ký & đăng nhập người dùng
 app.use("/api/auth", authRoutes);
+// 🟢 🔑 API: Sửa thông tin người dùng
+app.use("/api/users", userRoutes);
 
 // 🟢 Chạy server
 const PORT = process.env.PORT || 5000;
