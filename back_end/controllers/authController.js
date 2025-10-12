@@ -10,38 +10,44 @@ export const register = async (req, res) => {
   try {
     const { name, email, passwordHash, phone, studentId } = req.body;
 
-    // ✅ 1️⃣ Kiểm tra đủ trường
-    if (!name || !email || !passwordHash)
-      return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin bắt buộc." });
+    // ✅ 1️⃣ Kiểm tra đủ trường (trừ studentId)
+    if (!name || !email || !passwordHash || !phone) {
+      return res
+        .status(400)
+        .json({ message: "Vui lòng nhập đầy đủ họ tên, email, mật khẩu và số điện thoại." });
+    }
 
     // ✅ 2️⃣ Kiểm tra định dạng email
     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-    if (!emailRegex.test(email))
+    if (!emailRegex.test(email)) {
       return res
         .status(400)
         .json({ message: "Định dạng email không hợp lệ! (chỉ chấp nhận dạng ten@gmail.com)" });
+    }
 
     // ✅ 3️⃣ Kiểm tra định dạng số điện thoại (10 chữ số)
-    if (phone && !/^[0-9]{10}$/.test(phone))
+    if (!/^[0-9]{10}$/.test(phone)) {
       return res
         .status(400)
         .json({ message: "Số điện thoại phải gồm đúng 10 chữ số!" });
+    }
 
     // ✅ 4️⃣ Kiểm tra trùng email, số điện thoại, mã sinh viên
     const existingEmail = await User.findOne({ email });
-    if (existingEmail)
+    if (existingEmail) {
       return res.status(400).json({ message: "Email này đã được sử dụng!" });
+    }
 
-    if (phone) {
-      const existingPhone = await User.findOne({ phone });
-      if (existingPhone)
-        return res.status(400).json({ message: "Số điện thoại này đã được đăng ký!" });
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ message: "Số điện thoại này đã được đăng ký!" });
     }
 
     if (studentId && studentId.trim() !== "") {
       const existingStudent = await User.findOne({ studentId });
-      if (existingStudent)
+      if (existingStudent) {
         return res.status(400).json({ message: "Mã sinh viên này đã tồn tại!" });
+      }
     }
 
     // ✅ 5️⃣ Tạo tài khoản mới
@@ -49,7 +55,7 @@ export const register = async (req, res) => {
       name,
       email,
       passwordHash,
-      phone: phone || null,
+      phone,
       studentId: studentId?.trim() || null,
     });
 
@@ -58,6 +64,7 @@ export const register = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
       studentId: user.studentId,
       token: generateToken(user._id),
     });
@@ -92,6 +99,7 @@ export const login = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         studentId: user.studentId,
         token: generateToken(user._id),
       });
