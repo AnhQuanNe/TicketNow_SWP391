@@ -3,17 +3,25 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // 🧩 Import router cho login/register
 import authRoutes from "./routes/authRoutes.js";
+
+import userRoutes from "./routes/userRoutes.js"; 
 
 // 🟢 Cấu hình dotenv để đọc .env
 dotenv.config();
 
 // 🟢 Khởi tạo app
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 // 🟢 Kết nối MongoDB
 mongoose
@@ -82,6 +90,8 @@ app.get("/api/events/:id", async (req, res) => {
 
 // 🟢 🔑 API: Đăng ký & đăng nhập người dùng
 app.use("/api/auth", authRoutes);
+// 🟢 🔑 API: Sửa thông tin người dùng
+app.use("/api/users", userRoutes);
 
 // 🟢 Chạy server
 const PORT = process.env.PORT || 5000;

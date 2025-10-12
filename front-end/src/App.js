@@ -15,6 +15,7 @@ import MyNavbar from "./user/js/MyNavbar";
 import Footer from "./user/js/Footer";
 import EventDetail from "./user/js/EventDetail";
 import HomePage from "./user/js/HomePage";
+import MyAccount from "./user/js/MyAccount";
 // import OrganizerLayout from "./organizer/OrganizerLayout";
 
 import ImageUpload from "./api/ImageUpload";
@@ -52,6 +53,8 @@ function App() {
         {/* <Route path="/organizer/*" element={<OrganizerLayout />} /> */}
         {/* ✅ Thêm route test upload ảnh */}
         <Route path="/upload" element={<ImageUpload />} />
+
+        <Route path="/my-account" element={<MyAccount />} />
       </Routes>
       <Footer />
     </Router>
