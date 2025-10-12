@@ -3,6 +3,8 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // 🧩 Import router cho login/register
 import authRoutes from "./routes/authRoutes.js";
@@ -14,8 +16,12 @@ dotenv.config();
 
 // 🟢 Khởi tạo app
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 // 🟢 Kết nối MongoDB
 mongoose

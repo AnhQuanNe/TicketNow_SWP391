@@ -20,7 +20,17 @@ export default function UserDropdown({ user, onLogout }) {
       <div className="user-button">
         <div className="user-avatar">
           {user.avatar ? (
-            <img src={user.avatar} alt="avatar" />
+            <img
+              src={
+                user?.avatar?.startsWith("http")
+                  ? user.avatar
+                  : user?.avatar
+                  ? `http://localhost:5000${user.avatar}`
+                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+              }
+              alt="avatar"
+              className="user-avatar"
+            />
           ) : (
             <div className="avatar-placeholder">{user.name[0]}</div>
           )}
@@ -33,7 +43,8 @@ export default function UserDropdown({ user, onLogout }) {
         <ul>
           <li>🎟 Vé của tôi</li>
           <li>⭐ Sự kiện của tôi</li>
-          <li onClick={goToAccount}>👤 Tài khoản của tôi</li> {/* ✅ thêm điều hướng */}
+          <li onClick={goToAccount}>👤 Tài khoản của tôi</li>{" "}
+          {/* ✅ thêm điều hướng */}
           <li onClick={onLogout}>🚪 Đăng xuất</li>
         </ul>
       </div>

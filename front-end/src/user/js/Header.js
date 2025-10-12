@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // click trỏ logo
 import LoginRegisterModal from "./LoginRegisterModal";
 import "../css/Header.css";
@@ -10,6 +10,16 @@ function Header({ onSearch, searchTerm }) {
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
+  useEffect(() => {
+  // Khi localStorage thay đổi (user đổi avatar, tên)
+  const handleStorageChange = () => {
+    const updatedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(updatedUser);
+  };
+
+  window.addEventListener("storage", handleStorageChange);
+  return () => window.removeEventListener("storage", handleStorageChange);
+}, []);
 
   const openModal = (type) => setShowModal(type);
   const closeModal = () => setShowModal(null);
@@ -17,6 +27,7 @@ function Header({ onSearch, searchTerm }) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
+    navigate("/"); // điều hướng về trang home
   };
 
   const goHome = () => {

@@ -101,6 +101,7 @@ export const login = async (req, res) => {
         email: user.email,
         phone: user.phone,
         studentId: user.studentId,
+        avatar: user.avatar,
         token: generateToken(user._id),
       });
     } else {

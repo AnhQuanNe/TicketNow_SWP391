@@ -9,7 +9,7 @@ export default function MyAccount() {
     email: "",
     phone: "",
     studentId: "",
-    avatar: "",
+    avatarFile: null,
   });
   const [preview, setPreview] = useState("");
   const [message, setMessage] = useState("");
@@ -25,9 +25,13 @@ export default function MyAccount() {
         email: savedUser.email || "",
         phone: savedUser.phone || "",
         studentId: savedUser.studentId || "",
-        avatar: savedUser.avatar || "",
+        avatarFile: null,
       });
-      setPreview(savedUser.avatar || "");
+      setPreview(
+        savedUser.avatar
+          ? `http://localhost:5000${savedUser.avatar}`
+          : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+      );
     }
   }, []);
 
@@ -37,44 +41,66 @@ export default function MyAccount() {
     setFormData({ ...formData, [name]: value });
   };
 
-  // ✅ Khi người dùng chọn ảnh mới
+  // ✅ Khi người dùng chọn ảnh mới (chỉ preview, chưa upload)
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreview(reader.result); // hiển thị ảnh trước
-      setFormData({ ...formData, avatar: reader.result }); // lưu base64
+      setPreview(reader.result);
+      setFormData({ ...formData, avatarFile: file });
     };
     reader.readAsDataURL(file);
   };
 
-  // ✅ Gửi dữ liệu lên backend
+  // ✅ Khi nhấn "Lưu thay đổi"
   const handleSave = async () => {
     try {
-      const body = {
+      // 🟢 1️⃣ Gửi thông tin text (name, studentId)
+      const info = {
         name: formData.name,
-        avatar: formData.avatar,
-        // ⚙️ chỉ gửi studentId nếu chưa có
         studentId: user.studentId ? user.studentId : formData.studentId,
       };
 
-      const res = await axios.put(
+      await axios.put(
         `http://localhost:5000/api/users/${user._id}`,
-        body,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        info,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (res.data) {
-        setMessage("✅ Cập nhật thông tin thành công!");
-        localStorage.setItem("user", JSON.stringify(res.data));
-        setUser(res.data);
-        window.location.reload();
+      // 🟠 2️⃣ Nếu có chọn ảnh mới → upload qua API riêng
+      if (formData.avatarFile) {
+        const fileData = new FormData();
+        fileData.append("avatar", formData.avatarFile);
+
+        const res = await axios.put(
+          `http://localhost:5000/api/users/${user._id}/avatar`,
+          fileData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (res.data.avatar) {
+          const updated = { ...user, avatar: res.data.avatar, name: formData.name };
+          localStorage.setItem("user", JSON.stringify(updated));
+          setUser(updated);
+          setPreview(`http://localhost:5000${res.data.avatar}`);
+        }
+      } else {
+        // Nếu không có ảnh mới, chỉ cập nhật name
+        const updated = { ...user, name: formData.name };
+        localStorage.setItem("user", JSON.stringify(updated));
+        setUser(updated);
       }
+
+      setMessage("✅ Cập nhật thông tin thành công!");
+      window.dispatchEvent(new Event("storage"));
     } catch (err) {
-      console.error(err);
+      console.error("❌ Lỗi cập nhật:", err);
       setMessage("❌ Cập nhật thất bại, vui lòng thử lại.");
     }
   };
@@ -87,13 +113,7 @@ export default function MyAccount() {
         {/* 🟠 Ảnh đại diện */}
         <div className="avatar-section">
           <div className="avatar-wrapper">
-            <img
-              src={
-                preview ||
-                "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-              }
-              alt="avatar"
-            />
+            <img src={preview} alt="avatar" />
             <label htmlFor="avatar-upload" className="upload-icon">
               📷
             </label>

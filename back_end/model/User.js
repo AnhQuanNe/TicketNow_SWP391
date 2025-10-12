@@ -8,7 +8,13 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, unique: true, sparse: true },
   studentId: { type: String, unique: true, sparse: true },
   createdAt: { type: Date, default: Date.now },
-});
+  avatar: {
+      type: String,
+      default: "", // link ảnh, lưu URL hoặc base64
+    },
+  },
+  { timestamps: true }
+);
 
 // Hash password trước khi lưu
 userSchema.pre("save", async function (next) {
