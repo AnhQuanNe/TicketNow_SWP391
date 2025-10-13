@@ -20,6 +20,7 @@ import SelectTicket from "./user/js/SelectTickets";
 import PaymentSuccess from "./user/js/PaymentSuccess";
 
 
+import MyAccount from "./user/js/MyAccount";
 // import OrganizerLayout from "./organizer/OrganizerLayout";
 
 import ImageUpload from "./api/ImageUpload";
@@ -65,6 +66,8 @@ function App() {
 
           {/* Trang thanh toán */}
           <Route path="/payment" element={<TicketPage />} />
+
+        <Route path="/my-account" element={<MyAccount />} />
       </Routes>
       <Footer />
     </Router>

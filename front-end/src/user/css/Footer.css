@@ -1,7 +1,7 @@
 .footer {
   margin-top: 80px;
   padding: 60px 40px 40px;
-  background: linear-gradient(135deg, #fff5f7 0%, #ffe8ec 100%);
+  background: black;
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(224, 163, 255, 0.2);
 }
@@ -18,7 +18,7 @@
 
 .footer-left h3 {
   font-size: 1.8rem;
-  background: linear-gradient(45deg, #e0a3ff, #ff69b4);
+  background: white;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -26,18 +26,18 @@
 }
 
 .footer-left p {
-  color: black;
+  color: white;
   font-size: 0.9rem;
 }
 
 .footer-right h4 {
-  color: black;
+  color: white;
   margin-bottom: 15px;
   font-size: 1.1rem;
 }
 
 .footer-right p {
-  color: black;
+  color: white;
   font-size: 0.9rem;
   margin-bottom: 8px;
 }
@@ -73,23 +73,23 @@
   object-fit: contain;
 }
 
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .footer {
-      padding: 30px 20px;
-    }
-    
-    .footer-content {
-      flex-direction: column;
-      gap: 30px;
-    }
-    
-    .footer-left h3 {
-      font-size: 24px;
-    }
-    
-    .footer-right h4 {
-      font-size: 18px;
-    }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer {
+    padding: 30px 20px;
   }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .footer-left h3 {
+    font-size: 24px;
+  }
+
+  .footer-right h4 {
+    font-size: 18px;
+  }
+}

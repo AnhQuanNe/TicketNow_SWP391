@@ -3,14 +3,14 @@
   margin: 60px 0;
   padding: 40px 40px 20px;
   position: relative;
-  background: linear-gradient(135deg, #fff5f7 0%, #ffe8ec 100%);
+  background: white;
   backdrop-filter: blur(10px);
 }
 
 /* Section Header với Pastel Pink */
 .favorites-section .section-header h2 {
   font-size: 1.5rem;
-  color: #e0a3ff;
+  color: #ff8c42;
   margin-bottom: 40px;
   padding-left: 30px;
   position: relative;
@@ -28,20 +28,20 @@
   transform: translateY(-50%);
   width: 6px;
   height: 50px;
-  background: linear-gradient(180deg, #e0a3ff, #ffb3d9, #ffc4e1);
+  background: linear-gradient(180deg, #ff8c42, #ffa726, #ffb347);
   border-radius: 3px;
-  box-shadow: 0 0 15px rgba(224, 163, 255, 0.4);
+  box-shadow: 0 0 15px rgba(255, 140, 66, 0.4);
   animation: lineGlow 2s ease-in-out infinite;
 }
 
 @keyframes lineGlow {
   0%, 100% {
     opacity: 1;
-    box-shadow: 0 0 15px rgba(224, 163, 255, 0.4);
+    box-shadow: 0 0 15px rgba(255, 140, 66, 0.4);
   }
   50% {
     opacity: 0.7;
-    box-shadow: 0 0 25px rgba(224, 163, 255, 0.6);
+    box-shadow: 0 0 25px rgba(255, 140, 66, 0.6);
   }
 }
 
@@ -53,8 +53,8 @@
   left: 30px;
   width: 200px;
   height: 3px;
-  background: linear-gradient(90deg, #e0a3ff, transparent);
-  box-shadow: 0 0 10px rgba(224, 163, 255, 0.5);
+  background: linear-gradient(90deg, #ff8c42, transparent);
+  box-shadow: 0 0 10px rgba(255, 140, 66, 0.5);
 }
 
 /* Scroll Row */
@@ -79,14 +79,14 @@
 }
 
 .favorites-section .scroll-row::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, #e0a3ff, #ffb3d9, #ffc4e1);
+  background: linear-gradient(90deg, #ff8c42, #ffa726, #ffb347);
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(224, 163, 255, 0.4);
+  box-shadow: 0 0 10px rgba(255, 140, 66, 0.4);
 }
 
 .favorites-section .scroll-row::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(90deg, #ffc4e1, #ffb3d9, #e0a3ff);
-  box-shadow: 0 0 20px rgba(224, 163, 255, 0.6);
+  background: linear-gradient(90deg, #ff8c42, #ffa726, #ffb347);
+  box-shadow: 0 0 20px rgba(255, 140, 66, 0.6);
 }
 
 /* Event Card - Pastel Pink Design */
@@ -98,7 +98,7 @@
   overflow: visible;
   transition: all 0.3s ease;
   position: relative;
-  box-shadow: 0 8px 25px rgba(224, 163, 255, 0.15);
+  box-shadow: 0 8px 25px rgba(255, 140, 66, 0.15);
 }
 
 /* Glowing Border Animation */
@@ -110,10 +110,10 @@
   right: -2px;
   bottom: -2px;
   background: linear-gradient(45deg, 
-    #e0a3ff, 
-    #ffb3d9, 
-    #ffc4e1, 
-    #e0a3ff
+    #ff8c42, 
+    #ffa726, 
+    #ffb347, 
+    #ff8c42
   );
   border-radius: 22px;
   opacity: 0;
@@ -141,8 +141,8 @@
 
 .favorites-section .suggest-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(224, 163, 255, 0.3);
-  border-color: rgba(224, 163, 255, 0.5);
+  box-shadow: 0 15px 40px rgba(250, 140, 66, 0.3);
+  border-color: rgba(250, 140, 66, 0.5);
 }
 
 /* Image Styling */
@@ -171,7 +171,7 @@
 
 .favorites-section .suggest-card p {
   padding: 0 25px 25px;
-  color: #e0a3ff;
+  color: #1a1a1a;
   font-size: 0.95rem;
   margin: 0;
   font-weight: 500;
@@ -185,7 +185,7 @@
   top: 20px;
   right: 20px;
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(224, 163, 255, 0.3);
+  border: 1px solid rgba(255, 140, 66, 0.3);
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -197,7 +197,7 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
-  box-shadow: 0 4px 15px rgba(224, 163, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(250, 140, 66, 0.2);
 }
 
 .favorites-section .fav-btn::before {
@@ -207,7 +207,7 @@
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(45deg, #e0a3ff, #ffb3d9);
+  background: linear-gradient(45deg, #ff8c42 , #ffa726);
   border-radius: 50%;
   opacity: 0;
   z-index: -1;
@@ -220,14 +220,14 @@
 
 .favorites-section .fav-btn:hover {
   transform: scale(1.15);
-  box-shadow: 0 6px 20px rgba(224, 163, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(224, 140, 66, 0.3);
 }
 
 .favorites-section .fav-btn.active {
-  background: rgba(255, 179, 217, 0.95);
-  border-color: rgba(255, 179, 217, 0.5);
+  background: rgba(255, 167, 38, 0.95);
+  border-color: rgba(255, 167, 38, 0.5);
   animation: heartBeat 0.5s ease;
-  box-shadow: 0 0 25px rgba(255, 179, 217, 0.5);
+  box-shadow: 0 0 25px rgba(255, 167, 38, 0.5);
 }
 
 @keyframes heartBeat {
