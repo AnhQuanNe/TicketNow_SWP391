@@ -12,9 +12,16 @@ function EventDetail() {
         if (!res.ok) throw new Error("Không tìm thấy sự kiện");
         return res.json();
       })
-      .then((data) => setEvent(data))
+      .then((data) => {
+        setEvent({
+          ...data,
+          // ✅ map đúng trường từ database
+          imageURL: data.imageUrl || "https://via.placeholder.com/900x400?text=No+Image"
+        });
+      })
       .catch((err) => console.error(err));
   }, [id]);
+
 
   if (!event)
     return (
@@ -162,12 +169,12 @@ function EventDetail() {
           <button
             style={styles.btn}
             onMouseEnter={(e) =>
-              (e.target.style.background =
-                "linear-gradient(90deg, #ff80bf, #ff99cc)")
+            (e.target.style.background =
+              "linear-gradient(90deg, #ff80bf, #ff99cc)")
             }
             onMouseLeave={(e) =>
-              (e.target.style.background =
-                "linear-gradient(90deg, #ff66b2, #ff4da6)")
+            (e.target.style.background =
+              "linear-gradient(90deg, #ff66b2, #ff4da6)")
             }
             onClick={handleBuyTicket}
           >

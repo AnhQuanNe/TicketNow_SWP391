@@ -168,8 +168,9 @@ function SelectTicket() {
                     {ticket.type}
                   </b>
                   <p style={{ color: "#777" }}>
-                    {ticket.price.toLocaleString()} VND
+                    {ticket?.price != null ? ticket.price.toLocaleString() : "—"} VND
                   </p>
+
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -222,15 +223,15 @@ function SelectTicket() {
               boxShadow: "0 4px 12px rgba(255, 77, 166, 0.3)",
             }}
             onMouseOver={(e) =>
-              (e.target.style.background =
-                "linear-gradient(90deg, #ff99cc 0%, #ffb3d9 100%)")
+            (e.target.style.background =
+              "linear-gradient(90deg, #ff99cc 0%, #ffb3d9 100%)")
             }
             onMouseOut={(e) =>
-              (e.target.style.background =
-                "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)")
+            (e.target.style.background =
+              "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)")
             }
           >
-             Thanh toán ngay
+            Thanh toán ngay
           </button>
         </div>
       </div>
