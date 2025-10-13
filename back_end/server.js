@@ -6,6 +6,11 @@ import dotenv from "dotenv";
 
 // 🧩 Import router cho login/register
 import authRoutes from "./routes/authRoutes.js";
+// import router cho ticket
+import ticketRoutes from "./routes/ticketRoutes.js";
+// import router cho payments
+import paymentRoutes from "./routes/paymentRoutes.js";
+
 
 // 🟢 Cấu hình dotenv để đọc .env
 dotenv.config();
@@ -81,10 +86,15 @@ app.get("/api/events/:id", async (req, res) => {
 });
 
 // 🟢 🔑 API: Đăng ký & đăng nhập người dùng
+app.use(cors());
 app.use("/api/auth", authRoutes);
+app.use("/api/tickets", ticketRoutes);  // api ticket
+app.use("/api/payment", paymentRoutes); // api router
+
 
 // 🟢 Chạy server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
   console.log(`🚀 Server chạy tại http://localhost:${PORT}`)
 );
+
