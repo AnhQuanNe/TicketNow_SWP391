@@ -15,6 +15,11 @@ import MyNavbar from "./user/js/MyNavbar";
 import Footer from "./user/js/Footer";
 import EventDetail from "./user/js/EventDetail";
 import HomePage from "./user/js/HomePage";
+import TicketPage from "./user/js/PaymentPage";  
+import SelectTicket from "./user/js/SelectTickets";
+import PaymentSuccess from "./user/js/PaymentSuccess";
+
+
 import MyAccount from "./user/js/MyAccount";
 // import OrganizerLayout from "./organizer/OrganizerLayout";
 
@@ -50,9 +55,17 @@ function App() {
         />
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/event/:id" element={<EventDetail />} />
+       
         {/* <Route path="/organizer/*" element={<OrganizerLayout />} /> */}
         {/* ✅ Thêm route test upload ảnh */}
         <Route path="/upload" element={<ImageUpload />} />
+        <Route path="/select-ticket/:id" element={<SelectTicket />} />
+  <Route path="/select-ticket/:eventId" element={<SelectTicket />} />
+  <Route path="/payment-success" element={<PaymentSuccess />} />
+
+
+          {/* Trang thanh toán */}
+          <Route path="/payment" element={<TicketPage />} />
 
         <Route path="/my-account" element={<MyAccount />} />
       </Routes>
