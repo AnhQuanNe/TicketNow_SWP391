@@ -84,7 +84,7 @@ export const register = async (req, res) => {
     }
 
     // ✅ Lỗi khác
-    return res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại sau." });
+return res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại sau." });
   }
 };
 
