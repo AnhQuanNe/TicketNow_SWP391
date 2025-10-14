@@ -5,7 +5,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import Event from './model/Event.js'
+import eventRoutes from './routes/eventRoutes.js'
 // 🧩 Import router cho login/register
 import authRoutes from "./routes/authRoutes.js";
 // import router cho ticket
@@ -45,17 +46,6 @@ const categorySchema = new mongoose.Schema({
 
 const Category = mongoose.model("Category", categorySchema, "Categories");
 
-// 🟢 Schema cho Event
-const eventSchema = new mongoose.Schema({
-  title: String,
-  categoryId: String, // đồng bộ với frontend
-  banner: String,
-  startDate: String,
-  endDate: String,
-  location: String,
-});
-
-const Event = mongoose.model("Event", eventSchema, "Events");
 
 // 🟢 API: Lấy toàn bộ categories
 app.get("/api/categories", async (req, res) => {
@@ -66,6 +56,9 @@ app.get("/api/categories", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.use('/api/events', eventRoutes);
+
 
 // 🟢 API: Lấy toàn bộ events (có filter categoryId)
 app.get("/api/events", async (req, res) => {

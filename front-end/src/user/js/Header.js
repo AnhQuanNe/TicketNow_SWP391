@@ -4,9 +4,10 @@ import LoginRegisterModal from "./LoginRegisterModal";
 import "../css/Header.css";
 import UserDropdown from "./UserDropdown";
 
-function Header({ onSearch, searchTerm }) {
+function Header() {
   const [showModal, setShowModal] = useState(null); // null | "login" | "register"
   const navigate = useNavigate();
+  const [query, setQuery] = useState('');
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
@@ -34,6 +35,11 @@ function Header({ onSearch, searchTerm }) {
     navigate("/"); // điều hướng về trang home
   };
 
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter' && query.trim()) {
+      navigate(`/search?q=${query.trim()}`);
+    }
+  };
   return (
     <header>
       <div className="brand">
@@ -51,7 +57,9 @@ function Header({ onSearch, searchTerm }) {
           type="text"
           placeholder="Tìm kiếm sự kiện..."
           className="search-input"
-          onChange={(e) => onSearch(e.target.value)}
+          value={query} 
+          onChange={(e) => setQuery(e.target.value)} 
+          onKeyDown={handleSearchSubmit} 
         />
         <div className="auth-links">
           {user && user.name ? (
