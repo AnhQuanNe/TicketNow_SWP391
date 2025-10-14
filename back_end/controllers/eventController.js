@@ -1,15 +1,15 @@
-import Event from "../models/Event.js";
+import Event from "../model/Event.js";
 
 // [GET] /api/events
 export const getEvents = async (req, res) => {
   try {
-    const { search, category, sort, location } = req.query;
+    const { q, category, sort, location , startDate, endDate} = req.query;
 
     let query = {};
 
     // Tìm kiếm theo tiêu đề
-    if (search) {
-      query.title = { $regex: search, $options: "i" }; // không phân biệt hoa/thường
+    if (q) {
+      query.title = { $regex: q, $options: "i" }; // không phân biệt hoa/thường
     }
 
     // Lọc theo category
@@ -20,6 +20,18 @@ export const getEvents = async (req, res) => {
     // Lọc theo location
     if (location) {
       query.locationId = location;
+    }
+    // loc theo ngay
+     if (startDate || endDate) {
+        query.date = {};
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        const endOfDay = new Date(endDate);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+        query.date.$lte = endOfDay;
+      }
     }
 
     // Lấy dữ liệu
