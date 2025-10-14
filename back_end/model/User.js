@@ -19,6 +19,24 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// ✅ Fix quan trọng: loại bỏ studentId null/empty để không lỗi unique
+userSchema.pre("save", function (next) {
+  if (!this.studentId || this.studentId === "") {
+    this.studentId = undefined; // xoá field nếu rỗng hoặc null
+  }
+  next();
+});
+
+// ✅ Nếu bạn dùng update: findOneAndUpdate() cũng cần fix tương tự
+userSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate();
+  if (update && (update.studentId === null || update.studentId === "")) {
+    delete update.studentId; // xoá field rỗng
+    this.setUpdate(update);
+  }
+  next();
+});
+
 // Hash password trước khi lưu
 userSchema.pre("save", async function (next) {
   if (!this.isModified("passwordHash")) return next();
@@ -32,6 +50,6 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.passwordHash);
 };
 
-// 🧩 Fix quan trọng: chỉ định đúng collection "Users"
+// 🧩 Chỉ định đúng collection "Users"
 const User = mongoose.model("User", userSchema, "Users");
 export default User;
