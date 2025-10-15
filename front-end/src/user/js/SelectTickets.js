@@ -109,8 +109,8 @@ function SelectTicket() {
         >
           <img
             src={
-              event.imageURL ||
-              "https://via.placeholder.com/600x350?text=No+Image"
+              event.imageUrl ||
+              "https://via.placeholder.com/900x400?text=No+Image"
             }
             alt={event.title}
             style={{ width: "100%", height: "340px", objectFit: "cover" }}
@@ -123,7 +123,7 @@ function SelectTicket() {
               {event.description}
             </p>
             <p>
-              <b>📍 Địa điểm:</b> {event.location || "Đang cập nhật"}
+              <b>📍 Địa điểm:</b> {event.locationId || "Đang cập nhật"}
             </p>
             <p>
               <b>📅 Ngày diễn ra:</b>{" "}
