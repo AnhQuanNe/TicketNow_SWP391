@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"; // 🩷 Thêm thư viện thông báo
 
 function SelectTicket() {
   const { id } = useParams();
@@ -9,6 +10,8 @@ function SelectTicket() {
   const [tickets, setTickets] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const user = JSON.parse(localStorage.getItem("user")); // 🧍‍♂️ Lấy thông tin người dùng
 
   useEffect(() => {
     if (!id) return;
@@ -67,10 +70,25 @@ function SelectTicket() {
       .filter((t) => t.quantity > 0);
 
     if (selectedTickets.length === 0) {
-      alert("⚠️ Vui lòng chọn ít nhất 1 vé!");
+      Swal.fire("⚠️", "Vui lòng chọn ít nhất 1 vé!", "warning");
       return;
     }
 
+    // 🚫 Kiểm tra vé Student
+    const hasStudentTicket = selectedTickets.some(
+      (t) => t.type.toLowerCase() === "student"
+    );
+
+    if (hasStudentTicket && (!user || !user.studentId)) {
+      Swal.fire(
+        "❌ Không thể mua vé Student!",
+        "Chỉ sinh viên mới được phép mua loại vé này.",
+        "error"
+      );
+      return;
+    }
+
+    // ✅ Hợp lệ -> chuyển qua trang thanh toán
     localStorage.setItem("tickets", JSON.stringify(selectedTickets));
     localStorage.setItem("eventTitle", event.title);
     navigate("/payment");
@@ -109,7 +127,7 @@ function SelectTicket() {
         >
           <img
             src={
-              event.imageURL ||
+              event.imageUrl ||
               "https://via.placeholder.com/600x350?text=No+Image"
             }
             alt={event.title}
@@ -152,52 +170,65 @@ function SelectTicket() {
           {tickets.length === 0 ? (
             <p>Không có loại vé nào cho sự kiện này.</p>
           ) : (
-            tickets.map((ticket, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderBottom: "1px solid #f0cce0",
-                  padding: "12px 0",
-                }}
-              >
-                <div>
-                  <b style={{ fontSize: "17px", color: "#ff4da6" }}>
-                    {ticket.type}
-                  </b>
-                  <p style={{ color: "#777" }}>
-                    {ticket.price.toLocaleString()} VND
-                  </p>
-                </div>
+            tickets.map((ticket, index) => {
+              const isStudentTicket =
+                ticket.type.toLowerCase() === "student" &&
+                (!user || !user.studentId);
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    borderBottom: "1px solid #f0cce0",
+                    padding: "12px 0",
+                    opacity: isStudentTicket ? 0.5 : 1,
+                  }}
+                >
+                  <div>
+                    <b style={{ fontSize: "17px", color: "#ff4da6" }}>
+                      {ticket.type}
+                    </b>
+                    <p style={{ color: "#777" }}>
+                      {ticket.price.toLocaleString()} VND
+                    </p>
+                    {isStudentTicket && (
+                      <p style={{ color: "#ff4da6", fontSize: "13px" }}>
+                        * Chỉ dành cho sinh viên
+                      </p>
+                    )}
+                  </div>
 
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <button
-                    onClick={() => handleQuantityChange(ticket.type, -1)}
-                    style={btnStyle}
-                  >
-                    −
-                  </button>
-                  <span
-                    style={{
-                      margin: "0 12px",
-                      fontSize: "16px",
-                      minWidth: "20px",
-                      textAlign: "center",
-                    }}
-                  >
-                    {quantities[ticket.type] || 0}
-                  </span>
-                  <button
-                    onClick={() => handleQuantityChange(ticket.type, 1)}
-                    style={btnStyle}
-                  >
-                    +
-                  </button>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <button
+                      onClick={() => handleQuantityChange(ticket.type, -1)}
+                      style={btnStyle}
+                      disabled={isStudentTicket}
+                    >
+                      −
+                    </button>
+                    <span
+                      style={{
+                        margin: "0 12px",
+                        fontSize: "16px",
+                        minWidth: "20px",
+                        textAlign: "center",
+                      }}
+                    >
+                      {quantities[ticket.type] || 0}
+                    </span>
+                    <button
+                      onClick={() => handleQuantityChange(ticket.type, 1)}
+                      style={btnStyle}
+                      disabled={isStudentTicket}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
 
           <h3 style={{ marginTop: "25px", color: "#ff4da6" }}>
@@ -210,8 +241,7 @@ function SelectTicket() {
               marginTop: "25px",
               width: "100%",
               padding: "14px 20px",
-              background:
-                "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)",
+              background: "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)",
               color: "#fff",
               border: "none",
               borderRadius: "10px",
@@ -230,7 +260,7 @@ function SelectTicket() {
                 "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)")
             }
           >
-             Thanh toán ngay
+            Thanh toán ngay
           </button>
         </div>
       </div>

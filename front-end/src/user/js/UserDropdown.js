@@ -5,6 +5,13 @@ import "../css/UserDropdown.css";
 export default function UserDropdown({ user, onLogout }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  
+  // vao phan ve cua toi
+  const goToTickets = () => {
+  navigate("/my-tickets");
+  setOpen(false);
+};
+
 
   const goToAccount = () => {
     navigate("/my-account");
@@ -41,7 +48,7 @@ export default function UserDropdown({ user, onLogout }) {
 
       <div className={`dropdown-menu ${open ? "open" : ""}`}>
         <ul>
-          <li>🎟 Vé của tôi</li>
+          <li onClick={goToTickets}>🎟 Vé của tôi</li>
           <li>⭐ Sự kiện của tôi</li>
           <li onClick={goToAccount}>👤 Tài khoản của tôi</li>{" "}
           {/* ✅ thêm điều hướng */}
