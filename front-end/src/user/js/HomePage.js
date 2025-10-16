@@ -93,14 +93,14 @@ function HomePage({ searchTerm }) {
     setFilteredEvents(result);
   }, [events, searchTerm, sortOption]);
 
-  // 🟢 Các section cố định
+  // 🟠 SỬA: Đặt lại tên section theo _id trong MongoDB thay vì text tiếng Việt
   const sectionNames = [
-    "Thịnh hành",
-    "Âm nhạc",
-    "Hội thảo",
-    "Thể thao",
-    "Hội chợ",
-    "Dành cho bạn",
+    { id: "hot", name: "Thịnh hành" },
+    { id: "cat_music", name: "Âm nhạc" },
+    { id: "cat_workshop", name: "Workshop / Kỹ năng" },
+    { id: "cat_sport", name: "Thể thao" },
+    { id: "cat_market", name: "Hội chợ" },
+    { id: "fav", name: "Dành cho bạn" },
   ];
 
   return (
@@ -127,32 +127,33 @@ function HomePage({ searchTerm }) {
       <EventFilterBar onSortChange={handleSortChange} sortOption={sortOption} />
 
       {/* 🔥 Các Section Sự kiện */}
-      {sectionNames.map((name) => {
+      {sectionNames.map((sec) => {
         let filtered = [];
 
-        if (name === "Thịnh hành") {
+        if (sec.name === "Thịnh hành") {
           filtered = events;
-        } else if (name === "Dành cho bạn") {
+        } else if (sec.name === "Dành cho bạn") {
           filtered = events.filter((ev) => favorites.includes(ev._id));
         } else {
-          // 🔧 THAY ĐỔI: vẫn giữ lọc theo categoryName nếu backend có
+          // ✅ FIX: categoryId trong MongoDB là string, không phải object
           filtered = events.filter(
-            (ev) =>
-              ev.categoryName &&
-              ev.categoryName.toLowerCase().includes(name.toLowerCase())
+            (ev) => ev.categoryId && ev.categoryId === sec.id
           );
+
         }
 
         return (
           <EventSection
-            key={name}
-            title={name}
+            key={sec.id}
+            title={sec.name}
             events={filtered}
             favorites={favorites}
             toggleFavorite={toggleFavorite}
           />
         );
       })}
+
+
 
       {/* 💖 Mục yêu thích */}
       <Favourites

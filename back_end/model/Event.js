@@ -3,9 +3,10 @@ import mongoose from "mongoose";
 const eventSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
   description: { type: String },
-  categoryId: { type: String },
-  organizerId: { type: String },
-  locationId: { type: String },
+  // 🔗 Tham chiếu sang các collection khác (để populate)
+  categoryId: { type: String, ref: "Category" },
+  organizerId: { type: String, ref: "Organizer" },
+  locationId: { type: String, ref: "Location" },
   date: { type: Date },
   ticketsAvailable: { type: Number, default: 0 },
   imageUrl: { type: String }, // nếu bạn có thêm ảnh sau này
