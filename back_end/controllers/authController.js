@@ -102,6 +102,8 @@ export const login = async (req, res) => {
         phone: user.phone,
         studentId: user.studentId,
         avatar: user.avatar,
+        gender: user.gender, // 🩷 THÊM DÒNG NÀY
+        dob: user.dob,       // 🩵 VÀ DÒNG NÀY (nếu có hiển thị ngày sinh)
         token: generateToken(user._id),
       });
     } else {
