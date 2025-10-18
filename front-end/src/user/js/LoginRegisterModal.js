@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../css/LoginRegisterModal.css";
-import { loginUser, registerUser } from "../../api/authAPI";
+import { loginUser, registerUser, googleLoginUser } from "../../api/authAPI";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function LoginRegisterModal({
   type,
@@ -32,9 +33,9 @@ export default function LoginRegisterModal({
           password: form.password,
         });
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data)); // ✅ lưu thông tin user
-        onLoginSuccess?.(data); // ✅ gửi user về Header
-        setTimeout(onClose, 500); // ✅ tự đóng modal sau khi đăng nhập
+        localStorage.setItem("user", JSON.stringify(data));
+        onLoginSuccess?.(data);
+        setTimeout(onClose, 500);
       } else {
         const data = await registerUser({
           name: form.name,
@@ -43,12 +44,27 @@ export default function LoginRegisterModal({
           phone: form.phone,
           studentId: form.studentId,
         });
-        setMessage(`Đăng ký thành công, chào ${data.name}!`);
+        setMessage(`🎉 Đăng ký thành công, chào ${data.name}!`);
       }
     } catch (err) {
       setMessage("❌ " + (err.message || "Lỗi kết nối"));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ Google login handler
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const data = await googleLoginUser({
+        credential: credentialResponse.credential,
+      });
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data));
+      onLoginSuccess?.(data);
+      setTimeout(onClose, 500);
+    } catch (err) {
+      setMessage("❌ " + (err.message || "Đăng nhập Google thất bại"));
     }
   };
 
@@ -104,6 +120,27 @@ export default function LoginRegisterModal({
               : "Đăng ký"}
           </button>
         </form>
+
+        {/* ✅ Nút Google đẹp, không trùng logo */}
+        <div className="google-section">
+          <div className="google-divider">Hoặc</div>
+          <div className="google-btn-wrapper">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() =>
+                setMessage("❌ Đăng nhập Google không thành công.")
+              }
+              text={
+                type === "login"
+                  ? "Đăng nhập bằng Google"
+                  : "Đăng ký bằng Google"
+              }
+              shape="rectangular"
+              theme="outline"
+              width="250"
+            />
+          </div>
+        </div>
 
         {message && <p className="message">{message}</p>}
 
