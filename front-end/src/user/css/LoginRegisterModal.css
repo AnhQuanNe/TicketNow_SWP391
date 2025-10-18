@@ -1,33 +1,32 @@
-/* ========== OVERLAY (nền mờ) ========== */
+/* ========== NỀN MỜ (Overlay) ========== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* ✅ căn modal từ trên xuống */
-  padding-top: 100px;      /* ✅ đẩy modal xuống dưới header 1 chút */
+  align-items: flex-start;
+  padding-top: 100px;
   z-index: 9999;
   animation: fadeIn 0.25s ease;
 }
 
-/* ========== HỘP MODAL CHÍNH ========== */
+/* ========== HỘP MODAL ========== */
 .modal-box {
-  background: #fff;
-  border-radius: 16px;
-  width: 380px;
-  max-width: 90%;
-  padding: 35px 30px 30px;
   position: relative;
-  text-align: center;
+  background: #fff;
+  border-radius: 18px;
+  width: 400px;
+  max-width: 92%;
+  padding: 35px 32px 40px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  overflow: visible;
   animation: slideUp 0.25s ease;
-  overflow: visible;   /* ✅ Cho phép hiện phần chữ dưới cùng */
-  padding-bottom: 40px; /* ✅ Thêm chút không gian cho dòng cuối */
 }
 
-/* THANH MÀU TRÊN CÙNG */
+/* Thanh màu cam trên cùng */
 .modal-box::before {
   content: "";
   position: absolute;
@@ -35,93 +34,142 @@
   left: 0;
   height: 8px;
   width: 100%;
-  background: linear-gradient(90deg, #1a73e8, #4285f4);
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
+  background: linear-gradient(90deg, #ff914d, #ffa85b);
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
 }
 
-/* NÚT ĐÓNG */
+/* ========== NÚT ĐÓNG ========== */
 .close-btn {
   position: absolute;
-  top: 10px;
-  right: 14px;
+  top: 12px;
+  right: 16px;
   background: transparent;
   border: none;
-  font-size: 20px;
+  font-size: 22px;
   color: #777;
   cursor: pointer;
   transition: 0.2s;
 }
 .close-btn:hover {
-  color: #000;
+  color: #111;
 }
 
-/* TIÊU ĐỀ */
+/* ========== TIÊU ĐỀ ========== */
 .modal-box h2 {
   margin-top: 10px;
   margin-bottom: 20px;
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 700;
   color: #222;
+  letter-spacing: 0.5px;
 }
 
-/* INPUTS */
+/* ========== INPUT FORM ========== */
 .modal-box input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 11px 13px;
   margin: 8px 0;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #ccc;
   font-size: 15px;
-  transition: border 0.2s;
+  background: #fafafa;
+  transition: 0.25s;
 }
+
 .modal-box input:focus {
-  border: 1px solid #1a73e8;
+  border-color: #ff914d;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 145, 77, 0.3);
   outline: none;
 }
 
-/* BUTTON CHÍNH */
+/* ========== NÚT CHÍNH ========== */
 .modal-box button[type="submit"] {
   width: 100%;
   padding: 12px;
-  background: #1a73e8;
-  color: #fff;
+  margin-top: 10px;
+  background: linear-gradient(90deg, #ff914d, #ffb26b);
+  color: white;
   font-weight: 600;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 16px;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  margin-top: 8px;
-  transition: background 0.3s;
+  box-shadow: 0 3px 10px rgba(255, 145, 77, 0.35);
+  transition: all 0.25s ease;
 }
+
 .modal-box button[type="submit"]:hover {
-  background: #1669c1;
+  background: linear-gradient(90deg, #ff832d, #ffab58);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(255, 145, 77, 0.45);
 }
 
-/* THÔNG ĐIỆP LỖI / THÀNH CÔNG */
+/* ========== THÔNG ĐIỆP TRẠNG THÁI ========== */
 .message {
-  margin-top: 10px;
-  color: #444;
+  margin-top: 12px;
   font-size: 14px;
+  color: #d63031;
 }
 
-/* LIÊN KẾT CHUYỂN TRANG */
+/* ========== LIÊN KẾT CHUYỂN TRANG ========== */
 .switch-link {
-  margin-top: 18px;
+  margin-top: 20px;
   font-size: 14px;
   color: #333;
   text-align: center;
 }
+
 .switch-link span {
-  color: #1a73e8;
+  color: #ff914d;
   font-weight: 600;
   cursor: pointer;
+  transition: 0.2s;
 }
+
 .switch-link span:hover {
   text-decoration: underline;
 }
 
-/* ANIMATION */
+/* ========== GOOGLE LOGIN SECTION ========== */
+.google-section {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.google-divider {
+  margin: 15px 0 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  position: relative;
+}
+
+.google-divider::before,
+.google-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: #ddd;
+}
+
+.google-divider::before {
+  left: 0;
+}
+.google-divider::after {
+  right: 0;
+}
+
+.google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+/* ========== HIỆU ỨNG ========== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -130,6 +178,7 @@
     opacity: 1;
   }
 }
+
 @keyframes slideUp {
   from {
     transform: translateY(20px);

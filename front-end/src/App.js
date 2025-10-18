@@ -9,6 +9,7 @@ import "./App.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import Header from "./user/js/Header";
 import MyNavbar from "./user/js/MyNavbar";
@@ -33,35 +34,26 @@ function App() {
   
 
   return (
-    <Router>
-      <Header />
-      <MyNavbar />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <HomePage />
-          }
-        />
-
-        <Route path="/category/:id" element={<CategoryPage />} />
-        <Route path="/event/:id" element={<EventDetail />} />
-        <Route path="/search" element={<SearchResult />} />
-        {/* <Route path="/organizer/*" element={<OrganizerLayout />} /> */}
-        {/* ✅ Thêm route test upload ảnh */}
-        <Route path="/upload" element={<ImageUpload />} />
-        <Route path="/select-ticket/:id" element={<SelectTicket />} />
-        <Route path="/select-ticket/:eventId" element={<SelectTicket />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-
-
-        {/* Trang thanh toán */}
-        <Route path="/payment" element={<TicketPage />} />
-
-        <Route path="/my-account" element={<MyAccount />} />
-      </Routes>
-      <Footer />
-    </Router>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+      {/* ✅ Bọc toàn bộ ứng dụng bên trong */}
+      <Router>
+        <Header />
+        <MyNavbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/event/:id" element={<EventDetail />} />
+          <Route path="/search" element={<SearchResult />} />
+          <Route path="/upload" element={<ImageUpload />} />
+          <Route path="/select-ticket/:id" element={<SelectTicket />} />
+          <Route path="/select-ticket/:eventId" element={<SelectTicket />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment" element={<TicketPage />} />
+          <Route path="/my-account" element={<MyAccount />} />
+        </Routes>
+        <Footer />
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
 
