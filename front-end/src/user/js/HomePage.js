@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Banner from "./Banner";
 import EventSection from "./EventSection";
-import Favourites from "./Favourites";
+//import Favourites from "./Favourites";
 import EventFilterBar from "./EventFilterBar";
 import { API_BASE_URL } from "../../config";
 
@@ -14,6 +14,10 @@ function HomePage({ searchTerm }) {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [sortOption, setSortOption] = useState("");
 
+    // 🔧 THÊM ĐOẠN NÀY ĐỂ LẤY USER HIỆN TẠI
+  const user = JSON.parse(localStorage.getItem("user")); // Lấy user đang đăng nhập
+  const userId = user?._id; // Lấy id user (hoặc user.id tùy backend)
+
   // 🟢 FETCH EVENTS từ backend
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/events`)
@@ -24,6 +28,15 @@ function HomePage({ searchTerm }) {
       })
       .catch((err) => console.error(err));
   }, []);
+
+    // 🟢 KHÔI PHỤC YÊU THÍCH từ localStorage khi load trang
+  // 🔧 SỬA LẠI CHỖ KHÔI PHỤC YÊU THÍCH — mỗi user có key riêng
+  useEffect(() => {
+    if (!userId) return; // nếu chưa đăng nhập thì bỏ qua
+    const storedFavs =
+      JSON.parse(localStorage.getItem(`favorites_${userId}`)) || [];
+    setFavorites(storedFavs);
+  }, [userId]);
 
   // 🟢 2 Banner auto chuyển riêng biệt
   useEffect(() => {
@@ -57,13 +70,26 @@ function HomePage({ searchTerm }) {
     setBannerIndex2((prev) => (prev === 0 ? events.length - 1 : prev - 1));
   const selectBanner2 = (index) => setBannerIndex2(index);
 
-  // 🟢 Yêu thích
-  const toggleFavorite = (id) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
-  };
+  // ❤️🟢 CẬP NHẬT toggleFavorite để lưu & xoá yêu thích trong localStorage
+  // 🔧 SỬA LẠI toggleFavorite ĐỂ LƯU THEO USER
+  const toggleFavorite = (event) => {
+    setFavorites((prev) => {
+      const exists = prev.find((f) => f._id === event._id);
+      let updated;
+      if (exists) {
+        updated = prev.filter((f) => f._id !== event._id); // nếu đã có → bỏ tim
+      } else {
+        updated = [...prev, event]; // nếu chưa có → thêm tim
+      }
 
+      // ✅ Lưu riêng theo user
+      if (userId) {
+        localStorage.setItem(`favorites_${userId}`, JSON.stringify(updated));
+      }
+
+      return updated;
+    });
+  };
   // 🟢 SORT + SEARCH
   const handleSortChange = (sort) => setSortOption(sort);
 
@@ -156,11 +182,11 @@ function HomePage({ searchTerm }) {
 
 
       {/* 💖 Mục yêu thích */}
-      <Favourites
+      {/* <Favourites
         eventsFromDB={events}
         favorites={favorites}
         toggleFavorite={toggleFavorite}
-      />
+      /> */}
 
       {/* 🔍 Kết quả tìm kiếm */}
       {searchTerm && (
