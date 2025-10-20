@@ -42,7 +42,7 @@ export default function UserDropdown({ user, onLogout }) {
       <div className={`dropdown-menu ${open ? "open" : ""}`}>
         <ul>
           <li>🎟 Vé của tôi</li>
-          <li>⭐ Sự kiện của tôi</li>
+          <li onClick={() => navigate("/favorites")}>⭐ Sự kiện của tôi</li> {/* ✅ thêm điều hướng đúng */}
           <li onClick={goToAccount}>👤 Tài khoản của tôi</li>{" "}
           {/* ✅ thêm điều hướng */}
           <li onClick={onLogout}>🚪 Đăng xuất</li>

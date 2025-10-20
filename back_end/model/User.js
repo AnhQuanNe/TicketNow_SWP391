@@ -15,6 +15,15 @@ const userSchema = new mongoose.Schema(
     },
     dob: { type: String, default: "" },
     gender: { type: String, default: "" },
+    // 🧡 [THÊM NGAY DƯỚI ĐÂY]
+    // Danh sách sự kiện yêu thích của user
+    favoriteEvents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Event", // tham chiếu tới model Event
+      },
+    ],
+    // 🧡 [HẾT PHẦN THÊM MỚI]
   },
   { timestamps: true }
 );
