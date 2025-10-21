@@ -5,7 +5,12 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    passwordHash: { type: String, required: true },
+    passwordHash: { type: String, required: false, default: null }, // ✅ cho phép rỗng
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local", // ✅ để phân biệt tài khoản thường và tài khoản Google
+    },
     phone: { type: String, unique: true, sparse: true },
     studentId: { type: String, unique: true, sparse: true },
     createdAt: { type: Date, default: Date.now },
@@ -28,34 +33,35 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ Fix quan trọng: loại bỏ studentId null/empty để không lỗi unique
+// ✅ Loại bỏ studentId null/empty để không lỗi unique
 userSchema.pre("save", function (next) {
   if (!this.studentId || this.studentId === "") {
-    this.studentId = undefined; // xoá field nếu rỗng hoặc null
+    this.studentId = undefined;
   }
   next();
 });
 
-// ✅ Nếu bạn dùng update: findOneAndUpdate() cũng cần fix tương tự
+// ✅ Khi update cũng xử lý tương tự
 userSchema.pre("findOneAndUpdate", function (next) {
   const update = this.getUpdate();
   if (update && (update.studentId === null || update.studentId === "")) {
-    delete update.studentId; // xoá field rỗng
+    delete update.studentId;
     this.setUpdate(update);
   }
   next();
 });
 
-// Hash password trước khi lưu
+// ✅ Hash password nếu có (user local)
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("passwordHash")) return next();
+  if (!this.passwordHash || !this.isModified("passwordHash")) return next();
   const salt = await bcrypt.genSalt(10);
   this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
   next();
 });
 
-// So sánh mật khẩu
+// ✅ So sánh mật khẩu
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.passwordHash) return false; // user Google thì không có mật khẩu
   return await bcrypt.compare(enteredPassword, this.passwordHash);
 };
 

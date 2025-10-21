@@ -3,24 +3,25 @@ import { useNavigate } from "react-router-dom"; // click trỏ logo
 import LoginRegisterModal from "./LoginRegisterModal";
 import "../css/Header.css";
 import UserDropdown from "./UserDropdown";
+import ReactDOM from "react-dom";
 
 function Header() {
   const [showModal, setShowModal] = useState(null); // null | "login" | "register"
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
   useEffect(() => {
-  // Khi localStorage thay đổi (user đổi avatar, tên)
-  const handleStorageChange = () => {
-    const updatedUser = JSON.parse(localStorage.getItem("user"));
-    setUser(updatedUser);
-  };
+    // Khi localStorage thay đổi (user đổi avatar, tên)
+    const handleStorageChange = () => {
+      const updatedUser = JSON.parse(localStorage.getItem("user"));
+      setUser(updatedUser);
+    };
 
-  window.addEventListener("storage", handleStorageChange);
-  return () => window.removeEventListener("storage", handleStorageChange);
-}, []);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const openModal = (type) => setShowModal(type);
   const closeModal = () => setShowModal(null);
@@ -36,7 +37,7 @@ function Header() {
   };
 
   const handleSearchSubmit = (e) => {
-    if (e.key === 'Enter' && query.trim()) {
+    if (e.key === "Enter" && query.trim()) {
       navigate(`/search?q=${query.trim()}`);
     }
   };
@@ -57,9 +58,9 @@ function Header() {
           type="text"
           placeholder="Tìm kiếm sự kiện..."
           className="search-input"
-          value={query} 
-          onChange={(e) => setQuery(e.target.value)} 
-          onKeyDown={handleSearchSubmit} 
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleSearchSubmit}
         />
         <div className="auth-links">
           {user && user.name ? (
@@ -82,17 +83,19 @@ function Header() {
       </div>
 
       {/* ✅ Dùng modal riêng thay cho modal cũ */}
-      {showModal && (
-        <LoginRegisterModal
-          type={showModal}
-          onClose={closeModal}
-          switchType={openModal}
-          onLoginSuccess={(data) => {
-            setUser(data); // ✅ cập nhật tên hiển thị
-            localStorage.setItem("user", JSON.stringify(data)); // ✅ lưu vào localStorage
-          }}
-        />
-      )}
+      {showModal &&
+        ReactDOM.createPortal(
+          <LoginRegisterModal
+            type={showModal}
+            onClose={closeModal}
+            switchType={openModal}
+            onLoginSuccess={(data) => {
+              setUser(data);
+              localStorage.setItem("user", JSON.stringify(data));
+            }}
+          />,
+          document.body // ✅ render modal ra ngoài header, phủ full trang
+        )}
     </header>
   );
 }

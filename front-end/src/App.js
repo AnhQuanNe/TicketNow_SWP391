@@ -9,6 +9,7 @@ import "./App.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import Header from "./user/js/Header";
 import MyNavbar from "./user/js/MyNavbar";
@@ -51,6 +52,9 @@ function App() {
 
 
   return (
+    
+            <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+      {/* ✅ Bọc toàn bộ ứng dụng bên trong */}
     <Router>
       <Header />
       <MyNavbar />
@@ -94,6 +98,7 @@ function App() {
       </Routes>
       <Footer />
     </Router>
+</GoogleOAuthProvider>
   );
 }
 
