@@ -76,13 +76,11 @@ function FavoritesPage() {
             <div className="border rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden bg-white">
               {/* Ảnh banner */}
               <img
-                src={
-                  event.imageUrl ||
-                  "https://via.placeholder.com/300x200?text=No+Image"
-                }
-                alt={event.title}
-                className="w-full h-64 object-cover rounded-t-2xl"
-              />
+            src={event.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
+            alt={event.title}
+          />
+          <h4>{event.title}</h4>
+          <p>{event.categoryName || event.categoryId}</p>
 
               
             {/* Nút tim ở góc phải trên */}
@@ -110,7 +108,7 @@ function FavoritesPage() {
                 {/* Nút xem chi tiết */}
                 <button
                   onClick={() => navigate(`/event/${event._id}`)}
-                  className="bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition"
+                  className="btn btn-info my-2"
                 >
                   🔍 View Detail
                 </button>

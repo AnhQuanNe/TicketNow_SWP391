@@ -159,7 +159,10 @@ function HomePage({ searchTerm }) {
         if (sec.name === "Thịnh hành") {
           filtered = events;
         } else if (sec.name === "Dành cho bạn") {
-          filtered = events.filter((ev) => favorites.includes(ev._id));
+         // ✅ Đổi lại cách lọc theo object yêu thích (favorites là array of objects)
+          filtered = events.filter((ev) =>
+            favorites.some((fav) => fav._id === ev._id)
+          );
         } else {
           // ✅ FIX: categoryId trong MongoDB là string, không phải object
           filtered = events.filter(
