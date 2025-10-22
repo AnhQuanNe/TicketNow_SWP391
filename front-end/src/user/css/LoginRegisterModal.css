@@ -6,8 +6,8 @@
   backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 100px;
+  align-items: center;
+  padding-top: 0;
   z-index: 9999;
   animation: fadeIn 0.25s ease;
 }
