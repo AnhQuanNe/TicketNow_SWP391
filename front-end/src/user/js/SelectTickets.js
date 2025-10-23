@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"; // 🩷 Thông báo đẹp
 
 function SelectTicket() {
   const { id } = useParams();
@@ -9,6 +10,8 @@ function SelectTicket() {
   const [tickets, setTickets] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const user = JSON.parse(localStorage.getItem("user")); // 🧍‍♂️ Người dùng hiện tại
 
   useEffect(() => {
     if (!id) return;
@@ -38,6 +41,7 @@ function SelectTicket() {
         ⏳ Đang tải dữ liệu...
       </p>
     );
+
   if (!event)
     return (
       <p style={{ color: "#ff4da6", textAlign: "center", marginTop: 50 }}>
@@ -45,6 +49,7 @@ function SelectTicket() {
       </p>
     );
 
+  // 🧮 Xử lý số lượng vé
   const handleQuantityChange = (type, value) => {
     setQuantities((prev) => ({
       ...prev,
@@ -67,10 +72,25 @@ function SelectTicket() {
       .filter((t) => t.quantity > 0);
 
     if (selectedTickets.length === 0) {
-      alert("⚠️ Vui lòng chọn ít nhất 1 vé!");
+      Swal.fire("⚠️", "Vui lòng chọn ít nhất 1 vé!", "warning");
       return;
     }
 
+    // 🚫 Kiểm tra vé Student
+    const hasStudentTicket = selectedTickets.some(
+      (t) => t.type.toLowerCase() === "student"
+    );
+
+    if (hasStudentTicket && (!user || !user.studentId)) {
+      Swal.fire(
+        "❌ Không thể mua vé Student!",
+        "Chỉ sinh viên mới được phép mua loại vé này.",
+        "error"
+      );
+      return;
+    }
+
+    // ✅ Hợp lệ -> lưu vào localStorage
     localStorage.setItem("tickets", JSON.stringify(selectedTickets));
     localStorage.setItem("eventTitle", event.title);
   localStorage.setItem("lastPaidEventId", event._id);
@@ -106,7 +126,7 @@ function SelectTicket() {
           flexWrap: "wrap",
         }}
       >
-        {/* 🌸 Khung thông tin sự kiện */}
+        {/* 🌸 Thông tin sự kiện */}
         <div
           style={{
             flex: 1.2,
@@ -120,7 +140,7 @@ function SelectTicket() {
           <img
             src={
               event.imageUrl ||
-              "https://via.placeholder.com/900x400?text=No+Image"
+              "https://via.placeholder.com/600x350?text=No+Image"
             }
             alt={event.title}
             style={{ width: "100%", height: "340px", objectFit: "cover" }}
@@ -133,7 +153,7 @@ function SelectTicket() {
               {event.description}
             </p>
             <p>
-              <b>📍 Địa điểm:</b> {event.locationId || "Đang cập nhật"}
+              <b>📍 Địa điểm:</b> {event.location || "Đang cập nhật"}
             </p>
             <p>
               <b>📅 Ngày diễn ra:</b>{" "}
@@ -162,53 +182,69 @@ function SelectTicket() {
           {tickets.length === 0 ? (
             <p>Không có loại vé nào cho sự kiện này.</p>
           ) : (
-            tickets.map((ticket, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderBottom: "1px solid #f0cce0",
-                  padding: "12px 0",
-                }}
-              >
-                <div>
-                  <b style={{ fontSize: "17px", color: "#ff4da6" }}>
-                    {ticket.type}
-                  </b>
-                  <p style={{ color: "#777" }}>
-                    {ticket?.price != null ? ticket.price.toLocaleString() : "—"} VND
-                  </p>
+            tickets.map((ticket, index) => {
+              const isStudentTicket =
+                ticket.type.toLowerCase() === "student" &&
+                (!user || !user.studentId);
 
-                </div>
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    borderBottom: "1px solid #f0cce0",
+                    padding: "12px 0",
+                    opacity: isStudentTicket ? 0.5 : 1,
+                  }}
+                >
+                  <div>
+                    <b style={{ fontSize: "17px", color: "#ff4da6" }}>
+                      {ticket.type}
+                    </b>
+                    <p style={{ color: "#777" }}>
+                      {ticket?.price != null
+                        ? ticket.price.toLocaleString()
+                        : "—"}{" "}
+                      VND
+                    </p>
+                    {isStudentTicket && (
+                      <p style={{ color: "#ff4da6", fontSize: "13px" }}>
+                        * Chỉ dành cho sinh viên
+                      </p>
+                    )}
+                  </div>
 
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <button
-                    onClick={() => handleQuantityChange(ticket.type, -1)}
-                    style={btnStyle}
-                  >
-                    −
-                  </button>
-                  <span
-                    style={{
-                      margin: "0 12px",
-                      fontSize: "16px",
-                      minWidth: "20px",
-                      textAlign: "center",
-                    }}
-                  >
-                    {quantities[ticket.type] || 0}
-                  </span>
-                  <button
-                    onClick={() => handleQuantityChange(ticket.type, 1)}
-                    style={btnStyle}
-                  >
-                    +
-                  </button>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <button
+                      onClick={() => handleQuantityChange(ticket.type, -1)}
+                      style={btnStyle}
+                      disabled={isStudentTicket}
+                    >
+                      −
+                    </button>
+                    <span
+                      style={{
+                        margin: "0 12px",
+                        fontSize: "16px",
+                        minWidth: "20px",
+                        textAlign: "center",
+                      }}
+                    >
+                      {quantities[ticket.type] || 0}
+                    </span>
+                    <button
+                      onClick={() => handleQuantityChange(ticket.type, 1)}
+                      style={btnStyle}
+                      disabled={isStudentTicket}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
 
           <h3 style={{ marginTop: "25px", color: "#ff4da6" }}>
@@ -217,28 +253,14 @@ function SelectTicket() {
 
           <button
             onClick={handlePayment}
-            style={{
-              marginTop: "25px",
-              width: "100%",
-              padding: "14px 20px",
-              background:
-                "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              fontSize: "18px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "0.3s",
-              boxShadow: "0 4px 12px rgba(255, 77, 166, 0.3)",
-            }}
+            style={payBtnStyle}
             onMouseOver={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #ff99cc 0%, #ffb3d9 100%)")
+              (e.target.style.background =
+                "linear-gradient(90deg, #ff99cc 0%, #ffb3d9 100%)")
             }
             onMouseOut={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)")
+              (e.target.style.background =
+                "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)")
             }
           >
             Thanh toán ngay
@@ -258,6 +280,21 @@ const btnStyle = {
   cursor: "pointer",
   transition: "0.2s",
   fontWeight: "bold",
+};
+
+const payBtnStyle = {
+  marginTop: "25px",
+  width: "100%",
+  padding: "14px 20px",
+  background: "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)",
+  color: "#fff",
+  border: "none",
+  borderRadius: "10px",
+  fontSize: "18px",
+  fontWeight: "600",
+  cursor: "pointer",
+  transition: "0.3s",
+  boxShadow: "0 4px 12px rgba(255, 77, 166, 0.3)",
 };
 
 export default SelectTicket;

@@ -29,6 +29,8 @@ const userSchema = new mongoose.Schema(
       },
     ],
     // 🧡 [HẾT PHẦN THÊM MỚI]
+    resetOTP: { type: String, default: null },
+    resetOTPExpire: { type: Date, default: null },
   },
   { timestamps: true }
 );

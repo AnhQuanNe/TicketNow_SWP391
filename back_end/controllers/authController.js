@@ -1,4 +1,6 @@
 import User from "../model/User.js";
+import bcrypt from "bcryptjs";
+import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 
@@ -184,3 +186,87 @@ export const googleLogin = async (req, res) => {
     });
   }
 };
+// Gửi OTP reset password
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "Email không tồn tại." });
+
+    // Tạo OTP ngẫu nhiên 6 chữ số
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetOTP = otp;
+    user.resetOTPExpire = Date.now() + 5 * 60 * 1000; // 5 phút
+    await user.save();
+
+    // Cấu hình gửi mail
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"TicketNow" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Xác nhận đặt lại mật khẩu",
+      html: `
+        <h3>Xin chào ${user.name || "bạn"},</h3>
+        <p>Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản TicketNow.</p>
+        <p>Mã OTP của bạn là:</p>
+        <h2 style="color:#ff914d;">${otp}</h2>
+        <p>Mã này sẽ hết hạn sau <b>5 phút</b>.</p>
+      `,
+    });
+
+    res.json({ message: "OTP đã được gửi đến email của bạn." });
+  } catch (err) {
+    console.error("❌ Lỗi forgotPassword:", err);
+    res.status(500).json({ message: "Gửi email thất bại." });
+  }
+};
+
+export const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "Email không tồn tại." });
+
+    if (user.resetOTP !== otp)
+      return res.status(400).json({ message: "Mã OTP không đúng." });
+
+    if (user.resetOTPExpire < Date.now())
+      return res.status(400).json({ message: "Mã OTP đã hết hạn." });
+
+    res.json({ message: "OTP hợp lệ, bạn có thể đặt mật khẩu mới." });
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi xác minh OTP." });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng." });
+
+    if (user.resetOTP !== otp)
+      return res.status(400).json({ message: "Mã OTP không hợp lệ." });
+
+    if (user.resetOTPExpire < Date.now())
+      return res.status(400).json({ message: "Mã OTP đã hết hạn." });
+
+    user.passwordHash = newPassword;
+    user.resetOTP = null;
+    user.resetOTPExpire = null;
+    await user.save(); // middleware sẽ tự hash trước khi lưu
+
+    res.json({ message: "Đặt lại mật khẩu thành công!" });
+  } catch (err) {
+    console.error("❌ resetPassword error:", err);
+    res.status(500).json({ message: "Lỗi hệ thống." });
+  }
+};
+
