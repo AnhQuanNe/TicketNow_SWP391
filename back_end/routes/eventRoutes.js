@@ -6,4 +6,4 @@ const router = express.Router();
 router.get("/search", getEvents);
 router.get("/:id", getEventById);
 
-export default router;
+export default router;      

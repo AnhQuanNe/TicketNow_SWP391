@@ -7,6 +7,8 @@ function Payment() {
   useEffect(() => {
     const savedTickets = JSON.parse(localStorage.getItem("tickets")) || [];
     const savedEventTitle = localStorage.getItem("eventTitle") || "";
+    const eventId = localStorage.getItem('lastPaidEventId');
+    const token = localStorage.getItem('token');
     let sum = 0;
     savedTickets.forEach((t) => {
       sum += (Number(t.price) || 0) * (Number(t.quantity) || 0);
@@ -16,11 +18,15 @@ function Payment() {
       try {
         const res = await fetch("http://localhost:5000/api/payment/create-payment", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             amount: sum,
             orderCode: Date.now(),
             description: `Thanh toán ${savedEventTitle}`.slice(0, 25), // PayOS chỉ cho 25 ký tự
+            eventId,
           }),
         });
         const data = await res.json();
