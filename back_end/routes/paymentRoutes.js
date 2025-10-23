@@ -1,8 +1,16 @@
 import express from "express";
 import { PayOS } from "@payos/node";
 import dotenv from "dotenv";
+import { fileURLToPath } from 'url';
+import path from 'path';
+import Booking from "../model/Booking.js";
+import { protect } from "../middleware/authMiddleware.js";
 
-dotenv.config();
+// Load .env explicitly from the backend folder to avoid issues when process
+// is started from repo root (so cwd may not be back_end)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '../.env') });
 const router = express.Router();
 
 const payos = new PayOS({
@@ -11,14 +19,25 @@ const payos = new PayOS({
   checksumKey: process.env.PAYOS_CHECKSUM_KEY,
 });
 
-router.post("/create-payment", async (req, res) => {
+router.post("/create-payment", protect, async (req, res) => {
   console.log("📩 Nhận yêu cầu tạo thanh toán:", req.body);
   try {
-    const { amount, orderCode, description } = req.body;
+    const { amount, orderCode, description, eventId } = req.body;
 
-    if (!amount || !orderCode) {
-      return res.status(400).json({ error: "Thiếu thông tin thanh toán" });
+    if (!amount || !orderCode || !eventId) {
+      return res.status(400).json({ error: "Thiếu thông tin thanh toán (amount/orderCode/eventId)" });
     }
+
+    // Tạo một Booking pending làm "intent" 
+    const bookingId = `bk_${Date.now()}`;
+    await Booking.create({
+      _id: bookingId,
+      userId: req.user._id,
+      eventId,
+      status: "pending",
+      orderCode,
+      totalAmount: amount,
+    });
 
     // ✅ Sử dụng đúng phương thức
     const payment = await payos.paymentRequests.create({
