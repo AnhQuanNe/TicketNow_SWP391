@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // click trỏ logo
 import LoginRegisterModal from "./LoginRegisterModal";
 import "../css/Header.css";
 import UserDropdown from "./UserDropdown";
+import Notification from "./Notification";
 import ReactDOM from "react-dom";
 
 function Header() {
@@ -62,6 +63,8 @@ function Header() {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleSearchSubmit}
         />
+        {/* 🔔 Notification between search and auth */}
+        <Notification user={user} />
         <div className="auth-links">
           {user && user.name ? (
             <UserDropdown user={user} onLogout={handleLogout} />

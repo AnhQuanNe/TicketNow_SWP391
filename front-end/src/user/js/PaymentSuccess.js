@@ -9,7 +9,7 @@ function PaymentSuccess() {
     const params = new URLSearchParams(window.location.search);
     const status = params.get("status"); // PAID, FAILED,...
     
-    // Nếu thanh toán thành công, redirect về homepage sau 2s
+    // Nếu thanh toán thành công, redirect về homepage sau 2s (server-side webhook sẽ xử lý lịch nhắc)
     if (status === "PAID") {
       setTimeout(() => {
         navigate("/"); // homepage

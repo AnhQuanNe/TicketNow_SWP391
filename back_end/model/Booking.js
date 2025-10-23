@@ -1,20 +1,20 @@
-// models/Booking.js
-const mongoose = require("mongoose");
+// models/Booking.js (ESM)
+import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
     _id: {
-      type: String, // booking_1, booking_2... (tự quản lý theo dạng string)
+      type: String, // ví dụ: bk_1699999999999
       required: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // liên kết với User
+      ref: "User",
       required: true,
     },
     eventId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Event", // liên kết với Event
+      ref: "Event",
       required: true,
     },
     bookingDate: {
@@ -27,11 +27,18 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
     },
     paymentId: {
-      type: String, // sau này liên kết Payment
+      type: String, // nếu cần liên kết Payment riêng
       default: null,
     },
+    orderCode: {
+      type: Number, // PayOS yêu cầu number
+      unique: true,
+      sparse: true,
+    },
+    totalAmount: { type: Number },
+    paidAt: { type: Date },
   },
-  { timestamps: true } // tự động thêm createdAt, updatedAt
+  { timestamps: true }
 );
 
-module.exports = mongoose.model("Booking", bookingSchema);
+export default mongoose.model("Booking", bookingSchema);
