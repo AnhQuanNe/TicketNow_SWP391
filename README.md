@@ -1,6 +1,16 @@
 Link slide:
 https://www.canva.com/design/DAG2wrl_-8k/dgTZ6x7UCKi3FXn76KXfHw/edit
 
+## Thông tin cấu hình dự án
+- **Framework:** React 18  
+- **Testing Library:** Jest + @testing-library/react + @testing-library/jest-dom  
+- **Node.js:** >= 18  
+- **Test file:** `front-end/test/Payment.test.js`  
+- **Số lượng test:** 20  
+- **Môi trường chạy:** `npm test`
+
+---
+
 ## Prompt 1: Sinh mã kiểm thử Jest
 "Tạo mã kiểm thử đơn vị (unit test) cho component **TicketPayment / Payment.js** với **15 test case chính** bao gồm:
 
@@ -51,13 +61,7 @@ https://www.canva.com/design/DAG2wrl_-8k/dgTZ6x7UCKi3FXn76KXfHw/edit
 - CSS import gây lỗi parser → thêm `moduleNameMapper` để mock file `.css`  
 - Thiếu `jest-dom` → cài `@testing-library/jest-dom` và import vào `setupTests.js`  
 - Kiểm tra lại fetch mock để tránh kết quả sai lệch."
-## Thông tin cấu hình dự án
-- **Framework:** React 18  
-- **Testing Library:** Jest + @testing-library/react + @testing-library/jest-dom  
-- **Node.js:** >= 18  
-- **Test file:** `front-end/test/TicketPayment.test.js`  
-- **Số lượng test:** 20  
-- **Môi trường chạy:** `npm test`
+
 
 ---
 
