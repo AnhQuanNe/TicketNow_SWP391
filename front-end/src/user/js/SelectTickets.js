@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2"; // 🩷 Thêm thư viện thông báo
+import Swal from "sweetalert2"; // 🩷 Thông báo đẹp
 
 function SelectTicket() {
   const { id } = useParams();
@@ -11,7 +11,7 @@ function SelectTicket() {
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const user = JSON.parse(localStorage.getItem("user")); // 🧍‍♂️ Lấy thông tin người dùng
+  const user = JSON.parse(localStorage.getItem("user")); // 🧍‍♂️ Người dùng hiện tại
 
   useEffect(() => {
     if (!id) return;
@@ -41,6 +41,7 @@ function SelectTicket() {
         ⏳ Đang tải dữ liệu...
       </p>
     );
+
   if (!event)
     return (
       <p style={{ color: "#ff4da6", textAlign: "center", marginTop: 50 }}>
@@ -48,6 +49,7 @@ function SelectTicket() {
       </p>
     );
 
+  // 🧮 Xử lý số lượng vé
   const handleQuantityChange = (type, value) => {
     setQuantities((prev) => ({
       ...prev,
@@ -88,7 +90,7 @@ function SelectTicket() {
       return;
     }
 
-    // ✅ Hợp lệ -> chuyển qua trang thanh toán
+    // ✅ Hợp lệ -> lưu vào localStorage
     localStorage.setItem("tickets", JSON.stringify(selectedTickets));
     localStorage.setItem("eventTitle", event.title);
     navigate("/payment");
@@ -114,7 +116,7 @@ function SelectTicket() {
           flexWrap: "wrap",
         }}
       >
-        {/* 🌸 Khung thông tin sự kiện */}
+        {/* 🌸 Thông tin sự kiện */}
         <div
           style={{
             flex: 1.2,
@@ -174,6 +176,7 @@ function SelectTicket() {
               const isStudentTicket =
                 ticket.type.toLowerCase() === "student" &&
                 (!user || !user.studentId);
+
               return (
                 <div
                   key={index}
@@ -191,7 +194,10 @@ function SelectTicket() {
                       {ticket.type}
                     </b>
                     <p style={{ color: "#777" }}>
-                      {ticket.price.toLocaleString()} VND
+                      {ticket?.price != null
+                        ? ticket.price.toLocaleString()
+                        : "—"}{" "}
+                      VND
                     </p>
                     {isStudentTicket && (
                       <p style={{ color: "#ff4da6", fontSize: "13px" }}>
@@ -237,20 +243,7 @@ function SelectTicket() {
 
           <button
             onClick={handlePayment}
-            style={{
-              marginTop: "25px",
-              width: "100%",
-              padding: "14px 20px",
-              background: "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "10px",
-              fontSize: "18px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "0.3s",
-              boxShadow: "0 4px 12px rgba(255, 77, 166, 0.3)",
-            }}
+            style={payBtnStyle}
             onMouseOver={(e) =>
               (e.target.style.background =
                 "linear-gradient(90deg, #ff99cc 0%, #ffb3d9 100%)")
@@ -277,6 +270,21 @@ const btnStyle = {
   cursor: "pointer",
   transition: "0.2s",
   fontWeight: "bold",
+};
+
+const payBtnStyle = {
+  marginTop: "25px",
+  width: "100%",
+  padding: "14px 20px",
+  background: "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)",
+  color: "#fff",
+  border: "none",
+  borderRadius: "10px",
+  fontSize: "18px",
+  fontWeight: "600",
+  cursor: "pointer",
+  transition: "0.3s",
+  boxShadow: "0 4px 12px rgba(255, 77, 166, 0.3)",
 };
 
 export default SelectTicket;

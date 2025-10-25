@@ -7,10 +7,24 @@ function Payment() {
   useEffect(() => {
     const savedTickets = JSON.parse(localStorage.getItem("tickets")) || [];
     const savedEventTitle = localStorage.getItem("eventTitle") || "";
+    const eventId = localStorage.getItem("eventId");
+    const user = JSON.parse(localStorage.getItem("user"));
+
     let sum = 0;
     savedTickets.forEach((t) => {
       sum += (Number(t.price) || 0) * (Number(t.quantity) || 0);
     });
+
+    // 🧩 Lưu tạm thông tin vé vào localStorage để PaymentSuccess đọc lại
+    localStorage.setItem(
+      "pendingTicket",
+      JSON.stringify({
+        userId: user?.id,
+        eventId,
+        quantity: 1,
+        price: sum,
+      })
+    );
 
     const createPayment = async () => {
       try {
@@ -20,13 +34,16 @@ function Payment() {
           body: JSON.stringify({
             amount: sum,
             orderCode: Date.now(),
-            description: `Thanh toán ${savedEventTitle}`.slice(0, 25), // PayOS chỉ cho 25 ký tự
+            description: `Thanh toán ${savedEventTitle}`.slice(0, 25),
+            // ✅ PayOS trả về sau khi thanh toán thành công
+            returnUrl: `http://localhost:3000/payment-success?status=PAID&userId=${user?.id}&eventId=${eventId}&price=${sum}`,
+
           }),
         });
+
         const data = await res.json();
         setCheckoutUrl(data.checkoutUrl);
 
-        // 🔹 Mở QR code/checkout bên ngoài
         if (data.checkoutUrl) {
           window.location.href = data.checkoutUrl;
         }
@@ -76,7 +93,10 @@ function Payment() {
           <p style={{ color: "#e60073", fontWeight: "bold" }}>Đang tạo link thanh toán...</p>
         ) : (
           <p style={{ color: "#e60073", fontWeight: "bold" }}>
-            Nếu trình duyệt không tự mở, <a href={checkoutUrl} target="_blank" rel="noreferrer">bấm vào đây</a>
+            Nếu trình duyệt không tự mở,{" "}
+            <a href={checkoutUrl} target="_blank" rel="noreferrer">
+              bấm vào đây
+            </a>
           </p>
         )}
       </div>

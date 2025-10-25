@@ -19,7 +19,7 @@ import TicketPage from "./user/js/PaymentPage";
 import SelectTicket from "./user/js/SelectTickets";
 import PaymentSuccess from "./user/js/PaymentSuccess";
 import MyTickets from "./user/js/MyTickets";
-
+import PaymentFail from "./user/js/PaymentFail"; 
 import MyAccount from "./user/js/MyAccount";
 // import OrganizerLayout from "./organizer/OrganizerLayout";
 
@@ -62,6 +62,7 @@ function App() {
         <Route path="/select-ticket/:id" element={<SelectTicket />} />
   <Route path="/select-ticket/:eventId" element={<SelectTicket />} />
   <Route path="/payment-success" element={<PaymentSuccess />} />
+  <Route path="/payment-fail" element={<PaymentFail />} />
    <Route path="/my-tickets" element={<MyTickets />} /> 
 
           {/* Trang thanh toán */}
