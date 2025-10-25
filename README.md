@@ -55,7 +55,7 @@ https://www.canva.com/design/DAG2wrl_-8k/dgTZ6x7UCKi3FXn76KXfHw/edit
 - **Framework:** React 18  
 - **Testing Library:** Jest + @testing-library/react + @testing-library/jest-dom  
 - **Node.js:** >= 18  
-- **Test file:** `test/TicketPayment.test.js`  
+- **Test file:** `front-end/test/TicketPayment.test.js`  
 - **Số lượng test:** 20  
 - **Môi trường chạy:** `npm test`
 
