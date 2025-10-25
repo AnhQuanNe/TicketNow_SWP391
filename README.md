@@ -7,7 +7,7 @@ https://www.canva.com/design/DAG2wrl_-8k/dgTZ6x7UCKi3FXn76KXfHw/edit
 - **Node.js:** >= 18  
 - **Test file:** `front-end/test/Payment.test.js`  
 - **Số lượng test:** 20  
-- **Môi trường chạy:** `npm test`
+- **Môi trường chạy:** `npm run test:jest`
 
 ---
 
