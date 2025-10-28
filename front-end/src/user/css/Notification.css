@@ -1,0 +1,14 @@
+.notification-panel {
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+
+.notification-panel::-webkit-scrollbar {
+  display: none; 
+  width: 0;
+  height: 0;
+}
+
+.notification-panel:focus {
+  outline: none;
+}

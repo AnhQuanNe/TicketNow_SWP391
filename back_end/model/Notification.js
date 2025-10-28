@@ -6,6 +6,7 @@ const notificationSchema = new mongoose.Schema(
     title: { type: String, required: true },
     message: { type: String, required: true },
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event" },
+    jobId: { type: String },
     read: { type: Boolean, default: false },
     scheduledFor: { type: Date }, // thời điểm dự kiến gửi (vd: 1h trước event)
     sentAt: { type: Date },       // thời điểm đã gửi

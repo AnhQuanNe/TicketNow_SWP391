@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IoNotifications } from "react-icons/io5";
 
+import "../css/Notification.css";
+
 let socketSingleton = null;
 const getSocket = async () => {
     if (socketSingleton) return socketSingleton;
@@ -9,7 +11,8 @@ const getSocket = async () => {
     return socketSingleton;
 };
 
-const LIMIT = 10;
+// Show all notifications by default (no 10-item limit)
+const LIMIT = 100000;
 
 const Notification = ({ user }) => {
     const [open, setOpen] = useState(false);
@@ -19,6 +22,7 @@ const Notification = ({ user }) => {
     const [loading, setLoading] = useState(false);
     const ref = useRef(null);
     const token = localStorage.getItem('token');
+    const isFetchingRef = useRef(false);
 
     // Close when clicking outside
     useEffect(() => {
@@ -30,9 +34,10 @@ const Notification = ({ user }) => {
     }, []);
 
     const fetchList = useCallback(async (p = 1) => {
-        if (!token || loading) return;
+        if (!token || isFetchingRef.current) return;
         try {
             setLoading(true);
+            isFetchingRef.current = true;
             const res = await fetch(`http://localhost:5000/api/notifications?page=${p}&limit=${LIMIT}` , {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -44,8 +49,8 @@ const Notification = ({ user }) => {
             if (json.totalPages) setHasMore(p < json.totalPages);
             else setHasMore(data.length >= LIMIT);
         } catch { /* ignore */ }
-        finally { setLoading(false); }
-    }, [token, loading]);
+        finally { setLoading(false); isFetchingRef.current = false; }
+    }, [token]);
 
     // Open panel: refresh from first page
     useEffect(() => {
@@ -55,6 +60,14 @@ const Notification = ({ user }) => {
         }
     }, [open, fetchList]);
 
+    // On login or token change, prefetch once so badge shows without clicking
+    useEffect(() => {
+        if (user?._id && token) {
+            setPage(1);
+            fetchList(1);
+        }
+    }, [user?._id, token, fetchList]);
+
     // Socket realtime: join user room, refresh when notify
     useEffect(() => {
         let mounted = true;
@@ -63,7 +76,7 @@ const Notification = ({ user }) => {
         (async () => {
             s = await getSocket();
             if (!mounted) return;
-            if (user?._id) s.emit("join", { userId: user._id });
+            if (user?._id) s.emit("join", { userId: String(user._id) });
             handler = () => {
                 // new notify -> reset to first page to see newest first
                 setPage(1);
@@ -74,7 +87,7 @@ const Notification = ({ user }) => {
         return () => {
             mounted = false;
             if (s && handler) s.off("notify", handler);
-            if (s && user?._id) s.emit("leave", { userId: user._id });
+            if (s && user?._id) s.emit("leave", { userId: String(user._id) });
         };
     }, [user?._id, fetchList]);
 
@@ -101,6 +114,9 @@ const Notification = ({ user }) => {
 
     const unread = items.filter((i) => !i.read).length;
 
+    // Hide icon when not logged in
+    if (!user?._id || !token) return null;
+
     return (
         <div ref={ref} style={{ position: "relative", marginRight: 12 }}>
             <button
@@ -110,8 +126,8 @@ const Notification = ({ user }) => {
                     background: "transparent",
                     border: "none",
                     cursor: "pointer",
-                    fontSize: 20,
-                    color: "#ff4da6",
+                    fontSize: 25,
+                    color: "#ff9800",
                 }}
                 aria-label="Notifications"
                 title="Thông báo"
@@ -123,7 +139,7 @@ const Notification = ({ user }) => {
                         position: "absolute",
                         top: -6,
                         right: -6,
-                        background: "#ff4da6",
+                        background: "#ff9800",
                         color: "#fff",
                         borderRadius: 12,
                         padding: "0 6px",
@@ -133,7 +149,7 @@ const Notification = ({ user }) => {
             </button>
 
             {open && (
-                <div
+                <div className="notification-panel"
                     onScroll={onScroll}
                     style={{
                         position: "absolute",
@@ -143,23 +159,23 @@ const Notification = ({ user }) => {
                         maxHeight: 360,
                         overflowY: "auto",
                         background: "#fff",
-                        border: "1px solid #ffd6eb",
+                        border: "1px solid #ffe6cc",
                         borderRadius: 12,
                         boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
                         zIndex: 1000,
                     }}
                 >
-                    <div style={{ padding: 10, borderBottom: "1px solid #ffe3f1", fontWeight: 600, color: "#ff4da6" }}>Thông báo</div>
+                    <div style={{ padding: 10, borderBottom: "1px solid #fff3e0", fontWeight: 600, color: "#ff9800" }}>Thông báo</div>
                     {items.length === 0 ? (
                         <div style={{ padding: 12, color: "#777" }}>{loading ? "Đang tải..." : "Không có thông báo"}</div>
                     ) : (
                         <>
                             {items.map((n) => (
-                                <div key={n._id || n.id} style={{ padding: 12, borderBottom: "1px solid #ffe3f1", background: n.read ? '#fff' : '#fff7fb' }}>
+                                <div key={n._id || n.id} style={{ padding: 12, borderBottom: "1px solid #fff3e0", background: n.read ? '#fff' : '#fff7ef' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div style={{ fontWeight: 600 }}>{n.title || "Sự kiện"}</div>
                                         {!n.read && (
-                                            <button onClick={() => markAsRead(n._id)} style={{ border: 'none', background: 'transparent', color: '#ff4da6', cursor: 'pointer' }}>Đánh dấu đã đọc</button>
+                                            <button onClick={() => markAsRead(n._id)} style={{ border: 'none', background: 'transparent', color: '#ff9800', cursor: 'pointer' }}>Đánh dấu đã đọc</button>
                                         )}
                                     </div>
                                     <div style={{ fontSize: 14, color: "#555" }}>{n.message}</div>

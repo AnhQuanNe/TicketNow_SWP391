@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 function Payment() {
   const [checkoutUrl, setCheckoutUrl] = useState("");
   const [loading, setLoading] = useState(true);
+  const ranRef = useRef(false);
 
   useEffect(() => {
     const savedTickets = JSON.parse(localStorage.getItem("tickets")) || [];
@@ -15,7 +16,14 @@ function Payment() {
     });
 
     const createPayment = async () => {
+      // Guard: prevent double-run in React StrictMode (dev) or duplicate mounts
+      if (ranRef.current) return;
+      ranRef.current = true;
       try {
+        // Tạo một orderCode và lưu tạm vào localStorage để dùng khi verify sau khi returnUrl
+        const orderCode = String(Date.now());
+        localStorage.setItem('lastOrderCode', orderCode);
+
         const res = await fetch("http://localhost:5000/api/payment/create-payment", {
           method: "POST",
           headers: {
@@ -24,17 +32,21 @@ function Payment() {
           },
           body: JSON.stringify({
             amount: sum,
-            orderCode: Date.now(),
+            orderCode,
             description: `Thanh toán ${savedEventTitle}`.slice(0, 25), // PayOS chỉ cho 25 ký tự
             eventId,
           }),
         });
         const data = await res.json();
-        setCheckoutUrl(data.checkoutUrl);
+
+        // The backend now returns { checkoutUrl, payment }
+        // Try to resolve a usable URL from several possible fields
+        const resolved = data.checkoutUrl || data?.payment?.checkoutUrl || data?.payment?.checkout_url || data?.payment?.url || data?.payment?.redirectUrl || data?.payment?.redirect_url || data?.payment?.data?.checkoutUrl || data?.payment?.data?.checkout_url;
+        setCheckoutUrl(resolved || "");
 
         // 🔹 Mở QR code/checkout bên ngoài
-        if (data.checkoutUrl) {
-          window.location.href = data.checkoutUrl;
+        if (resolved) {
+          window.location.href = resolved;
         }
       } catch (error) {
         console.error("Lỗi tạo QR:", error);
