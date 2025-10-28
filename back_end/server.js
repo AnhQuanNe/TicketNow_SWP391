@@ -14,6 +14,8 @@ import notificationRoutes from './routes/notificationRoutes.js'
 import Notification from './model/Notification.js'
 import Booking from './model/Booking.js'
 import crypto from 'crypto'
+import Agenda from 'agenda';
+import defineNotificationJobs from './jobs/notificationJobs.js';
 // 🧩 Import router cho login/register
 import authRoutes from "./routes/authRoutes.js";
 // import router cho ticket
@@ -47,7 +49,45 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ MongoDB connected"))
+  .then(async () => {
+    console.log("✅ MongoDB connected");
+
+    // Initialize Agenda after Mongo connection
+    try {
+      const agenda = new Agenda({
+        mongo: mongoose.connection.db,
+        db: { collection: 'agendaJobs' },
+      });
+
+      // Define jobs
+      defineNotificationJobs(agenda, io);
+
+      await agenda.start();
+      console.log('✅ Agenda started');
+
+      // Expose agenda on app so controllers/routes can use it
+      app.set('agenda', agenda);
+
+      // Startup rescue: schedule any existing future notifications that lack jobId
+      try {
+        const pending = await Notification.find({ scheduledFor: { $gt: new Date() }, sentAt: null, $or: [ { jobId: { $exists: false } }, { jobId: null } ] });
+        for (const p of pending) {
+          try {
+            const job = await agenda.schedule(p.scheduledFor, 'send-notification', { notificationId: p._id.toString() });
+            p.jobId = job.attrs._id?.toString?.() || null;
+            await p.save();
+            console.log('Rescheduled pending notification into Agenda', { notificationId: p._id.toString(), jobId: p.jobId });
+          } catch (e) {
+            console.error('Failed to schedule pending notification', p._id.toString(), e);
+          }
+        }
+      } catch (e) {
+        console.error('Error while rescuing pending notifications', e);
+      }
+    } catch (e) {
+      console.error('Failed to initialize Agenda', e);
+    }
+  })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // 🟢 Schema cho Category
@@ -123,71 +163,9 @@ io.on("connection", (socket) => {
   });
 });
 
-// Simple scheduler: mỗi 60s gửi các notification đến hạn (scheduledFor <= now, chưa sent)
-setInterval(async () => {
-  try {
-    const due = await Notification.find({ scheduledFor: { $lte: new Date() }, sentAt: null });
-    for (const n of due) {
-      io.to(`user:${n.userId}`).emit('notify', {
-        id: n._id.toString(),
-        title: n.title,
-        message: n.message,
-        time: new Date().toISOString(),
-      });
-      n.sentAt = new Date();
-      await n.save();
-    }
-  } catch (e) {
-    // ignore scheduler errors
-  }
-}, 60000);
+// NOTE: The polling scheduler was removed in favor of Agenda-backed jobs.
+// Agenda will deliver scheduled notifications using the 'send-notification' job.
 
-// 🟣 PayOS Webhook: cần raw body để verify chữ ký
-app.post('/api/payment/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  try {
-    const signature = req.headers['x-signature'] || req.headers['x-payos-signature'];
-    const secret = process.env.PAYOS_CHECKSUM_KEY;
-    const bodyString = req.body.toString('utf8');
-    const computed = crypto.createHmac('sha256', secret).update(bodyString).digest('hex');
-    if (!signature || signature !== computed) {
-      return res.status(400).send('Invalid signature');
-    }
-
-    const payload = JSON.parse(bodyString);
-    const { orderCode, status } = payload || {};
-    if (status !== 'PAID') return res.status(200).send('Ignored');
-
-    const booking = await Booking.findOne({ orderCode });
-    if (!booking) return res.status(404).send('Order not found');
-
-    // Idempotency
-    if (booking.status === 'confirmed' || booking.paidAt) return res.status(200).send('OK');
-
-    booking.status = 'confirmed';
-    booking.paidAt = new Date();
-    await booking.save();
-
-    // Lên lịch nhắc 1 giờ trước event (nếu còn đủ thời gian)
-    const ev = await Event.findById(booking.eventId);
-    if (ev?.date) {
-      const startTime = new Date(ev.date);
-      const oneHourBefore = new Date(startTime.getTime() - 60 * 60 * 1000);
-      if (oneHourBefore > new Date()) {
-        await Notification.create({
-          userId: booking.userId,
-          eventId: booking.eventId,
-          title: 'Nhắc nhở sự kiện',
-          message: 'Sự kiện bạn đã mua sẽ bắt đầu sau 1 giờ',
-          scheduledFor: oneHourBefore,
-        });
-      }
-    }
-
-    res.status(200).send('OK');
-  } catch (e) {
-    res.status(500).send('Server error');
-  }
-});
 
 // �🟢 Chạy server (dùng http server)
 const PORT = process.env.PORT || 5000;
