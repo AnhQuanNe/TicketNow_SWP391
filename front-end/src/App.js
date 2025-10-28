@@ -27,9 +27,15 @@ import FavoritesPage from "./user/js/FavoritesPage"; // 🟩 file hiển thị s
 
 import ImageUpload from "./api/ImageUpload";
 
-function CategoryPage() {
-  return <div>Category Page</div>;
-}
+// 🟨 [A] THÊM Ở ĐÂY: import CategoryPage từ file riêng
+// 🟨 bạn cần tạo file: src/user/js/CategoryPage.js
+// rồi thêm dòng này:
+import CategoryPage from "./user/js/CategoryPage"; 
+
+// 🟨 [B] SAU KHI THÊM DÒNG TRÊN, XÓA ĐOẠN DƯỚI NÀY:
+// function CategoryPage() {
+//   return <div>Category Page</div>;
+// }
 
 function App() {
   // 🟩 [1] Thêm state quản lý danh sách yêu thích
