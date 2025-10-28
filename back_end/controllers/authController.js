@@ -33,10 +33,10 @@ export const register = async (req, res) => {
     }
 
     // ✅ 3️⃣ Kiểm tra định dạng số điện thoại (10 chữ số)
-    if (!/^[0-9]{10}$/.test(phone)) {
-      return res
-        .status(400)
-        .json({ message: "Số điện thoại phải gồm đúng 10 chữ số!" });
+    if (!/^0[0-9]{9}$/.test(phone)) {
+      return res.status(400).json({
+        message: "Số điện thoại phải bắt đầu bằng số 0 và gồm đúng 10 chữ số!",
+      });
     }
 
     // ✅ 4️⃣ Kiểm tra trùng email, số điện thoại, mã sinh viên
