@@ -1,0 +1,173 @@
+.organizer-profile {
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 2rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+  
+  .organizer-profile h2 {
+    font-size: 3rem;
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 3rem;
+    margin-top: -4.5rem;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  
+  .profile-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 20px 60px rgba(255, 107, 53, 0.12);
+    border: 2px solid rgba(255, 107, 53, 0.15);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #ff6b35 0%, #f7931e 50%, #ff6b35 100%);
+  }
+  
+  .profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 80px rgba(255, 107, 53, 0.2);
+    border-color: rgba(255, 107, 53, 0.3);
+  }
+  
+  .profile-card img {
+    display: block;
+    margin: 0 auto 2rem;
+    border-radius: 50%;
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
+    transition: all 0.3s ease;
+    border: 4px solid #fff;
+    background: #fff;
+    padding: 0.5rem;
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+  }
+  
+  .profile-card img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.2);
+  }
+  
+  .profile-card p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #2d3748;
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.5rem;
+    background: #fff;
+    border-radius: 12px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+  
+  .profile-card p:nth-child(2) {
+    border-left-color: #ff8c42;
+  }
+  
+  .profile-card p:nth-child(3) {
+    border-left-color: #ff8c42;
+  }
+  
+  .profile-card p:nth-child(4) {
+    border-left-color: #ff8c42;
+  }
+  
+  .profile-card p:nth-child(5) {
+    border-left-color: #ff8c42;
+  }
+  
+  .profile-card p:nth-child(6) {
+    border-left-color: #ff8c42;
+  }
+  
+  .profile-card p:hover {
+    background: linear-gradient(90deg, rgba(255, 107, 53, 0.08) 0%, #fff 15%);
+    transform: translateX(8px);
+    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.1);
+  }
+  
+  .profile-card strong {
+    color: #ff6b35;
+    font-weight: 700;
+    display: inline-block;
+    min-width: 160px;
+    margin-right: 0.75rem;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Loading state */
+  .organizer-profile > div:not(.profile-card) {
+    text-align: center;
+    padding: 4rem;
+    font-size: 1.2rem;
+    color: #ff8c42;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .organizer-profile {
+      padding: 1rem;
+      margin: 1.5rem auto;
+    }
+  
+    .organizer-profile h2 {
+      font-size: 2rem;
+    }
+  
+    .profile-card {
+      padding: 2rem 1.5rem;
+      border-radius: 16px;
+    }
+  
+    .profile-card img {
+      width: 100px !important;
+      height: 100px;
+      object-fit: cover;
+      margin-bottom: 1.5rem;
+    }
+  
+    .profile-card p {
+      font-size: 0.95rem;
+      padding: 0.875rem 1rem;
+      margin-bottom: 1rem;
+    }
+  
+    .profile-card p:hover {
+      transform: translateX(4px);
+    }
+  
+    .profile-card strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      min-width: auto;
+      font-size: 0.85rem;
+    }
+  }
+  

@@ -168,7 +168,7 @@ io.on("connection", (socket) => {
 
 
 // �🟢 Chạy server (dùng http server)
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5005;
 server.listen(PORT, () =>
   console.log(`🚀 Server chạy tại http://localhost:${PORT}`)
 );
