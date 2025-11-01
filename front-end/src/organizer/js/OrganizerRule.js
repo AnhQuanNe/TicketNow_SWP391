@@ -47,3 +47,4 @@ function OrganizerRules({ onAgree }) {
 }
 
 export default OrganizerRules;
+//js

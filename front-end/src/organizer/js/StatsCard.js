@@ -11,3 +11,4 @@ function StatsCard({ title, value }) {
 }
 
 export default StatsCard;
+//js

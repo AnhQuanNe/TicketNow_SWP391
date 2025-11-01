@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import StatsCard from "./StatsCard";
 import "../css/Dashboard.css";
-
+//js
 function Dashboard() {
   const [stats, setStats] = useState([]);
 
