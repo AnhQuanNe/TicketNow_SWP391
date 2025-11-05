@@ -1,11 +1,21 @@
 // 🟩 Kích hoạt ESM: trong package.json phải có "type": "module"
 import express from "express";
+import http from "http";
+import { Server as SocketIOServer } from "socket.io";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import Event from './model/Event.js'
+import eventRoutes from './routes/eventRoutes.js'
+import reviewRoutes from './routes/reviewRoutes.js'
+import notificationRoutes from './routes/notificationRoutes.js'
+import Notification from './model/Notification.js'
+import Booking from './model/Booking.js'
+import crypto from 'crypto'
+import Agenda from 'agenda';
+import defineNotificationJobs from './jobs/notificationJobs.js';
 // 🧩 Import router cho login/register
 import authRoutes from "./routes/authRoutes.js";
 // import router cho ticket
@@ -20,8 +30,13 @@ import userRoutes from "./routes/userRoutes.js";
 // 🟢 Cấu hình dotenv để đọc .env
 dotenv.config();
 
-// 🟢 Khởi tạo app
+// 🟢 Khởi tạo app + socket
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: { origin: /http:\/\/localhost:\d+/, methods: ["GET", "POST"] },
+});
+app.set("io", io);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(cors());
@@ -35,7 +50,45 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ MongoDB connected"))
+  .then(async () => {
+    console.log("✅ MongoDB connected");
+
+    // Initialize Agenda after Mongo connection
+    try {
+      const agenda = new Agenda({
+        mongo: mongoose.connection.db,
+        db: { collection: 'agendaJobs' },
+      });
+
+      // Define jobs
+      defineNotificationJobs(agenda, io);
+
+      await agenda.start();
+      console.log('✅ Agenda started');
+
+      // Expose agenda on app so controllers/routes can use it
+      app.set('agenda', agenda);
+
+      // Startup rescue: schedule any existing future notifications that lack jobId
+      try {
+        const pending = await Notification.find({ scheduledFor: { $gt: new Date() }, sentAt: null, $or: [ { jobId: { $exists: false } }, { jobId: null } ] });
+        for (const p of pending) {
+          try {
+            const job = await agenda.schedule(p.scheduledFor, 'send-notification', { notificationId: p._id.toString() });
+            p.jobId = job.attrs._id?.toString?.() || null;
+            await p.save();
+            console.log('Rescheduled pending notification into Agenda', { notificationId: p._id.toString(), jobId: p.jobId });
+          } catch (e) {
+            console.error('Failed to schedule pending notification', p._id.toString(), e);
+          }
+        }
+      } catch (e) {
+        console.error('Error while rescuing pending notifications', e);
+      }
+    } catch (e) {
+      console.error('Failed to initialize Agenda', e);
+    }
+  })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // 🟢 Schema cho Category
@@ -58,6 +111,11 @@ app.get("/api/categories", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.use('/api/events', eventRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/notifications', notificationRoutes);
+
 
 // 🟢 API: Lấy toàn bộ events (có filter categoryId)
 app.get("/api/events", async (req, res) => {
@@ -95,9 +153,27 @@ app.use("/api/bookings", bookingRoutes); // api booking
 // 🟢 🔑 API: Sửa thông tin người dùng
 app.use("/api/users", userRoutes);
 
-// 🟢 Chạy server
+// � Socket.IO basic events
+io.on("connection", (socket) => {
+  // client join theo userId và theo event room để nhận review mới
+  socket.on("join", ({ userId, eventId }) => {
+    if (userId) socket.join(`user:${userId}`);
+    if (eventId) socket.join(`event:${eventId}`);
+  });
+
+  socket.on("leave", ({ userId, eventId }) => {
+    if (userId) socket.leave(`user:${userId}`);
+    if (eventId) socket.leave(`event:${eventId}`);
+  });
+});
+
+// NOTE: The polling scheduler was removed in favor of Agenda-backed jobs.
+// Agenda will deliver scheduled notifications using the 'send-notification' job.
+
+
+// �🟢 Chạy server (dùng http server)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
+server.listen(PORT, () =>
   console.log(`🚀 Server chạy tại http://localhost:${PORT}`)
 );
 

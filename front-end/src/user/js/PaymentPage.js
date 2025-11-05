@@ -20,12 +20,18 @@ function Payment() {
     }
 
     const createPayment = async () => {
+      // Guard: prevent double-run in React StrictMode (dev) or duplicate mounts
+      if (ranRef.current) return;
+      ranRef.current = true;
       try {
         const orderCode = Date.now(); // 👉 dùng làm paymentId duy nhất
 
         const res = await fetch("http://localhost:5000/api/payment/create-payment", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             amount: pendingTicket.price,
             orderCode,

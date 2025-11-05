@@ -8,10 +8,10 @@ function MyNavbar({ categories }) {
   }
   return (
     <nav className="nav-links">
-      <Link to="/music">Âm nhạc</Link>
-      <Link to="/workshop">Hội thảo</Link>
-      <Link to="/sport">Thể thao</Link>
-      <Link to="s/sport">Hội chợ</Link>
+      <Link to="/category/music">Âm nhạc</Link>
+      <Link to="/category/workshop">Hội thảo</Link>
+      <Link to="/category/sport">Thể thao</Link>
+      <Link to="/category/market">Hội chợ</Link>
       <button className="my-ticket"onClick= {handleCreateEvent}>Vé của tôi</button>
       <button className="create-events"onClick= {handleCreateEvent}>Tạo sự kiện</button>
 

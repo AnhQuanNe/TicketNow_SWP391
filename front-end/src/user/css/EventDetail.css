@@ -1,0 +1,113 @@
+.ed-page {
+    background-color: #ffe6f2;
+    color: #333;
+    font-family: Poppins, sans-serif;
+    min-height: 100vh;
+    padding-bottom: 60px
+}
+
+.ed-banner {
+    position: relative;
+    width: 100%;
+    height: 420px;
+    overflow: hidden;
+    border-bottom: 4px solid #ff4da6
+}
+
+.ed-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(80%)
+}
+
+.ed-banner-overlay {
+    position: absolute;
+    bottom: 30px;
+    left: 60px;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, .4)
+}
+
+.ed-title {
+    font-size: 2.6rem;
+    margin-bottom: 10px;
+    color: #fff;
+    font-weight: 700
+}
+
+.ed-subtitle {
+    font-size: 1.1rem;
+    opacity: .95
+}
+
+.ed-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    margin: 60px auto;
+    width: 80%;
+    flex-wrap: wrap
+}
+
+.ed-description {
+    flex: 1.5;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 16px;
+    box-shadow: 0 0 12px rgba(255, 77, 166, .2);
+    min-width: 300px
+}
+
+.ed-desc-title {
+    color: #ff4da6;
+    margin-bottom: 15px;
+    font-weight: 600
+}
+
+.ed-info {
+    flex: 1;
+    background: #fff;
+    border-radius: 16px;
+    padding: 25px 30px;
+    box-shadow: 0 0 15px rgba(255, 77, 166, .25);
+    border: 1px solid #ffd6eb;
+    min-width: 280px
+}
+
+.ed-info-text {
+    margin-bottom: 12px;
+    font-size: 1.05rem;
+    color: #444
+}
+
+.ed-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px 0;
+    background: linear-gradient(90deg, #ff66b2, #ff4da6);
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: .3s;
+    box-shadow: 0 4px 12px rgba(255, 77, 166, .3)
+}
+
+.ed-btn:hover {
+    background: linear-gradient(90deg, #ff80bf, #ff99cc)
+}
+
+.ed-review-panel {
+    width: 80%;
+    margin: 0 auto 60px;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 20px;
+    box-shadow: 0 0 18px rgba(255, 77, 166, .22);
+    border: 1px solid #ffd6eb;
+    min-height: 420px
+}

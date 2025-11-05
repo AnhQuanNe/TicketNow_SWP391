@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Review from "./Review";
 
 function EventDetail() {
   const { id } = useParams();
@@ -15,13 +16,11 @@ function EventDetail() {
       .then((data) => {
         setEvent({
           ...data,
-          // ✅ map đúng trường từ database
-          imageURL: data.imageUrl || "https://via.placeholder.com/900x400?text=No+Image"
+          imageURL: data.imageUrl || "https://via.placeholder.com/900x400?text=No+Image",
         });
       })
       .catch((err) => console.error(err));
   }, [id]);
-
 
   if (!event)
     return (
@@ -169,12 +168,12 @@ border: "none",
           <button
             style={styles.btn}
             onMouseEnter={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #ff80bf, #ff99cc)")
+              (e.target.style.background =
+                "linear-gradient(90deg, #ff80bf, #ff99cc)")
             }
             onMouseLeave={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #ff66b2, #ff4da6)")
+              (e.target.style.background =
+                "linear-gradient(90deg, #ff66b2, #ff4da6)")
             }
             onClick={handleBuyTicket}
           >
@@ -182,6 +181,13 @@ border: "none",
           </button>
         </div>
       </div>
+
+      {/* ⭐ Reviews full-width panel below */}
+      <Review
+        eventId={event._id}
+        token={localStorage.getItem("token")}
+        currentUser={JSON.parse(localStorage.getItem("user") || "null")}
+      />
     </div>
   );
 }
