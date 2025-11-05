@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
+import Location from "./Location.js"; // ✅ THÊM DÒNG NÀY
 
-const eventSchema = new mongoose.Schema({
+
+const Event =
+  mongoose.models.Event || mongoose.model("Event", eventSchema, "Events");
+
   title: { type: String, required: true, trim: true },
   description: { type: String },
   // 🔗 Tham chiếu sang các collection khác (để populate)

@@ -117,7 +117,7 @@ function EventDetail() {
       color: "#fff",
       fontWeight: 600,
       fontSize: "1.1rem",
-      border: "none",
+border: "none",
       borderRadius: "8px",
       cursor: "pointer",
       transition: "0.3s",

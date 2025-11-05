@@ -1,11 +1,7 @@
 import express from "express";
 import { PayOS } from "@payos/node";
 import dotenv from "dotenv";
-import Booking from "../model/Booking.js";
-import Notification from "../model/Notification.js";
-import { createNotification } from "../controllers/notificationController.js";
-import Event from "../model/Event.js";
-import { protect } from "../middleware/authMiddleware.js";
+import Booking from "../model/Booking.js"; // model MongoDB của bạn
 
 dotenv.config();
 const router = express.Router();
@@ -16,86 +12,46 @@ const payos = new PayOS({
   checksumKey: process.env.PAYOS_CHECKSUM_KEY,
 });
 
-router.post("/create-payment", protect, async (req, res) => {
-  console.log(" Nhận yêu cầu tạo thanh toán:", req.body);
+// ✅ 1. Tạo link thanh toán
+router.post("/create-payment", async (req, res) => {
   try {
     const { amount, orderCode, description, eventId } = req.body;
 
-    if (!amount || !orderCode || !eventId) {
-      return res.status(400).json({ error: "Thiếu thông tin thanh toán (amount/orderCode/eventId)" });
-    }
-
-    // Tránh tạo duplicate khi người dùng gửi nhiều request nhanh (double-click)
-    // Tìm booking pending gần nhất cho user+event trong 30s gần đây, nếu có thì reuse
-  // Keep a string orderCode for storing in Booking (easier for lookups and compatibility)
-  let orderCodeToUse = String(orderCode);
-    const recentWindowMs = 30 * 1000; // 30s
-    const recent = await Booking.findOne({
-      userId: req.user._id,
-      eventId,
-      status: 'pending',
-      createdAt: { $gte: new Date(Date.now() - recentWindowMs) }
-    });
-    if (recent) {
-      orderCodeToUse = String(recent.orderCode);
-    } else {
-      orderCodeToUse = String(orderCode ?? Date.now());
-      await Booking.create({
-        userId: req.user._id,
-        eventId,
-        ticketId: req.body.ticketId ?? null,
-        quantity: req.body.quantity ?? 1,
-        status: 'pending',
-        orderCode: orderCodeToUse,
-      });
-    }
-
-    // Prepare a numeric orderCode when calling PayOS (PayOS expects a number within JS safe integer range)
-    let orderCodeNumber = Number(orderCodeToUse);
-    const MAX_SAFE = Number.MAX_SAFE_INTEGER || 9007199254740991;
-    if (!Number.isInteger(orderCodeNumber) || orderCodeNumber <= 0 || orderCodeNumber > MAX_SAFE) {
-      // Fallback to a smaller unique integer (seconds since epoch) to satisfy PayOS constraints
-      orderCodeNumber = Math.floor(Date.now() / 1000);
-      console.warn('Coerced orderCode to safe integer for PayOS:', orderCodeNumber);
-    }
-
-    // Call PayOS with a numeric orderCode
     const payment = await payos.paymentRequests.create({
       orderCode: orderCodeNumber,
       amount,
-      description: (description || "Thanh toán vé sự kiện").slice(0, 25),
-
+      description,
       cancelUrl: "http://localhost:3000/payment-fail",
-      returnUrl: "http://localhost:3000/payment-success",
+      returnUrl: `http://localhost:3000/payment-success?status=PAID`,
     });
 
-    // Log full response from PayOS for debugging
-    console.log("✅ PayOS response:", payment);
-
-    // Try multiple common property names used by payment SDKs / providers
-    const checkoutUrl =
-      payment?.checkoutUrl ||
-      payment?.checkout_url ||
-      payment?.url ||
-      payment?.redirectUrl ||
-      payment?.redirect_url ||
-      payment?.data?.checkoutUrl ||
-      payment?.data?.checkout_url ||
-      null;
-
-    console.log("Resolved checkoutUrl:", checkoutUrl);
-
-    // Return both the resolved URL (if any) and the raw payment object for debugging on frontend
-    return res.json({ checkoutUrl, payment });
+    res.json({ checkoutUrl: payment.checkoutUrl });
   } catch (error) {
-    console.error("❌ Lỗi tạo thanh toán:");
-    console.error("→ Message:", error.message);
-    console.error("→ Response data:", error.response?.data);
-    console.error("→ Stack:", error.stack);
+    console.error("❌ Lỗi tạo thanh toán:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
-    return res.status(500).json({
-      error: error.response?.data || error.message || "Không thể tạo mã QR",
+// ✅ 2. Sau khi thanh toán thành công → lưu vé
+router.post("/payment-success", async (req, res) => {
+  try {
+    const { userId, eventId, quantity, totalPrice, paymentId } = req.body;
+
+    const booking = new Booking({
+      userId,
+      eventId,
+      quantity,
+      totalPrice,
+      paymentId,
+      status: "confirmed",
+      createdAt: new Date(),
     });
+
+    await booking.save();
+    res.json({ success: true, message: "Booking created successfully!" });
+  } catch (err) {
+    console.error("❌ Lỗi lưu booking:", err);
+    res.status(500).json({ message: "Không thể lưu vé!" });
   }
 });
 

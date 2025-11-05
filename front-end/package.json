@@ -5,8 +5,6 @@
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.8.0",
-    "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
@@ -16,6 +14,9 @@
     "react": "^18.3.1",
     "react-datepicker": "^8.7.0",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^7.9.4",
+    "react-scripts": "5.0.1",
+    "sweetalert2": "^11.26.2",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.9.3",
     "react-scripts": "5.0.1",
@@ -23,11 +24,27 @@
     "socket.io-client": "^4.8.1",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-react": "^7.28.5",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "babel-jest": "^30.2.0",
+    "gh-pages": "^6.3.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.5.1"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:jest": "jest --watchAll --env=jsdom"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    }
   },
   "eslintConfig": {
     "extends": [
@@ -46,8 +63,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "gh-pages": "^6.3.0"
   }
 }

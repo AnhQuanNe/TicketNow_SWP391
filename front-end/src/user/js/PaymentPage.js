@@ -1,28 +1,30 @@
 import React, { useEffect, useState, useRef } from "react";
 
 function Payment() {
-  const [checkoutUrl, setCheckoutUrl] = useState("");
   const [loading, setLoading] = useState(true);
-  const ranRef = useRef(false);
+  const hasCreated = useRef(false);
 
   useEffect(() => {
-    const savedTickets = JSON.parse(localStorage.getItem("tickets")) || [];
-    const savedEventTitle = localStorage.getItem("eventTitle") || "";
-    const eventId = localStorage.getItem('lastPaidEventId');
-    const token = localStorage.getItem('token');
-    let sum = 0;
-    savedTickets.forEach((t) => {
-      sum += (Number(t.price) || 0) * (Number(t.quantity) || 0);
-    });
+    if (hasCreated.current) return;
+    hasCreated.current = true;
+
+    const pendingTicket = JSON.parse(localStorage.getItem("pendingTicket"));
+    const eventTitle = localStorage.getItem("eventTitle") || "Sự kiện";
+
+    console.log("📦 Payment page debug:", pendingTicket);
+
+    if (!pendingTicket?.userId || !pendingTicket?.eventId || !pendingTicket?.price) {
+      alert("❌ Thiếu thông tin thanh toán");
+      setLoading(false);
+      return;
+    }
 
     const createPayment = async () => {
       // Guard: prevent double-run in React StrictMode (dev) or duplicate mounts
       if (ranRef.current) return;
       ranRef.current = true;
       try {
-        // Tạo một orderCode và lưu tạm vào localStorage để dùng khi verify sau khi returnUrl
-        const orderCode = String(Date.now());
-        localStorage.setItem('lastOrderCode', orderCode);
+        const orderCode = Date.now(); // 👉 dùng làm paymentId duy nhất
 
         const res = await fetch("http://localhost:5000/api/payment/create-payment", {
           method: "POST",
@@ -31,25 +33,25 @@ function Payment() {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           body: JSON.stringify({
-            amount: sum,
+            amount: pendingTicket.price,
             orderCode,
-            description: `Thanh toán ${savedEventTitle}`.slice(0, 25), // PayOS chỉ cho 25 ký tự
-            eventId,
+            description: `Thanh toán ${eventTitle}`.slice(0, 25),
           }),
         });
+
         const data = await res.json();
+        console.log("Payment create response:", data);
 
-        // The backend now returns { checkoutUrl, payment }
-        // Try to resolve a usable URL from several possible fields
-        const resolved = data.checkoutUrl || data?.payment?.checkoutUrl || data?.payment?.checkout_url || data?.payment?.url || data?.payment?.redirectUrl || data?.payment?.redirect_url || data?.payment?.data?.checkoutUrl || data?.payment?.data?.checkout_url;
-        setCheckoutUrl(resolved || "");
-
-        // 🔹 Mở QR code/checkout bên ngoài
-        if (resolved) {
-          window.location.href = resolved;
+        if (data.checkoutUrl) {
+          pendingTicket.paymentId = orderCode; // ✅ lưu để PaymentSuccess dùng
+          localStorage.setItem("pendingTicket", JSON.stringify(pendingTicket));
+          window.location.href = data.checkoutUrl;
+        } else {
+          alert("❌ Không tạo được link thanh toán!");
         }
-      } catch (error) {
-        console.error("Lỗi tạo QR:", error);
+      } catch (err) {
+        console.error("❌ Lỗi tạo link thanh toán:", err);
+        alert("❌ Không thể kết nối máy chủ!");
       } finally {
         setLoading(false);
       }
@@ -59,45 +61,9 @@ function Payment() {
   }, []);
 
   return (
-    <div
-      style={{
-        padding: "50px 20px",
-        background: "#fff0f5",
-        minHeight: "100vh",
-        textAlign: "center",
-        color: "#333",
-        fontFamily: "'Poppins', sans-serif",
-      }}
-    >
-      <h2
-        style={{
-          color: "#e60073",
-          fontWeight: "700",
-          marginBottom: "20px",
-          fontSize: "28px",
-        }}
-      >
-        💖 Thanh toán vé sự kiện
-      </h2>
-
-      <div
-        style={{
-          background: "#fff",
-          maxWidth: "600px",
-          margin: "0 auto",
-          borderRadius: "20px",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-          padding: "30px 20px",
-        }}
-      >
-        {loading ? (
-          <p style={{ color: "#e60073", fontWeight: "bold" }}>Đang tạo link thanh toán...</p>
-        ) : (
-          <p style={{ color: "#e60073", fontWeight: "bold" }}>
-            Nếu trình duyệt không tự mở, <a href={checkoutUrl} target="_blank" rel="noreferrer">bấm vào đây</a>
-          </p>
-        )}
-      </div>
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h2>💳 Đang xử lý thanh toán...</h2>
+      {loading && <p>⏳ Đang tạo link thanh toán, vui lòng chờ...</p>}
     </div>
   );
 }
