@@ -12,7 +12,8 @@ import authRoutes from "./routes/authRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
 // import router cho payments
 import paymentRoutes from "./routes/paymentRoutes.js";
-
+//import booking
+import bookingRoutes from "./routes/bookingRoutes.js";
 
 import userRoutes from "./routes/userRoutes.js"; 
 
@@ -45,17 +46,8 @@ const categorySchema = new mongoose.Schema({
 
 const Category = mongoose.model("Category", categorySchema, "Categories");
 
-// 🟢 Schema cho Event
-const eventSchema = new mongoose.Schema({
-  title: String,
-  categoryId: String, // đồng bộ với frontend
-  banner: String,
-  startDate: String,
-  endDate: String,
-  location: String,
-});
+import Event from "./model/Event.js";
 
-const Event = mongoose.model("Event", eventSchema, "Events");
 
 // 🟢 API: Lấy toàn bộ categories
 app.get("/api/categories", async (req, res) => {
@@ -98,6 +90,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);  // api ticket
 app.use("/api/payment", paymentRoutes); // api router
+app.use("/api/bookings", bookingRoutes); // api booking
 
 // 🟢 🔑 API: Sửa thông tin người dùng
 app.use("/api/users", userRoutes);

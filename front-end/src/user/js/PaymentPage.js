@@ -1,54 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 function Payment() {
-  const [checkoutUrl, setCheckoutUrl] = useState("");
   const [loading, setLoading] = useState(true);
+  const hasCreated = useRef(false);
 
   useEffect(() => {
-    const savedTickets = JSON.parse(localStorage.getItem("tickets")) || [];
-    const savedEventTitle = localStorage.getItem("eventTitle") || "";
-    const eventId = localStorage.getItem("eventId");
-    const user = JSON.parse(localStorage.getItem("user"));
+    if (hasCreated.current) return;
+    hasCreated.current = true;
 
-    let sum = 0;
-    savedTickets.forEach((t) => {
-      sum += (Number(t.price) || 0) * (Number(t.quantity) || 0);
-    });
+    const pendingTicket = JSON.parse(localStorage.getItem("pendingTicket"));
+    const eventTitle = localStorage.getItem("eventTitle") || "Sự kiện";
 
-    // 🧩 Lưu tạm thông tin vé vào localStorage để PaymentSuccess đọc lại
-    localStorage.setItem(
-      "pendingTicket",
-      JSON.stringify({
-        userId: user?.id,
-        eventId,
-        quantity: 1,
-        price: sum,
-      })
-    );
+    console.log("📦 Payment page debug:", pendingTicket);
+
+    if (!pendingTicket?.userId || !pendingTicket?.eventId || !pendingTicket?.price) {
+      alert("❌ Thiếu thông tin thanh toán");
+      setLoading(false);
+      return;
+    }
 
     const createPayment = async () => {
       try {
+        const orderCode = Date.now(); // 👉 dùng làm paymentId duy nhất
+
         const res = await fetch("http://localhost:5000/api/payment/create-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            amount: sum,
-            orderCode: Date.now(),
-            description: `Thanh toán ${savedEventTitle}`.slice(0, 25),
-            // ✅ PayOS trả về sau khi thanh toán thành công
-            returnUrl: `http://localhost:3000/payment-success?status=PAID&userId=${user?.id}&eventId=${eventId}&price=${sum}`,
-
+            amount: pendingTicket.price,
+            orderCode,
+            description: `Thanh toán ${eventTitle}`.slice(0, 25),
           }),
         });
 
         const data = await res.json();
-        setCheckoutUrl(data.checkoutUrl);
+        console.log("Payment create response:", data);
 
         if (data.checkoutUrl) {
+          pendingTicket.paymentId = orderCode; // ✅ lưu để PaymentSuccess dùng
+          localStorage.setItem("pendingTicket", JSON.stringify(pendingTicket));
           window.location.href = data.checkoutUrl;
+        } else {
+          alert("❌ Không tạo được link thanh toán!");
         }
-      } catch (error) {
-        console.error("Lỗi tạo QR:", error);
+      } catch (err) {
+        console.error("❌ Lỗi tạo link thanh toán:", err);
+        alert("❌ Không thể kết nối máy chủ!");
       } finally {
         setLoading(false);
       }
@@ -58,48 +55,9 @@ function Payment() {
   }, []);
 
   return (
-    <div
-      style={{
-        padding: "50px 20px",
-        background: "#fff0f5",
-        minHeight: "100vh",
-        textAlign: "center",
-        color: "#333",
-        fontFamily: "'Poppins', sans-serif",
-      }}
-    >
-      <h2
-        style={{
-          color: "#e60073",
-          fontWeight: "700",
-          marginBottom: "20px",
-          fontSize: "28px",
-        }}
-      >
-        💖 Thanh toán vé sự kiện
-      </h2>
-
-      <div
-        style={{
-          background: "#fff",
-          maxWidth: "600px",
-          margin: "0 auto",
-          borderRadius: "20px",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-          padding: "30px 20px",
-        }}
-      >
-        {loading ? (
-          <p style={{ color: "#e60073", fontWeight: "bold" }}>Đang tạo link thanh toán...</p>
-        ) : (
-          <p style={{ color: "#e60073", fontWeight: "bold" }}>
-            Nếu trình duyệt không tự mở,{" "}
-            <a href={checkoutUrl} target="_blank" rel="noreferrer">
-              bấm vào đây
-            </a>
-          </p>
-        )}
-      </div>
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h2>💳 Đang xử lý thanh toán...</h2>
+      {loading && <p>⏳ Đang tạo link thanh toán, vui lòng chờ...</p>}
     </div>
   );
 }

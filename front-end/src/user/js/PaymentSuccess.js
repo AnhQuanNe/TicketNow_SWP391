@@ -1,64 +1,63 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 function PaymentSuccess() {
   const navigate = useNavigate();
+  const hasRun = useRef(false); // ✅ đảm bảo chỉ chạy 1 lần
 
   useEffect(() => {
-    const saveTicket = async () => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
+    const saveBooking = async () => {
       const params = new URLSearchParams(window.location.search);
       const status = params.get("status");
 
-      // ✅ Lấy thông tin từ URL hoặc fallback sang localStorage
-      const storedTicket = JSON.parse(localStorage.getItem("pendingTicket")) || {};
-      const userId = params.get("userId") || storedTicket.userId;
-      const eventId = params.get("eventId") || storedTicket.eventId;
-      const price = params.get("price") || storedTicket.price;
-      const quantity = params.get("quantity") || storedTicket.quantity || 1;
+      if (status !== "PAID") {
+        Swal.fire("❌ Thanh toán thất bại", "Vui lòng thử lại!", "error");
+        setTimeout(() => navigate("/"), 3000);
+        return;
+      }
 
-      console.log("Thông tin vé nhận được:", { status, userId, eventId, price, quantity });
+      const pendingTicket = JSON.parse(localStorage.getItem("pendingTicket"));
+      if (!pendingTicket) {
+        Swal.fire("⚠️ Lỗi", "Không tìm thấy thông tin vé!", "error");
+        navigate("/");
+        return;
+      }
 
-      if (status === "PAID" && userId && eventId && price) {
-        try {
-          const res = await fetch("http://localhost:5000/api/tickets", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId, eventId, price, quantity }),
-          });
+      try {
+        const res = await fetch("http://localhost:5000/api/payment/payment-success", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: pendingTicket.userId,
+            eventId: pendingTicket.eventId,
+            quantity: pendingTicket.quantity || 1,
+            totalPrice: pendingTicket.price,
+            paymentId: pendingTicket.paymentId,
+          }),
+        });
 
-          if (res.ok) {
-            Swal.fire("🎉 Thành công!", "Vé của bạn đã được lưu!", "success");
-            localStorage.removeItem("pendingTicket"); // Xóa vé tạm để tránh lưu trùng
-            setTimeout(() => navigate("/my-tickets"), 2000);
-          } else {
-            Swal.fire("Lỗi", "Không thể lưu vé!", "error");
-          }
-        } catch (err) {
-          console.error("Lỗi lưu vé:", err);
-          Swal.fire("Lỗi", "Không thể kết nối máy chủ!", "error");
+        if (res.ok) {
+          Swal.fire("🎉 Thành công!", "Vé của bạn đã được lưu!", "success");
+          localStorage.removeItem("pendingTicket");
+          setTimeout(() => navigate("/my-tickets"), 2000);
+        } else {
+          const data = await res.json();
+          Swal.fire("❌ Lỗi", data.message || "Không thể lưu vé!", "error");
         }
-      } else {
-        Swal.fire("Thanh toán thất bại", "Thiếu thông tin cần thiết!", "error");
-        setTimeout(() => navigate("/"), 2500);
+      } catch (err) {
+        console.error(err);
+        Swal.fire("❌ Lỗi", "Không thể kết nối máy chủ!", "error");
       }
     };
 
-    saveTicket();
-  }, [navigate]);
+    saveBooking();
+  }, []); // ⚠️ bỏ [navigate], để effect chỉ chạy 1 lần
 
-  return (
-    <div
-      style={{
-        padding: "50px",
-        textAlign: "center",
-        fontFamily: "'Poppins', sans-serif",
-      }}
-    >
-      <h2 style={{ color: "#e60073" }}>🎉 Thanh toán thành công!</h2>
-      <p>Đang xử lý vé của bạn...</p>
-    </div>
-  );
+  return null;
 }
 
 export default PaymentSuccess;

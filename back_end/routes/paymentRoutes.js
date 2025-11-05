@@ -1,6 +1,7 @@
 import express from "express";
 import { PayOS } from "@payos/node";
 import dotenv from "dotenv";
+import Booking from "../model/Booking.js"; // model MongoDB của bạn
 
 dotenv.config();
 const router = express.Router();
@@ -11,36 +12,46 @@ const payos = new PayOS({
   checksumKey: process.env.PAYOS_CHECKSUM_KEY,
 });
 
+// ✅ 1. Tạo link thanh toán
 router.post("/create-payment", async (req, res) => {
-  console.log("📩 Nhận yêu cầu tạo thanh toán:", req.body);
   try {
     const { amount, orderCode, description } = req.body;
 
-    if (!amount || !orderCode) {
-      return res.status(400).json({ error: "Thiếu thông tin thanh toán" });
-    }
-
-    // ✅ Sử dụng đúng phương thức
     const payment = await payos.paymentRequests.create({
       orderCode,
       amount,
-      description: (description || "Thanh toán vé sự kiện").slice(0, 25),
-
+      description,
       cancelUrl: "http://localhost:3000/payment-fail",
-      returnUrl: "http://localhost:3000/payment-success",
+      returnUrl: `http://localhost:3000/payment-success?status=PAID`,
     });
 
-    console.log("✅ Tạo thành công link thanh toán:", payment.checkoutUrl);
-    return res.json({ checkoutUrl: payment.checkoutUrl });
+    res.json({ checkoutUrl: payment.checkoutUrl });
   } catch (error) {
-    console.error("❌ Lỗi tạo thanh toán:");
-    console.error("→ Message:", error.message);
-    console.error("→ Response data:", error.response?.data);
-    console.error("→ Stack:", error.stack);
+    console.error("❌ Lỗi tạo thanh toán:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
-    return res.status(500).json({
-      error: error.response?.data || error.message || "Không thể tạo mã QR",
+// ✅ 2. Sau khi thanh toán thành công → lưu vé
+router.post("/payment-success", async (req, res) => {
+  try {
+    const { userId, eventId, quantity, totalPrice, paymentId } = req.body;
+
+    const booking = new Booking({
+      userId,
+      eventId,
+      quantity,
+      totalPrice,
+      paymentId,
+      status: "confirmed",
+      createdAt: new Date(),
     });
+
+    await booking.save();
+    res.json({ success: true, message: "Booking created successfully!" });
+  } catch (err) {
+    console.error("❌ Lỗi lưu booking:", err);
+    res.status(500).json({ message: "Không thể lưu vé!" });
   }
 });
 

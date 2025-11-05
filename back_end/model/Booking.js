@@ -1,37 +1,23 @@
-// models/Booking.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
-    _id: {
-      type: String, // booking_1, booking_2... (tự quản lý theo dạng string)
-      required: true,
-    },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // liên kết với User
-      required: true,
-    },
-    eventId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Event", // liên kết với Event
-      required: true,
-    },
-    bookingDate: {
-      type: Date,
-      default: Date.now,
-    },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true }, // ✅ ref đúng rồi
+    quantity: { type: Number, required: true },
+    totalPrice: { type: Number, required: true },
     status: {
       type: String,
       enum: ["pending", "confirmed", "cancelled"],
-      default: "pending",
+      default: "confirmed",
     },
-    paymentId: {
-      type: String, // sau này liên kết Payment
-      default: null,
-    },
+    paymentId: { type: String, default: null },
   },
-  { timestamps: true } // tự động thêm createdAt, updatedAt
+  { timestamps: true } // ✅ tự động thêm createdAt + updatedAt
 );
 
-module.exports = mongoose.model("Booking", bookingSchema);
+// ⚠️ Không nên chỉ định "Bookings" làm tên collection nếu model Event dùng mặc định "events"
+const Booking =
+  mongoose.models.Booking || mongoose.model("Booking", bookingSchema); // ✅ bỏ tham số "Bookings"
+
+export default Booking;

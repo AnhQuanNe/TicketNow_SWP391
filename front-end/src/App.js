@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./user/css/Banner.css";
+ import "./user/css/Banner.css"; 
 import "./user/css/EventSection.css";
 import "./user/css/Favourites.css";
 import "./user/css/Footer.css";

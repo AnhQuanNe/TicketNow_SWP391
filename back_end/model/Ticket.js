@@ -1,17 +1,21 @@
-// back_end/model/Ticket.js
 import mongoose from "mongoose";
+
+// 🧩 Nếu model "Ticket" đã được định nghĩa, xóa nó khỏi cache trước
+if (mongoose.models.Tickets) {
+  delete mongoose.models.Tickets;
+}
 
 const ticketSchema = new mongoose.Schema(
   {
     bookingId: {
-      type: String, // hoặc mongoose.Schema.Types.ObjectId nếu muốn ref Booking
+      type: String,
       ref: "Booking",
       required: true,
     },
     qrCode: {
       type: String,
       required: true,
-      unique: true, // mỗi vé có 1 mã QR duy nhất
+      unique: true,
     },
     seatNumber: {
       type: String,
@@ -19,7 +23,7 @@ const ticketSchema = new mongoose.Schema(
     },
     ticketType: {
       type: String,
-      required: true, // ví dụ: VIP, Standard, VVIP
+      required: true,
     },
     issuedAt: {
       type: Date,
@@ -29,4 +33,5 @@ const ticketSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Ticket", ticketSchema);
+// ⚙️ Chỉ định rõ collection “tickets”
+export default mongoose.model("Tickets", ticketSchema, "tickets");
