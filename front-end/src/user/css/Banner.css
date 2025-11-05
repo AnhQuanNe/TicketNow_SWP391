@@ -1,79 +1,115 @@
+/* ==============================
+   🎟️ Banner chính (Hero Banner)
+   ============================== */
+
+.banner {
+  position: relative;
+  flex: 1;
+  /* ✅ Chia đều không gian cho 2 banner */
+  height: 480px;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  background-color: #111;
+}
+
 .banner-container {
   display: flex;
   gap: 20px;
-  padding: 0 50px;
+  /* Khoảng cách giữa 2 banner */
+  max-width: 1280px;
+  margin: 40px auto;
+  padding: 0 20px;
 }
 
-.banner {
-  flex: 1;
-  display: inline-block;
-  width: 40%;
-  height: 500px;
-  position: relative;
-  overflow: hidden;
-  background: white;
-  box-shadow: 0 8px 30px rgba(255, 140, 66, 0.3);
-}
-
-.banner-pair {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  width: 100%;
-  height: 500px;
-}
-
+/* Ảnh chính */
 .banner-img {
-  flex: 1;
-  width: 48%;
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10px;
-  transition: transform 0.4s ease;
-  box-shadow: 0 6px 15px rgba(255, 140, 66, 0.4);
-  border: 2px solid rgba(255, 140, 66, 0.3);
+  border-radius: 16px;
+  transition: transform 1s ease-in-out;
 }
 
-.banner-img:hover {
-  transform: scale(1.03);
-  box-shadow: 0 8px 25px rgba(255, 140, 66, 0.6);
-  border-color: #ff8c42;
+/* Hiệu ứng chuyển ảnh khi đổi banner */
+.banner-img.fade-enter {
+  opacity: 0;
+  transform: scale(1.05);
 }
 
+.banner-img.fade-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.8s, transform 0.8s;
+}
+
+/* Overlay chữ */
+.banner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 60px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 30%, transparent);
+  color: #fff;
+}
+
+/* Tiêu đề sự kiện */
+.banner-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.2;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* Mô tả sự kiện */
+.banner-desc {
+  font-size: 1rem;
+  max-width: 600px;
+  margin-bottom: 24px;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* Nút xem chi tiết */
+.banner-link {
+  position: absolute;
+  display: inline-block;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  bottom: 35px;
+  right: 256px;
+  text-decoration: none;
+  width: fit-content;
+  transition: all 0.3s ease;
+}
+
+/* ==========================
+   🎯 Nút điều hướng trái/phải
+   ========================== */
 .banner-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid rgba(255, 140, 66, 0.5);
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  font-size: 24px;
+  border: none;
+  font-size: 28px;
   font-weight: bold;
+  color: white;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 10;
-  color: #ff8c42;
-  box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(10px);
 }
 
 .banner-btn:hover {
-  background: linear-gradient(135deg, #ff8c42 0%, #ffa726 100%);
-  color: white;
-  transform: translateY(-50%) scale(1.15);
-  box-shadow: 0 6px 20px rgba(255, 140, 66, 0.5);
-  border-color: #ff8c42;
-}
-
-.banner-btn:active {
-  transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+  background: rgba(255, 255, 255, 0.45);
 }
 
 .banner-btn.prev {
@@ -84,53 +120,43 @@
   right: 20px;
 }
 
+/* ==========================
+   ⚪ Dấu chấm vị trí
+   ========================== */
 .banner-dots {
   position: absolute;
-  bottom: 15px;
+  bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
-  z-index: 10;
-  background: rgba(255, 140, 66, 0.7);
-  padding: 8px 14px;
-  border-radius: 25px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 140, 66, 0.3);
 }
 
 .dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+  width: 10px;
+  height: 10px;
   background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
 }
 
 .dot:hover {
-  background: #ffffff;
-  transform: scale(1.2);
-  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .dot.active {
-  background: linear-gradient(135deg, #ffffff 0%, #ffe8d6 100%);
-  width: 30px;
+  width: 24px;
   border-radius: 6px;
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+  background: #ff7b00;
 }
 
+/* ==========================
+   🔘 Trạng thái không có banner
+   ========================== */
 .no-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  background: linear-gradient(135deg, #fff8f0 0%, #ffe8d6 100%);
-  color: #ff8c42;
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  text-align: center;
+  padding: 100px 0;
+  color: #ccc;
+  font-size: 1.2rem;
 }

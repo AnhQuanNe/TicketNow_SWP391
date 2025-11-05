@@ -62,3 +62,24 @@ export const getEventById = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi lấy chi tiết sự kiện", error: err.message });
   }
 };
+
+//Banner
+// [GET] /api/events/featured
+export const getFeaturedEvents = async (req, res) => {
+  try {
+    // Lấy tối đa 5 sự kiện có ảnh, sắp xếp theo ngày gần nhất
+    const events = await Event.find({
+      imageUrl: { $exists: true, $ne: "" },
+      date: { $gte: new Date() }, // Chỉ lấy sự kiện sắp tới
+    })
+      .sort({ date: 1 }) // Gần nhất trước
+      .limit(5);
+
+    res.status(200).json(events);
+  } catch (err) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách sự kiện nổi bật (featured)",
+      error: err.message,
+    });
+  }
+};

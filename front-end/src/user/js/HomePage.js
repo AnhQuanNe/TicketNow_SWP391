@@ -4,6 +4,7 @@ import EventSection from "./EventSection";
 //import Favourites from "./Favourites";
 import EventFilterBar from "./EventFilterBar";
 import { API_BASE_URL } from "../../config";
+import "../css/Banner.css"
 
 // 🏠 HOMEPAGE (2 BANNER, KHÔNG CATEGORY)
 function HomePage({ searchTerm }) {
@@ -14,7 +15,7 @@ function HomePage({ searchTerm }) {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [sortOption, setSortOption] = useState("");
 
-    // 🔧 THÊM ĐOẠN NÀY ĐỂ LẤY USER HIỆN TẠI
+  // 🔧 THÊM ĐOẠN NÀY ĐỂ LẤY USER HIỆN TẠI
   const user = JSON.parse(localStorage.getItem("user")); // Lấy user đang đăng nhập
   const userId = user?._id; // Lấy id user (hoặc user.id tùy backend)
 
@@ -29,7 +30,7 @@ function HomePage({ searchTerm }) {
       .catch((err) => console.error(err));
   }, []);
 
-    // 🟢 KHÔI PHỤC YÊU THÍCH từ localStorage khi load trang
+  // 🟢 KHÔI PHỤC YÊU THÍCH từ localStorage khi load trang
   // 🔧 SỬA LẠI CHỖ KHÔI PHỤC YÊU THÍCH — mỗi user có key riêng
   useEffect(() => {
     if (!userId) return; // nếu chưa đăng nhập thì bỏ qua
@@ -159,7 +160,7 @@ function HomePage({ searchTerm }) {
         if (sec.name === "Thịnh hành") {
           filtered = events;
         } else if (sec.name === "Dành cho bạn") {
-         // ✅ Đổi lại cách lọc theo object yêu thích (favorites là array of objects)
+          // ✅ Đổi lại cách lọc theo object yêu thích (favorites là array of objects)
           filtered = events.filter((ev) =>
             favorites.some((fav) => fav._id === ev._id)
           );
