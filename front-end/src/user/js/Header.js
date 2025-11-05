@@ -10,9 +10,17 @@ function Header() {
   const [showModal, setShowModal] = useState(null); // null | "login" | "register"
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
-  );
+  const [user, setUser] = useState(() => {
+  try {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  } catch (e) {
+    console.error("Invalid user JSON in localStorage:", e);
+    localStorage.removeItem("user"); // ✅ Xóa dữ liệu lỗi
+    return null;
+  }
+});
+
   useEffect(() => {
     // Khi localStorage thay đổi (user đổi avatar, tên)
     const handleStorageChange = () => {
@@ -38,10 +46,15 @@ function Header() {
   };
 
   const handleSearchSubmit = (e) => {
-    if (e.key === "Enter" && query.trim()) {
-      navigate(`/search?q=${query.trim()}`);
+  if (e.key === "Enter") {
+    e.preventDefault(); // ✅ Ngăn reload trang
+    const trimmedQuery = query.trim();
+    if (trimmedQuery) {
+      navigate(`/search?q=${encodeURIComponent(trimmedQuery)}`); // ✅ encode URL an toàn hơn
     }
-  };
+  }
+};
+
   return (
     <header>
       <div className="brand">
