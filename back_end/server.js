@@ -27,6 +27,7 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 
 import userRoutes from "./routes/userRoutes.js"; 
 
+
 // 🟢 Cấu hình dotenv để đọc .env
 dotenv.config();
 
@@ -99,7 +100,7 @@ const categorySchema = new mongoose.Schema({
 
 const Category = mongoose.model("Category", categorySchema, "Categories");
 
-import Event from "./model/Event.js";
+
 
 
 // 🟢 API: Lấy toàn bộ categories
