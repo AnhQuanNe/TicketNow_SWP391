@@ -20,6 +20,7 @@ const Notification = ({ user }) => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const ref = useRef(null);
     const token = localStorage.getItem('token');
     const isFetchingRef = useRef(false);
@@ -43,8 +44,15 @@ const Notification = ({ user }) => {
             });
             const json = await res.json();
             const data = Array.isArray(json.data) ? json.data : [];
-            if (p === 1) setItems(data);
-            else setItems((prev) => [...prev, ...data]);
+            if (p === 1) {
+                setItems(data);
+                // sync unread count to first page results
+                try { setUnreadCount(data.filter((i) => !i.read).length); } catch {}
+            }
+            else {
+                setItems((prev) => [...prev, ...data]);
+                try { setUnreadCount((prev) => prev + data.filter((i) => !i.read).length); } catch {}
+            }
             // If server gives totalPages, prefer it; otherwise fall back to data length vs LIMIT
             if (json.totalPages) setHasMore(p < json.totalPages);
             else setHasMore(data.length >= LIMIT);
@@ -76,9 +84,21 @@ const Notification = ({ user }) => {
         (async () => {
             s = await getSocket();
             if (!mounted) return;
-            if (user?._id) s.emit("join", { userId: String(user._id) });
-            handler = () => {
-                // new notify -> reset to first page to see newest first
+            // ensure we join on connect (handles reconnects)
+            s.on('connect', () => {
+                console.log('socket connected (notifications)', s.id);
+                if (user?._id) s.emit('join', { userId: String(user._id) });
+            });
+            s.on('disconnect', (reason) => console.log('socket disconnected (notifications)', reason));
+
+            // also emit join immediately if already connected
+            if (s.connected && user?._id) s.emit('join', { userId: String(user._id) });
+
+            handler = (payload) => {
+                // debug log to confirm socket event
+                try { console.log('socket notify received', payload); } catch (e) {}
+                // new notify -> increment badge immediately and refresh list
+                setUnreadCount((u) => u + 1);
                 setPage(1);
                 fetchList(1);
             };
@@ -109,10 +129,12 @@ const Notification = ({ user }) => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setItems((prev) => prev.map((n) => (n._id === id ? { ...n, read: true } : n)));
+            setUnreadCount((c) => Math.max(0, c - 1));
         } catch {}
     };
 
-    const unread = items.filter((i) => !i.read).length;
+    // use unreadCount for badge; fallback to computing from items if 0
+    const unread = unreadCount || items.filter((i) => !i.read).length;
 
     // Hide icon when not logged in
     if (!user?._id || !token) return null;
@@ -179,7 +201,7 @@ const Notification = ({ user }) => {
                                         )}
                                     </div>
                                     <div style={{ fontSize: 14, color: "#555" }}>{n.message}</div>
-                                    <div style={{ fontSize: 12, color: "#999", marginTop: 4 }}>{new Date(n.createdAt || n.time || Date.now()).toLocaleString()}</div>
+                                    <div style={{ fontSize: 12, color: "#999", marginTop: 4 }}>{new Date(n.scheduledFor || n.sentAt || n.createdAt || n.time || Date.now()).toLocaleString()}</div>
                                 </div>
                             ))}
 
