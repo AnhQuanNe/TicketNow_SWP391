@@ -22,6 +22,8 @@ import authRoutes from "./routes/authRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
 // import router cho payments
 import paymentRoutes from "./routes/paymentRoutes.js";
+// 🟢 Import router cho Organizer
+import organizerRoutes from "./routes/organizerRoutes.js";
 
 
 import userRoutes from "./routes/userRoutes.js"; 
@@ -148,6 +150,9 @@ app.use("/api/payment", paymentRoutes); // api router
 
 // 🟢 🔑 API: Sửa thông tin người dùng
 app.use("/api/users", userRoutes);
+
+// 🟢 API: Dành cho Organizer (Dashboard, Profile, Event,...)
+app.use("/api/organizer", organizerRoutes);
 
 // � Socket.IO basic events
 io.on("connection", (socket) => {

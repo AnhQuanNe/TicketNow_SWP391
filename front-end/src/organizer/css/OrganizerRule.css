@@ -1,0 +1,34 @@
+.organizer-rules {
+    background: #fff;
+    border-radius: 16px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .organizer-rules h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #222;
+  }
+  
+  .organizer-rules ol {
+    padding-left: 20px;
+    color: #333;
+    line-height: 1.6;
+  }
+  
+  .organizer-rules li {
+    margin-bottom: 12px;
+  }
+  
+  .agree-box {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .agree-box label {
+    margin-left: 8px;
+    font-weight: 500;
+  }
+  
