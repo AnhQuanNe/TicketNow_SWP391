@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2"; // 🩷 Thông báo đẹp
+import Swal from "sweetalert2";
 
 function SelectTicket() {
   const { id } = useParams();
@@ -11,7 +11,7 @@ function SelectTicket() {
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const user = JSON.parse(localStorage.getItem("user")); // 🧍‍♂️ Người dùng hiện tại
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     if (!id) return;
@@ -20,7 +20,7 @@ function SelectTicket() {
     const fetchEvent = fetch(`http://localhost:5000/api/events/${id}`)
       .then((res) => res.json())
       .then((data) => setEvent(data))
-      .catch((err) => console.error("❌ Lỗi lấy sự kiện:", err));
+      .catch((err) => console.error(err));
 
     const fetchTickets = fetch(`http://localhost:5000/api/tickets/event/${id}`)
       .then((res) => res.json())
@@ -30,45 +30,18 @@ function SelectTicket() {
         (data || []).forEach((t) => (initial[t.type] = 0));
         setQuantities(initial);
       })
-      .catch((err) => console.error("❌ Lỗi lấy vé:", err));
+      .catch((err) => console.error(err));
 
     Promise.all([fetchEvent, fetchTickets]).finally(() => setLoading(false));
   }, [id]);
 
-  if (loading)
-    return (
-      <p style={{ color: "#ff4da6", textAlign: "center", marginTop: 50 }}>
-        ⏳ Đang tải dữ liệu...
-      </p>
-    );
-
-  if (!event)
-    return (
-      <p style={{ color: "#ff4da6", textAlign: "center", marginTop: 50 }}>
-        ❌ Không tìm thấy sự kiện.
-      </p>
-    );
-
-  // 🧮 Xử lý số lượng vé
   const handleQuantityChange = (type, value) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [type]: Math.max(0, (prev[type] || 0) + value),
-    }));
+    setQuantities((prev) => ({ ...prev, [type]: Math.max(0, (prev[type] || 0) + value) }));
   };
-
-  const total = tickets.reduce(
-    (sum, t) => sum + (quantities[t.type] || 0) * (t.price || 0),
-    0
-  );
 
   const handlePayment = () => {
     const selectedTickets = tickets
-      .map((t) => ({
-        type: t.type,
-        price: t.price,
-        quantity: quantities[t.type] || 0,
-      }))
+      .map((t) => ({ type: t.type, price: t.price, quantity: quantities[t.type] || 0 }))
       .filter((t) => t.quantity > 0);
 
     if (selectedTickets.length === 0) {
@@ -76,22 +49,21 @@ function SelectTicket() {
       return;
     }
 
-    // 🚫 Kiểm tra vé Student
-    const hasStudentTicket = selectedTickets.some(
-      (t) => t.type.toLowerCase() === "student"
+    const totalPrice = selectedTickets.reduce((acc, t) => acc + t.price * t.quantity, 0);
+    const totalQuantity = selectedTickets.reduce((acc, t) => acc + t.quantity, 0);
+
+    // 🔹 Lưu pendingTicket đầy đủ
+    localStorage.setItem(
+      "pendingTicket",
+      JSON.stringify({
+        userId: user._id,
+        eventId: event._id,
+        tickets: selectedTickets,
+        quantity: totalQuantity,
+        price: totalPrice,
+      })
     );
 
-    if (hasStudentTicket && (!user || !user.studentId)) {
-      Swal.fire(
-        "❌ Không thể mua vé Student!",
-        "Chỉ sinh viên mới được phép mua loại vé này.",
-        "error"
-      );
-      return;
-    }
-
-    // ✅ Hợp lệ -> lưu vào localStorage
-    localStorage.setItem("tickets", JSON.stringify(selectedTickets));
     localStorage.setItem("eventTitle", event.title);
   localStorage.setItem("lastPaidEventId", event._id);
     // Save purchased event info for notifications
@@ -106,8 +78,13 @@ function SelectTicket() {
     navigate("/payment");
   };
 
+  if (loading) return <p>⏳ Đang tải dữ liệu...</p>;
+  if (!event) return <p>❌ Không tìm thấy sự kiện.</p>;
+
+  const total = tickets.reduce((sum, t) => sum + (quantities[t.type] || 0) * t.price, 0);
+
   return (
-    <div
+     <div
       style={{
         backgroundColor: "#ffe6f2",
         minHeight: "100vh",
@@ -296,5 +273,4 @@ const payBtnStyle = {
   transition: "0.3s",
   boxShadow: "0 4px 12px rgba(255, 77, 166, 0.3)",
 };
-
 export default SelectTicket;

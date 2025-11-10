@@ -25,8 +25,11 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 // 🟢 Import router cho Organizer
 import organizerRoutes from "./routes/organizerRoutes.js";
 
+//import booking
+import bookingRoutes from "./routes/bookingRoutes.js";
 
 import userRoutes from "./routes/userRoutes.js"; 
+
 
 // 🟢 Cấu hình dotenv để đọc .env
 dotenv.config();
@@ -101,6 +104,8 @@ const categorySchema = new mongoose.Schema({
 const Category = mongoose.model("Category", categorySchema, "Categories");
 
 
+
+
 // 🟢 API: Lấy toàn bộ categories
 app.get("/api/categories", async (req, res) => {
   try {
@@ -147,6 +152,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);  // api ticket
 app.use("/api/payment", paymentRoutes); // api router
+app.use("/api/bookings", bookingRoutes); // api booking
 
 // 🟢 🔑 API: Sửa thông tin người dùng
 app.use("/api/users", userRoutes);

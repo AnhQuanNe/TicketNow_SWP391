@@ -1,40 +1,23 @@
-
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    eventId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Event",
-      required: true,
-    },
-    ticketId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Ticket",
-    },
-    quantity: { type: Number, default: 1 },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true }, // ✅ ref đúng rồi
+    quantity: { type: Number, required: true },
+    totalPrice: { type: Number, required: true },
     status: {
       type: String,
       enum: ["pending", "confirmed", "cancelled"],
-      default: "pending",
+      default: "confirmed",
     },
-    paymentId: {
-      type: String,
-      default: null,
-    }, 
-      orderCode: {
-        type: String,
-        unique: true,
-        sparse: true,
-      },
-    paidAt: { type: Date },
+    paymentId: { type: String, default: null },
   },
-  { timestamps: true }
+  { timestamps: true } // ✅ tự động thêm createdAt + updatedAt
 );
 
-export default mongoose.model("Booking", bookingSchema, "Bookings");
+// ⚠️ Không nên chỉ định "Bookings" làm tên collection nếu model Event dùng mặc định "events"
+const Booking =
+  mongoose.models.Booking || mongoose.model("Booking", bookingSchema); // ✅ bỏ tham số "Bookings"
+
+export default Booking;

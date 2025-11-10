@@ -1,54 +1,63 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function PaymentSuccess() {
   const navigate = useNavigate();
+  const hasRun = useRef(false); // ✅ đảm bảo chỉ chạy 1 lần
 
   useEffect(() => {
-    // Khi trả về từ PayOS, gọi /api/payment/verify để xác nhận thanh toán và cập nhật booking
-    const params = new URLSearchParams(window.location.search);
-    const status = params.get("status"); // PAID, FAILED,...
-    const orderCodeFromQuery = params.get('orderCode') || params.get('order_id') || params.get('order');
+    if (hasRun.current) return;
+    hasRun.current = true;
 
-    const verifyPayment = async () => {
+    const saveBooking = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get("status");
+
+      if (status !== "PAID") {
+        Swal.fire("❌ Thanh toán thất bại", "Vui lòng thử lại!", "error");
+        setTimeout(() => navigate("/"), 3000);
+        return;
+      }
+
+      const pendingTicket = JSON.parse(localStorage.getItem("pendingTicket"));
+      if (!pendingTicket) {
+        Swal.fire("⚠️ Lỗi", "Không tìm thấy thông tin vé!", "error");
+        navigate("/");
+        return;
+      }
+
       try {
-        const orderCode = orderCodeFromQuery || localStorage.getItem('lastOrderCode');
-        if (!orderCode) {
-          setTimeout(() => navigate('/'), 2000);
-          return;
-        }
-
-        const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/payment/verify', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ orderCode }),
+        const res = await fetch("http://localhost:5000/api/payment/payment-success", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: pendingTicket.userId,
+            eventId: pendingTicket.eventId,
+            quantity: pendingTicket.quantity || 1,
+            totalPrice: pendingTicket.price,
+            paymentId: pendingTicket.paymentId,
+          }),
         });
-        const data = await res.json();
-        localStorage.removeItem('lastOrderCode');
-        if (data?.ok) setTimeout(() => navigate('/'), 2000);
-        else {
-          console.warn('Verify response:', data);
-          setTimeout(() => navigate('/'), 3000);
+
+        if (res.ok) {
+          Swal.fire("🎉 Thành công!", "Vé của bạn đã được lưu!", "success");
+          localStorage.removeItem("pendingTicket");
+          setTimeout(() => navigate("/my-tickets"), 2000);
+        } else {
+          const data = await res.json();
+          Swal.fire("❌ Lỗi", data.message || "Không thể lưu vé!", "error");
         }
-      } catch (e) {
-        console.error('Lỗi verify thanh toán:', e);
-        setTimeout(() => navigate('/'), 3000);
+      } catch (err) {
+        console.error(err);
+        Swal.fire("❌ Lỗi", "Không thể kết nối máy chủ!", "error");
       }
     };
 
-    verifyPayment();
-  }, [navigate]);
+    saveBooking();
+  }, []); // ⚠️ bỏ [navigate], để effect chỉ chạy 1 lần
 
-  return (
-    <div style={{ padding: "50px", textAlign: "center", fontFamily: "'Poppins', sans-serif" }}>
-      <h2 style={{ color: "#e60073" }}>🎉 Thanh toán thành công!</h2>
-      <p>Bạn sẽ được chuyển về trang chủ trong giây lát...</p>
-    </div>
-  );
+  return null;
 }
 
 export default PaymentSuccess;
