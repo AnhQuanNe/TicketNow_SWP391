@@ -1,0 +1,9 @@
+.filter-controls{
+    display: flex;
+    align-Items: center;
+    gap: 15px;
+    margin-bottom: 20px; 
+    flex-Wrap: wrap; 
+    border-Top: 1px solid #eee; 
+    padding-Top: 20px;
+}

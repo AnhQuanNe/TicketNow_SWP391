@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./user/css/Banner.css";
+ import "./user/css/Banner.css"; 
 import "./user/css/EventSection.css";
 import "./user/css/Favourites.css";
 import "./user/css/Footer.css";
@@ -9,6 +9,7 @@ import "./App.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import Header from "./user/js/Header";
 import MyNavbar from "./user/js/MyNavbar";
@@ -19,92 +20,94 @@ import TicketPage from "./user/js/PaymentPage";
 import SelectTicket from "./user/js/SelectTickets";
 import PaymentSuccess from "./user/js/PaymentSuccess";
 import MyTickets from "./user/js/MyTickets";
-import PaymentFail from "./user/js/PaymentFail";
+import PaymentFail from "./user/js/PaymentFail"; 
+import SearchResult from "./user/js/SearchResult";
+
 import MyAccount from "./user/js/MyAccount";
+// import OrganizerLayout from "./organizer/OrganizerLayout";
+import FavoritesPage from "./user/js/FavoritesPage"; // 🟩 file hiển thị sự kiện đã tim
+
 import ImageUpload from "./api/ImageUpload";
 
-// ✅ import modal đăng nhập
-import LoginRegisterModal from "./user/js/LoginRegisterModal";
+// 🟨 [A] THÊM Ở ĐÂY: import CategoryPage từ file riêng
+// 🟨 bạn cần tạo file: src/user/js/CategoryPage.js
+// rồi thêm dòng này:
+import CategoryPage from "./user/js/CategoryPage"; 
 
-function CategoryPage() {
-  return <div>Category Page</div>;
-}
+// 🟨 [B] SAU KHI THÊM DÒNG TRÊN, XÓA ĐOẠN DƯỚI NÀY:
+// function CategoryPage() {
+//   return <div>Category Page</div>;
+// }
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-
-  // ✅ quản lý modal đăng nhập
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authType, setAuthType] = useState("login");
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
+  // 🟩 [1] Thêm state quản lý danh sách yêu thích
+  const [favorites, setFavorites] = useState(
+    JSON.parse(localStorage.getItem("favorites")) || []
   );
 
-  const handleSearch = (term) => {
-    setSearchTerm(term);
-    setSelectedCategory("all");
+  // 🟩 [2] Hàm toggleFavorite: thêm / xóa sự kiện khỏi danh sách
+  const toggleFavorite = (eventId) => {
+    setFavorites((prev) => {
+      const updated = prev.includes(eventId)
+        ? prev.filter((id) => id !== eventId)
+        : [...prev, eventId];
+
+      // 🟩 lưu lại vào localStorage
+      localStorage.setItem("favorites", JSON.stringify(updated));
+      return updated;
+    });
   };
 
-  const handleLoginSuccess = (data) => {
-    setUser(data);
-    localStorage.setItem("user", JSON.stringify(data));
-    setShowAuthModal(false);
-  };
 
   return (
+    
+            <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+      {/* ✅ Bọc toàn bộ ứng dụng bên trong */}
     <Router>
-      <Header onSearch={handleSearch} searchTerm={searchTerm} />
+      <Header />
       <MyNavbar />
-
       <Routes>
+        {/* 🟩 [3] Truyền favorites & toggleFavorite vào HomePage */}
         <Route
           path="/"
           element={
             <HomePage
-              searchTerm={searchTerm}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
+              favorites={favorites}
+              toggleFavorite={toggleFavorite}
             />
           }
         />
+
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/event/:id" element={<EventDetail />} />
-        <Route path="/upload" element={<ImageUpload />} />
-
-        {/* ✅ Truyền onRequireLogin và user vào SelectTicket */}
+        {/* 🟩 [4] Truyền favorites & toggleFavorite vào FavoritesPage */}
         <Route
-          path="/select-ticket/:id"
+          path="/favorites"
           element={
-            <SelectTicket
-              user={user}
-              onRequireLogin={() => {
-                setAuthType("login");
-                setShowAuthModal(true);
-              }}
+            <FavoritesPage
+              favorites={favorites}
+toggleFavorite={toggleFavorite}
             />
           }
         />
+        <Route path="/search" element={<SearchResult />} />
+        {/* <Route path="/organizer/*" element={<OrganizerLayout />} /> */}
+        {/* ✅ Thêm route test upload ảnh */}
+        <Route path="/upload" element={<ImageUpload />} />
+        <Route path="/select-ticket/:id" element={<SelectTicket />} />
+  <Route path="/select-ticket/:eventId" element={<SelectTicket />} />
+  <Route path="/payment-success" element={<PaymentSuccess />} />
+  <Route path="/payment-fail" element={<PaymentFail />} />
+   <Route path="/my-tickets" element={<MyTickets />} /> 
 
+        {/* Trang thanh toán */}
         <Route path="/payment" element={<TicketPage />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-fail" element={<PaymentFail />} />
-        <Route path="/my-tickets" element={<MyTickets />} />
+
         <Route path="/my-account" element={<MyAccount />} />
       </Routes>
-
       <Footer />
-
-      {/* ✅ Modal đăng nhập / đăng ký */}
-      {showAuthModal && (
-        <LoginRegisterModal
-          type={authType}
-          onClose={() => setShowAuthModal(false)}
-          switchType={setAuthType}
-          onLoginSuccess={handleLoginSuccess}
-        />
-      )}
     </Router>
+</GoogleOAuthProvider>
   );
 }
 

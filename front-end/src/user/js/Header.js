@@ -3,23 +3,34 @@ import { useNavigate } from "react-router-dom"; // click trỏ logo
 import LoginRegisterModal from "./LoginRegisterModal";
 import "../css/Header.css";
 import UserDropdown from "./UserDropdown";
+import Notification from "./Notification";
+import ReactDOM from "react-dom";
 
-function Header({ onSearch, searchTerm }) {
+function Header() {
   const [showModal, setShowModal] = useState(null); // null | "login" | "register"
   const navigate = useNavigate();
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
-  );
-  useEffect(() => {
-  // Khi localStorage thay đổi (user đổi avatar, tên)
-  const handleStorageChange = () => {
-    const updatedUser = JSON.parse(localStorage.getItem("user"));
-    setUser(updatedUser);
-  };
+  const [query, setQuery] = useState("");
+  const [user, setUser] = useState(() => {
+  try {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  } catch (e) {
+    console.error("Invalid user JSON in localStorage:", e);
+    localStorage.removeItem("user"); // ✅ Xóa dữ liệu lỗi
+    return null;
+  }
+});
 
-  window.addEventListener("storage", handleStorageChange);
-  return () => window.removeEventListener("storage", handleStorageChange);
-}, []);
+  useEffect(() => {
+    // Khi localStorage thay đổi (user đổi avatar, tên)
+    const handleStorageChange = () => {
+      const updatedUser = JSON.parse(localStorage.getItem("user"));
+      setUser(updatedUser);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const openModal = (type) => setShowModal(type);
   const closeModal = () => setShowModal(null);
@@ -33,6 +44,16 @@ function Header({ onSearch, searchTerm }) {
   const goHome = () => {
     navigate("/"); // điều hướng về trang home
   };
+
+  const handleSearchSubmit = (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault(); // ✅ Ngăn reload trang
+    const trimmedQuery = query.trim();
+    if (trimmedQuery) {
+      navigate(`/search?q=${encodeURIComponent(trimmedQuery)}`); // ✅ encode URL an toàn hơn
+    }
+  }
+};
 
   return (
     <header>
@@ -51,8 +72,12 @@ function Header({ onSearch, searchTerm }) {
           type="text"
           placeholder="Tìm kiếm sự kiện..."
           className="search-input"
-          onChange={(e) => onSearch(e.target.value)}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleSearchSubmit}
         />
+        {/* 🔔 Notification between search and auth */}
+        <Notification user={user} />
         <div className="auth-links">
           {user && user.name ? (
             <UserDropdown user={user} onLogout={handleLogout} />
@@ -74,17 +99,19 @@ function Header({ onSearch, searchTerm }) {
       </div>
 
       {/* ✅ Dùng modal riêng thay cho modal cũ */}
-      {showModal && (
-        <LoginRegisterModal
-          type={showModal}
-          onClose={closeModal}
-          switchType={openModal}
-          onLoginSuccess={(data) => {
-            setUser(data); // ✅ cập nhật tên hiển thị
-            localStorage.setItem("user", JSON.stringify(data)); // ✅ lưu vào localStorage
-          }}
-        />
-      )}
+      {showModal &&
+        ReactDOM.createPortal(
+          <LoginRegisterModal
+            type={showModal}
+            onClose={closeModal}
+            switchType={openModal}
+            onLoginSuccess={(data) => {
+              setUser(data);
+              localStorage.setItem("user", JSON.stringify(data));
+            }}
+          />,
+          document.body // ✅ render modal ra ngoài header, phủ full trang
+        )}
     </header>
   );
 }

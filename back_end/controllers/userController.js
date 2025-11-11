@@ -125,3 +125,56 @@ export const updateAvatar = async (req, res) => {
     res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại." });
   }
 };
+
+// 🧡 THÊM Ở ĐÂY: API "Tim sự kiện" (Thêm hoặc gỡ khỏi favoriteEvents)
+export const toggleFavoriteEvent = async (req, res) => {
+  try {
+    const { userId, eventId } = req.body;
+
+    // ⚠️ NÊN THÊM KIỂM TRA NÀY ↓↓↓
+    if (!userId || !eventId) {
+      return res.status(400).json({ message: "Thiếu userId hoặc eventId!" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Kiểm tra sự kiện đã có trong danh sách yêu thích chưa
+    const isFavorite = user.favoriteEvents.includes(eventId);
+
+    if (isFavorite) {
+      // Nếu đã có thì xoá ra
+      user.favoriteEvents = user.favoriteEvents.filter(
+        (id) => id.toString() !== eventId
+      );
+    } else {
+      // Nếu chưa có thì thêm vào
+      user.favoriteEvents.push(eventId);
+    }
+
+    await user.save();
+    res.json({
+      message: isFavorite
+        ? "Đã xoá khỏi sự kiện của tôi"
+        : "Đã thêm vào sự kiện của tôi",
+      favoriteEvents: user.favoriteEvents,
+    });
+  } catch (err) {
+    console.error("❌ toggleFavoriteEvent error:", err);
+    res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại." });
+  }
+};
+
+// 🧡 THÊM Ở ĐÂY: API "Lấy danh sách sự kiện yêu thích"
+export const getFavoriteEvents = async (req, res) => {
+  try {
+    const { id } = req.params; // userId
+    const user = await User.findById(id).populate("favoriteEvents");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user.favoriteEvents);
+  } catch (err) {
+    console.error("❌ getFavoriteEvents error:", err);
+    res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại." });
+  }
+};

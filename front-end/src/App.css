@@ -8,8 +8,8 @@
 
 body {
     font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    background: white;
-    color: black;
+    background: #0d0d0d; /* 👈 nền đen */
+    color: #ffffff;      /* 👈 chữ trắng */
     overflow-x: hidden;
     min-height: 100vh;
     font-weight: 400;

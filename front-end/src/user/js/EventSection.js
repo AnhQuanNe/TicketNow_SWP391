@@ -1,44 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import EventList from "./EventList"; 
 
 function EventSection({ title, events, favorites, toggleFavorite }) {
-  if (!events || events.length === 0) {
-    return (
-      <section className="event-section">
-        <h2>{title}</h2>
-        <p>Không có sự kiện</p>
-      </section>
-    );
-  }
-
   return (
     <section className="event-section">
       <h2>{title}</h2>
-      <div className="scroll-row">
-        {events.map(ev => (
-          <div className="suggest-card" key={ev._id}>
-            <img
-              src={ev.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
-              alt={ev.title}
-            />
-            <h4>{ev.title}</h4>
-            <p>{ev.categoryName || ev.categoryId}</p>
-            {/* Bắt đầu thêm: nút View Detail */}
-            <Link to={`/event/${ev._id}`}> {/* Link tới route chi tiết */}
-              <button className="btn btn-info my-2">
-                View Detail
-              </button>
-            </Link>
-            {/* Kết thúc thêm */}
-            <button
-              className={`fav-btn ${favorites.includes(ev._id) ? "active" : ""}`}
-              onClick={() => toggleFavorite(ev._id)}
-            >
-              {favorites.includes(ev._id) ? "❤️" : "🤍"}
-            </button>
-          </div>
-        ))}
-      </div>
+      {!events || events.length === 0 ? (
+        <p>Không có sự kiện</p>
+      ) : (
+        // Sử dụng EventList để hiển thị danh sách
+        <EventList 
+          events={events} 
+          favorites={favorites} 
+          toggleFavorite={toggleFavorite} 
+        />
+      )}
     </section>
   );
 }

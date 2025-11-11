@@ -4,6 +4,12 @@ function Payment() {
   const [loading, setLoading] = useState(true);
   const hasCreated = useRef(false);
 
+  // 🟢 [THÊM MỚI] — dùng để chặn việc chạy lại hàm createPayment nhiều lần
+  const ranRef = useRef(false);
+
+  // 🟢 [THÊM MỚI] — lấy token người dùng từ localStorage (nếu có)
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     if (hasCreated.current) return;
     hasCreated.current = true;
@@ -20,12 +26,20 @@ function Payment() {
     }
 
     const createPayment = async () => {
+      // 🟢 [ĐÃ SỬA] — thêm điều kiện kiểm tra ranRef để tránh chạy 2 lần
+      if (ranRef.current) return;
+      ranRef.current = true;
+
       try {
         const orderCode = Date.now(); // 👉 dùng làm paymentId duy nhất
 
         const res = await fetch("http://localhost:5000/api/payment/create-payment", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            // 🟢 [ĐÃ SỬA] — thêm token nếu có
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             amount: pendingTicket.price,
             orderCode,
@@ -52,7 +66,7 @@ function Payment() {
     };
 
     createPayment();
-  }, []);
+  }, [token]); // 🟢 [ĐÃ SỬA] — thêm token vào dependency để ESLint không cảnh báo
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>

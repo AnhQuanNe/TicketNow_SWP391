@@ -65,6 +65,16 @@ function SelectTicket() {
     );
 
     localStorage.setItem("eventTitle", event.title);
+  localStorage.setItem("lastPaidEventId", event._id);
+    // Save purchased event info for notifications
+    try {
+      const arr = JSON.parse(localStorage.getItem("purchasedEvents") || "[]");
+      const exists = arr.some((e) => e._id === event._id);
+      if (!exists) {
+        arr.push({ _id: event._id, title: event.title, date: event.date });
+        localStorage.setItem("purchasedEvents", JSON.stringify(arr));
+      }
+    } catch {}
     navigate("/payment");
   };
 
