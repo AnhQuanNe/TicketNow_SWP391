@@ -1,0 +1,317 @@
+.user-manager {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  font-family: "Inter", sans-serif;
+}
+
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+}
+
+.user-count {
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.export-btn {
+  background: linear-gradient(90deg, #ff914d, #ffb56b);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.export-btn:hover {
+  opacity: 0.85;
+}
+
+/* Table styling */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.user-table thead {
+  background: linear-gradient(90deg, #ff914d, #ffb56b);
+  color: white;
+}
+
+.user-table th {
+  text-align: left;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.user-table td {
+  padding: 12px 18px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #333;
+}
+
+
+
+.user-id {
+  font-family: monospace;
+  color: #666;
+  font-size: 13px;
+}
+
+/* Vai trò badge */
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.role-admin {
+  background: #ff5c5c20;
+  color: #ff3838;
+}
+
+.role-user {
+  background: #4d91ff20;
+  color: #2e75ff;
+}
+
+.role-organizer {
+  background: #4dff9020;
+  color: #22bb55;
+}
+
+/* Delete button */
+.action-btn {
+  background: #ffe3e3;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #ffb3b3;
+}
+
+.action-btn i {
+  color: #d33;
+  font-size: 18px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 0;
+  color: #555;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+/* Loading spinner */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ffb56b;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========== NỀN MỜ ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.25s ease;
+}
+
+/* ========== HỘP MODAL ========== */
+.modal-box {
+  background: #fff;
+  border-radius: 22px;
+  width: 420px;
+  max-width: 90%;
+  padding: 28px 30px 35px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  position: relative;
+  animation: scaleUp 0.25s ease;
+}
+
+/* Thanh cam ở đầu */
+.modal-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  border-radius: 22px 22px 0 0;
+  background: linear-gradient(90deg, #ff914d, #ff6b35);
+}
+
+.modal-box h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-box h3::before {
+  content: "🔒";
+  font-size: 20px;
+  color: #ff6b35;
+}
+
+.modal-box p {
+  font-size: 15px;
+  color: #555;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+/* Ô nhập lý do */
+.modal-box textarea {
+  width: 100%;
+  height: 90px;
+  border: 1.5px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  resize: none;
+  font-family: inherit;
+  font-size: 14px;
+  transition: 0.25s;
+}
+
+.modal-box textarea:focus {
+  outline: none;
+  border-color: #ff914d;
+  box-shadow: 0 0 0 2px rgba(255, 145, 77, 0.2);
+}
+
+/* ========== NÚT ========== */
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cancel-btn,
+.confirm-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.cancel-btn {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background: #eaeaea;
+}
+
+.confirm-btn {
+  background: linear-gradient(90deg, #ff914d, #ff6b35);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+}
+
+.confirm-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* ========== ANIMATION ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.search-input {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  width: 240px;
+  transition: all 0.25s ease;
+}
+
+.search-input:focus {
+  border-color: #ff8c42;
+  box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.2);
+}
+
+

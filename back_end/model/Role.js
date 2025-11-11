@@ -1,26 +1,14 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const roleSchema = new mongoose.Schema(
-  {
-    _id: {
-      type: String, // ví dụ: "role_admin", "role_user", "role_organizer"
-      required: true,
-      trim: true,
-    },
-    name: {
-      type: String, // ví dụ: "admin", "user", "organizer"
-      required: true,
-      trim: true,
-      unique: true,
-      lowercase: true,
-    },
+const roleSchema = new mongoose.Schema({
+  _id: { type: String, required: true }, // 🟢 thêm dòng này
+  name: {
+    type: String,
+    enum: ["admin", "user", "organizer"],
+    required: true,
+    unique: true,
   },
-  {
-    collection: "Roles",   // đảm bảo collection trong MongoDB tên là "roles"
-    versionKey: false,     // tắt __v
-    timestamps: false,     // không cần createdAt, updatedAt cho bảng role
-  }
-);
+});
 
-// Xuất model
-module.exports = mongoose.model("Role", roleSchema);
+const Role = mongoose.model("Role", roleSchema, "Roles");
+export default Role;

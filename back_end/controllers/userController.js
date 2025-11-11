@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 // 🧩 Cấu hình nơi lưu file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // 📁 thư mục gốc để lưu ảnh
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -14,8 +14,6 @@ const storage = multer.diskStorage({
     cb(null, uniqueName);
   },
 });
-
-// ✅ Middleware upload (chỉ nhận 1 file tên 'avatar')
 export const upload = multer({ storage });
 
 // 🔹 Lấy thông tin người dùng theo ID
@@ -30,59 +28,45 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// 🔹 Cập nhật thông tin người dùng (tên, số điện thoại, ngày sinh, giới tính, studentId)
+// 🔹 Cập nhật thông tin người dùng
 export const updateUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // ❌ Không cho đổi email
     if (req.body.email) delete req.body.email;
-
-    // ✅ Cập nhật tên
     if (req.body.name) user.name = req.body.name;
 
-    // ✅ Kiểm tra & cập nhật số điện thoại
     if (req.body.phone) {
       if (!/^[0-9]{10}$/.test(req.body.phone)) {
         return res
           .status(400)
           .json({ message: "Số điện thoại phải gồm đúng 10 chữ số!" });
       }
-
       const phoneExist = await User.findOne({
         phone: req.body.phone,
         _id: { $ne: user._id },
       });
-
       if (phoneExist) {
         return res.status(400).json({ message: "Số điện thoại đã tồn tại!" });
       }
-
       user.phone = req.body.phone;
     }
 
-    // ✅ Kiểm tra ngày sinh hợp lệ (≥18 tuổi)
     if (req.body.dob) {
       const birthDate = dayjs(req.body.dob);
       const age = dayjs().diff(birthDate, "year");
-
       if (age < 18) {
         return res
           .status(400)
           .json({ message: "Người dùng phải đủ 18 tuổi trở lên!" });
       }
-
       user.dob = req.body.dob;
     }
 
-    // ✅ Cập nhật giới tính
     if (req.body.gender) user.gender = req.body.gender;
-
-    // ✅ Avatar có thể cập nhật bằng URL string
     if (req.body.avatar) user.avatar = req.body.avatar;
 
-    // ✅ studentId chỉ cho nhập 1 lần
     if (!user.studentId && req.body.studentId) {
       user.studentId = req.body.studentId;
     }
@@ -95,7 +79,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// 🔹 Upload & cập nhật ảnh đại diện (API riêng)
+// 🔹 Upload & cập nhật ảnh đại diện
 export const updateAvatar = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -105,7 +89,7 @@ export const updateAvatar = async (req, res) => {
         .json({ message: "Không có file ảnh nào được tải lên!" });
     }
 
-    const avatarPath = `/uploads/${req.file.filename}`; // đường dẫn để frontend hiển thị
+    const avatarPath = `/uploads/${req.file.filename}`;
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { avatar: avatarPath },
@@ -126,12 +110,10 @@ export const updateAvatar = async (req, res) => {
   }
 };
 
-// 🧡 THÊM Ở ĐÂY: API "Tim sự kiện" (Thêm hoặc gỡ khỏi favoriteEvents)
+// 🧡 Thêm/gỡ sự kiện yêu thích
 export const toggleFavoriteEvent = async (req, res) => {
   try {
     const { userId, eventId } = req.body;
-
-    // ⚠️ NÊN THÊM KIỂM TRA NÀY ↓↓↓
     if (!userId || !eventId) {
       return res.status(400).json({ message: "Thiếu userId hoặc eventId!" });
     }
@@ -139,16 +121,12 @@ export const toggleFavoriteEvent = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Kiểm tra sự kiện đã có trong danh sách yêu thích chưa
     const isFavorite = user.favoriteEvents.includes(eventId);
-
     if (isFavorite) {
-      // Nếu đã có thì xoá ra
       user.favoriteEvents = user.favoriteEvents.filter(
         (id) => id.toString() !== eventId
       );
     } else {
-      // Nếu chưa có thì thêm vào
       user.favoriteEvents.push(eventId);
     }
 
@@ -165,16 +143,99 @@ export const toggleFavoriteEvent = async (req, res) => {
   }
 };
 
-// 🧡 THÊM Ở ĐÂY: API "Lấy danh sách sự kiện yêu thích"
+// 🔹 Lấy danh sách sự kiện yêu thích
 export const getFavoriteEvents = async (req, res) => {
   try {
-    const { id } = req.params; // userId
+    const { id } = req.params;
     const user = await User.findById(id).populate("favoriteEvents");
     if (!user) return res.status(404).json({ message: "User not found" });
-
     res.json(user.favoriteEvents);
   } catch (err) {
     console.error("❌ getFavoriteEvents error:", err);
     res.status(500).json({ message: "Lỗi hệ thống, vui lòng thử lại." });
+  }
+};
+
+// 🧩 [ADMIN] Lấy danh sách toàn bộ người dùng
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .select("-passwordHash")
+      .sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    console.error("❌ getAllUsers error:", err);
+    res.status(500).json({ message: "Không thể lấy danh sách người dùng." });
+  }
+};
+
+// 🧩 [ADMIN] Cập nhật vai trò hoặc trạng thái
+export const adminUpdateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role, isActive } = req.body;
+
+    const updated = await User.findByIdAndUpdate(
+      id,
+      { ...(role && { role }), ...(isActive !== undefined && { isActive }) },
+      { new: true }
+    ).select("-passwordHash");
+
+    if (!updated)
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    res.json({ message: "Đã cập nhật người dùng", user: updated });
+  } catch (err) {
+    console.error("❌ adminUpdateUser error:", err);
+    res.status(500).json({ message: "Cập nhật người dùng thất bại." });
+  }
+};
+
+// 🧩 [ADMIN] Xóa người dùng
+export const deleteUser = async (req, res) => {
+  try {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted)
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    res.json({ message: "Đã xóa người dùng thành công." });
+  } catch (err) {
+    console.error("❌ deleteUser error:", err);
+    res.status(500).json({ message: "Xóa người dùng thất bại." });
+  }
+};
+
+// 🧩 [ADMIN] Khóa / Mở khóa người dùng
+export const banUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // ⚠️ tránh lỗi khi req.body undefined
+    const reason = req.body?.reason || "";
+
+    const user = await User.findById(id);
+    if (!user)
+      return res.status(404).json({ message: "Không tìm thấy người dùng." });
+
+    // Nếu đang khóa → mở khóa
+    if (user.isBanned) {
+      user.isBanned = false;
+      user.banReason = "";
+      await user.save();
+      return res.json({ message: `✅ Đã mở khóa tài khoản ${user.name}.` });
+    }
+
+    // Nếu chưa khóa → cần lý do
+    if (!reason.trim()) {
+      return res
+        .status(400)
+        .json({ message: "Vui lòng nhập lý do khóa tài khoản." });
+    }
+
+    user.isBanned = true;
+    user.banReason = reason;
+    await user.save();
+
+    res.json({ message: `🔒 Đã khóa tài khoản ${user.name}.` });
+  } catch (err) {
+    console.error("❌ banUser error:", err);
+    res.status(500).json({ message: "Lỗi hệ thống khi khóa/mở khóa tài khoản." });
   }
 };

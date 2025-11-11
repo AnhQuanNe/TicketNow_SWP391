@@ -51,7 +51,36 @@ export default function LoginRegisterModal({
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data));
         onLoginSuccess?.(data);
-        setTimeout(onClose, 500);
+
+        // ✅ Phân quyền điều hướng
+        if (type === "login") {
+          const data = await loginUser({
+            email: form.email,
+            password: form.password,
+          });
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data));
+          onLoginSuccess?.(data);
+
+          // 🧩 Nếu là admin thì lưu thêm adminToken để AdminRoute nhận ra
+          if (data.role?.name === "admin" || data.role === "role_admin") {
+            localStorage.setItem("adminToken", data.token);
+          }
+
+          // ✅ Phân quyền điều hướng
+          if (data.role?.name === "admin" || data.role === "role_admin") {
+            window.location.href = "/admin";
+          } else if (
+            data.role?.name === "organizer" ||
+            data.role === "role_organizer"
+          ) {
+            window.location.href = "/organizer";
+          } else {
+            window.location.href = "/";
+          }
+
+          setTimeout(onClose, 500);
+        }
       } else {
         const data = await registerUser({
           name: form.name,
@@ -77,6 +106,10 @@ export default function LoginRegisterModal({
       });
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
+      // 🧩 Nếu là admin thì lưu thêm adminToken để AdminRoute nhận ra
+      if (data.role?.name === "admin" || data.role === "role_admin") {
+        localStorage.setItem("adminToken", data.token);
+      }
       onLoginSuccess?.(data);
       setTimeout(onClose, 500);
     } catch (err) {

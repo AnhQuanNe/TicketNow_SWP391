@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import Role from "../model/Role.js";
 
 // 🧩 Hàm tạo token
 const generateToken = (id) =>
@@ -11,11 +12,12 @@ const generateToken = (id) =>
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // 🟢 Đăng ký người dùng
+// 🟢 Đăng ký người dùng
 export const register = async (req, res) => {
   try {
     const { name, email, passwordHash, phone, studentId } = req.body;
 
-    // ✅ 1️⃣ Kiểm tra đủ trường (trừ studentId)
+    // ✅ 1️⃣ Kiểm tra đầu vào
     if (!name || !email || !passwordHash || !phone) {
       return res.status(400).json({
         message:
@@ -23,7 +25,6 @@ export const register = async (req, res) => {
       });
     }
 
-    // ✅ 2️⃣ Kiểm tra định dạng email
     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -32,57 +33,65 @@ export const register = async (req, res) => {
       });
     }
 
-    // ✅ 3️⃣ Kiểm tra định dạng số điện thoại (10 chữ số)
     if (!/^0[0-9]{9}$/.test(phone)) {
       return res.status(400).json({
         message: "Số điện thoại phải bắt đầu bằng số 0 và gồm đúng 10 chữ số!",
       });
     }
 
-    // ✅ 4️⃣ Kiểm tra trùng email, số điện thoại, mã sinh viên
+    // ✅ 2️⃣ Kiểm tra trùng email/sđt/mã sv
     const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
+    if (existingEmail)
       return res.status(400).json({ message: "Email này đã được sử dụng!" });
-    }
 
     const existingPhone = await User.findOne({ phone });
-    if (existingPhone) {
+    if (existingPhone)
       return res
         .status(400)
         .json({ message: "Số điện thoại này đã được đăng ký!" });
-    }
 
     if (studentId && studentId.trim() !== "") {
       const existingStudent = await User.findOne({ studentId });
-      if (existingStudent) {
+      if (existingStudent)
         return res
           .status(400)
           .json({ message: "Mã sinh viên này đã tồn tại!" });
-      }
     }
 
-    // ✅ 5️⃣ Tạo tài khoản mới
+    // ✅ 3️⃣ Lấy role mặc định là "user" từ collection Roles
+    let userRole = "user"; // fallback an toàn nếu không tìm thấy Role
+    const defaultRole = await Role.findOne({ name: "user" });
+    if (
+      defaultRole &&
+      ["admin", "user", "organizer"].includes(defaultRole.name)
+    ) {
+      userRole = defaultRole.name; // 🟩 chỉ lấy tên, không lấy _id
+    }
+
+    // ✅ 4️⃣ Tạo user mới
     const user = await User.create({
       name,
       email,
       passwordHash,
       phone,
       studentId: studentId?.trim() || null,
+      role: userRole, // 🟩 chỉ lưu "user"
+      authProvider: "local",
     });
 
-    // ✅ 6️⃣ Trả về kết quả
+    // ✅ 5️⃣ Trả kết quả
     return res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       phone: user.phone,
       studentId: user.studentId,
+      role: user.role,
       token: generateToken(user._id),
     });
   } catch (err) {
-    console.error("⚠️ Lỗi đăng ký:", err);
+    console.error("⚠️ Lỗi đăng ký chi tiết:", err);
 
-    // ✅ Nếu là lỗi Mongo duplicate key (E11000)
     if (err.code === 11000) {
       const field = Object.keys(err.keyPattern)[0];
       const value = err.keyValue[field];
@@ -93,7 +102,6 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: msg });
     }
 
-    // ✅ Lỗi khác
     return res
       .status(500)
       .json({ message: "Lỗi hệ thống, vui lòng thử lại sau." });
@@ -105,6 +113,21 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+    if (user && user.isBanned) {
+      return res.status(403).json({
+        message: `Tài khoản của bạn đã bị khóa. Lý do: ${
+          user.banReason || "Không rõ"
+        }`,
+      });
+    }
+
+    // ⚠️ Nếu tài khoản dùng Google, chặn đăng nhập local
+    if (user && user.authProvider === "google") {
+      return res.status(400).json({
+        message:
+          "Tài khoản này đăng ký bằng Google. Vui lòng dùng Google Sign-In.",
+      });
+    }
 
     if (user && (await user.matchPassword(password))) {
       res.json({
@@ -114,8 +137,9 @@ export const login = async (req, res) => {
         phone: user.phone,
         studentId: user.studentId,
         avatar: user.avatar,
-        gender: user.gender, // 🩷 THÊM DÒNG NÀY
-        dob: user.dob, // 🩵 VÀ DÒNG NÀY (nếu có hiển thị ngày sinh)
+        gender: user.gender,
+        dob: user.dob,
+        role: user.role,
         token: generateToken(user._id),
       });
     } else {
@@ -125,6 +149,7 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ, vui lòng thử lại." });
   }
 };
+
 // 🟢 Đăng nhập bằng Google
 export const googleLogin = async (req, res) => {
   try {
@@ -155,6 +180,7 @@ export const googleLogin = async (req, res) => {
         .json({ message: "Không lấy được email từ Google!" });
     }
 
+    // ✅ Nếu user chưa tồn tại thì tạo mới
     let user = await User.findOne({ email });
     if (!user) {
       console.log("🆕 Tạo user mới từ Google:", email);
@@ -164,6 +190,15 @@ export const googleLogin = async (req, res) => {
         passwordHash: null,
         avatar: picture,
         authProvider: "google",
+        role: "user", // 🟢 Mặc định role user cho Google
+      });
+    }
+
+    if (user.isBanned) {
+      return res.status(403).json({
+        message: `Tài khoản Google của bạn đã bị khóa. Lý do: ${
+          user.banReason || "Không rõ"
+        }`,
       });
     }
 
@@ -176,6 +211,7 @@ export const googleLogin = async (req, res) => {
       name: user.name,
       email: user.email,
       avatar: user.avatar || picture,
+      role: user.role,
       token,
     });
   } catch (err) {
@@ -186,6 +222,7 @@ export const googleLogin = async (req, res) => {
     });
   }
 };
+
 // Gửi OTP reset password
 export const forgotPassword = async (req, res) => {
   try {
@@ -193,13 +230,11 @@ export const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "Email không tồn tại." });
 
-    // Tạo OTP ngẫu nhiên 6 chữ số
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetOTP = otp;
-    user.resetOTPExpire = Date.now() + 5 * 60 * 1000; // 5 phút
+    user.resetOTPExpire = Date.now() + 5 * 60 * 1000;
     await user.save();
 
-    // Cấu hình gửi mail
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -250,7 +285,8 @@ export const resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng." });
+    if (!user)
+      return res.status(404).json({ message: "Không tìm thấy người dùng." });
 
     if (user.resetOTP !== otp)
       return res.status(400).json({ message: "Mã OTP không hợp lệ." });
@@ -261,7 +297,7 @@ export const resetPassword = async (req, res) => {
     user.passwordHash = newPassword;
     user.resetOTP = null;
     user.resetOTPExpire = null;
-    await user.save(); // middleware sẽ tự hash trước khi lưu
+    await user.save();
 
     res.json({ message: "Đặt lại mật khẩu thành công!" });
   } catch (err) {
@@ -269,4 +305,3 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Lỗi hệ thống." });
   }
 };
-
