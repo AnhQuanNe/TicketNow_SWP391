@@ -1,53 +1,126 @@
-.my-tickets {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 0 15px;
-  font-family: "Arial", sans-serif;
+/* --- Card vé --- */
+.ticket-card {
+  background-color: #e1f5fe; /* Màu xanh pastel */
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #b3e5fc;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 20px; /* Tách các card vé ra */
 }
 
-.my-tickets h2 {
+/* --- Hiệu ứng hover với gradient cầu vồng nhạt --- */
+.ticket-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #ff9b9b, #ffcc99, #ffff99, #b3ff99, #99ffff, #99b3ff, #ff99ff);
+  background-size: 400% 400%;
+  animation: rainbow 3s ease infinite;
+}
+
+/* --- Hiệu ứng gradient cầu vồng nhạt */
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* --- Grid layout cho các card vé --- */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Mỗi dòng có 2 card */
+  gap: 20px; /* Khoảng cách giữa các card */
+  max-width: 1200px;
+  margin: 0 auto; /* Căn giữa */
+}
+
+/* --- Trạng thái vé --- */
+.status-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.status-success {
+  background-color: #81c784; /* Màu xanh lá pastel */
+  color: #388e3c;
+}
+
+.status-pending {
+  background-color: #ffeb3b; /* Màu vàng pastel */
+  color: #f57f17;
+}
+
+.status-cancelled {
+  background-color: #ef9a9a; /* Màu đỏ pastel */
+  color: #c62828;
+}
+/* --- Các tab --- */
+.tab-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Khoảng cách giữa các tab */
+  margin-bottom: 40px;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  border-radius: 9999px;
+  background: #ff7b00; /* Màu cam */
+  font-weight: 500;
+  cursor: pointer;
   text-align: center;
+  transition: all 0.3s ease;
+  color: white;
+  border: none; /* Bỏ bo viền đen */
+}
+
+.tab-button:hover,
+.tab-button.active {
+  background: #ff9e3d; /* Sáng cam khi hover hoặc active */
+}
+/* --- Thêm font chữ đẹp và bóng đổ cho "Vé của tôi" --- */
+h1 {
+  font-family: 'Poppins', sans-serif; /* Thay đổi font chữ cho hiện đại */
+  font-size: 36px;
+  font-weight: bold;
+  color: #333; /* Màu chữ tối */
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* Bóng đổ nhẹ để làm nổi bật */
   margin-bottom: 20px;
+}
+
+/* --- Nền trang mềm mại hơn --- */
+body {
+  background: linear-gradient(135deg, #f3f4f6, #ffffff); /* Gradient nền mềm mại */
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
   color: #333;
 }
 
-.my-tickets p {
-  text-align: center;
-  color: #666;
+/* Hiệu ứng Gradient nền */
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.my-tickets ul {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
+/* --- Tạo bóng đổ cho các card vé --- */
 .ticket-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  padding: 15px 20px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.ticket-card h3 {
-  margin: 0;
-  color: #2c3e50;
-  font-size: 1.2rem;
-}
-
-.ticket-card p {
-  margin: 0;
-  font-size: 0.95rem;
-  color: #555;
+  background-color: #e1f5fe; /* Màu xanh pastel */
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15); /* Bóng đổ đậm hơn */
+  border: 1px solid #b3e5fc;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 20px;
 }
 
 .ticket-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2); /* Bóng đổ mạnh hơn khi hover */
 }
+

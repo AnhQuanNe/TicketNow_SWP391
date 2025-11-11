@@ -29,22 +29,37 @@ function SelectTicket() {
   }, 0);
 
   const handlePayment = () => {
-    // Gom vé đã chọn thành mảng { type, price, quantity }
-    const selectedTickets = event.tickets
-      .map((t) => ({
-        type: t.type,
-        price: t.price,
-        quantity: quantities[t.type] || 0,
-      }))
-      .filter((t) => t.quantity > 0); // chỉ lấy vé có số lượng > 0
+  // Kiểm tra trạng thái đăng nhập
+  const user = localStorage.getItem("user"); // hoặc "token", tùy theo cách bạn lưu
 
-    // Lưu vào localStorage để Payment đọc lại
-    localStorage.setItem("tickets", JSON.stringify(selectedTickets));
-    localStorage.setItem("eventTitle", event.title);
+  if (!user) {
+    alert("Vui lòng đăng nhập trước khi thanh toán.");
+    navigate("/login");
+    return;
+  }
 
-    // Chuyển qua trang Payment
-    navigate("/payment");
-  };
+  // Gom vé đã chọn thành mảng { type, price, quantity }
+  const selectedTickets = event.tickets
+    .map((t) => ({
+      type: t.type,
+      price: t.price,
+      quantity: quantities[t.type] || 0,
+    }))
+    .filter((t) => t.quantity > 0);
+
+  if (selectedTickets.length === 0) {
+    alert("Vui lòng chọn ít nhất một vé.");
+    return;
+  }
+
+  // Lưu vào localStorage để Payment đọc lại
+  localStorage.setItem("tickets", JSON.stringify(selectedTickets));
+  localStorage.setItem("eventTitle", event.title);
+
+  // Chuyển qua trang Payment
+  navigate("/payment");
+};
+
 
   return (
     <div style={{ display: "flex", padding: "20px", backgroundColor: "#111", color: "white" }}>

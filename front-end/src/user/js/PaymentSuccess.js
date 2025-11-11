@@ -28,6 +28,7 @@ function PaymentSuccess() {
       }
 
       try {
+        // Gửi request để lưu vé vào cơ sở dữ liệu
         const res = await fetch("http://localhost:5000/api/payment/payment-success", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -41,7 +42,17 @@ function PaymentSuccess() {
         });
 
         if (res.ok) {
-          Swal.fire("🎉 Thành công!", "Vé của bạn đã được lưu!", "success");
+          // Sau khi lưu vé thành công, gửi email
+          await fetch("http://localhost:5000/api/payment/send-ticket-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userEmail: pendingTicket.userEmail, // Đảm bảo email người dùng đã lưu trong pendingTicket
+              ticket: pendingTicket,
+            }),
+          });
+
+          Swal.fire("🎉 Thành công!", "Vé của bạn đã được lưu và gửi qua email!", "success");
           localStorage.removeItem("pendingTicket");
           setTimeout(() => navigate("/my-tickets"), 2000);
         } else {
