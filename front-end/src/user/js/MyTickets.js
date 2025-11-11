@@ -1,133 +1,146 @@
-import React, { useEffect, useState } from "react";
+  import React, { useEffect, useState } from "react";
+  import "../../user/css/MyTicket.css";  // Đảm bảo đúng đường dẫn
 
-export default function MyTickets() {
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  export default function MyTickets() {
+    const [tickets, setTickets] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [activeTab, setActiveTab] = useState("Tất cả");
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    console.log("🧠 User trong localStorage:", user);
-
-    if (!user || !user._id) {
-      console.error("Không tìm thấy user._id hợp lệ trong localStorage");
-      setError("Không tìm thấy thông tin người dùng. Hãy đăng nhập lại.");
-      setLoading(false);
-      return;
-    }
-
-    const fetchTickets = async () => {
-      try {
-        setLoading(true);
-        console.log("🧠 userId:", user._id);
-        const res = await fetch(`http://localhost:5000/api/bookings/${user._id}`);
-        const data = await res.json();
-        console.log("🎟️ Dữ liệu vé nhận được:", data);
-
-        if (Array.isArray(data)) {
-          setTickets(data);
-        } else if (Array.isArray(data.bookings)) {
-          setTickets(data.bookings);
-        } else {
-          setTickets([]);
-        }
-      } catch (err) {
-        console.error("❌ Lỗi lấy vé:", err);
-        setError("Không thể tải vé. Vui lòng thử lại sau.");
-      } finally {
+    useEffect(() => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || !user._id) {
+        setError("Không tìm thấy thông tin người dùng. Hãy đăng nhập lại.");
         setLoading(false);
+        return;
       }
+
+      const fetchTickets = async () => {
+        try {
+          const res = await fetch(`http://localhost:5000/api/bookings/${user._id}`);
+          const data = await res.json();
+          if (Array.isArray(data)) setTickets(data);
+          else if (Array.isArray(data.bookings)) setTickets(data.bookings);
+          else setTickets([]);
+        } catch (err) {
+          setError("Không thể tải vé. Vui lòng thử lại sau.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchTickets();
+    }, []);
+
+    if (loading)
+      return (
+        <div className="flex items-center justify-center h-screen text-gray-500 text-lg">
+          Đang tải vé...
+        </div>
+      );
+    if (error)
+      return (
+        <div className="flex items-center justify-center h-screen text-red-500 text-lg">
+          {error}
+        </div>
+      );
+
+    const tabs = ["Tất cả", "Thành công", "Đang xử lý", "Đã hủy"];
+
+    const statusMap = {
+      confirmed: "Thành công",
+      success: "Thành công",
+      completed: "Thành công",
+      paid: "Thành công",
+      pending: "Đang xử lý",
+      processing: "Đang xử lý",
+      cancelled: "Đã hủy",
+      canceled: "Đã hủy",
     };
 
-    fetchTickets();
-  }, []);
+    const filteredTickets =
+      activeTab === "Tất cả"
+        ? tickets
+        : tickets.filter((t) => {
+            const viStatus = statusMap[t.status?.toLowerCase()] || "Khác";
+            return viStatus === activeTab;
+          });
 
-  if (loading) return <p style={{ textAlign: "center" }}>Đang tải vé...</p>;
-  if (error) return <p style={{ textAlign: "center", color: "red" }}>{error}</p>;
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center py-12 px-4"
+        style={{
+          backgroundColor: "#f8f8f8",
+          color: "#222",
+          fontFamily: "Inter, sans-serif",
+        }}
+      >
+        {/* --- Tiêu đề --- */}
+        <h1
+          className="text-3xl font-bold mb-10 tracking-wide"
+          style={{ color: "#1a1a1a" }}
+        >
+          Vé của tôi
+        </h1>
 
-  // ===== Inline styles =====
-  const styles = {
-    container: {
-      maxWidth: "800px",
-      margin: "20px auto",
-      padding: "0 15px",
-      fontFamily: "Arial, sans-serif",
-    },
-    title: {
-      textAlign: "center",
-      marginBottom: "20px",
-      color: "#333",
-    },
-    empty: {
-      textAlign: "center",
-      color: "#666",
-    },
-    list: {
-      listStyle: "none",
-      padding: 0,
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-      gap: "20px",
-    },
-    card: {
-      background: "#fff",
-      borderRadius: "12px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-      padding: "15px 20px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "8px",
-      transition: "transform 0.2s, box-shadow 0.2s",
-    },
-    cardHover: {
-      transform: "translateY(-5px)",
-      boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-    },
-    cardTitle: {
-      margin: 0,
-      color: "#2c3e50",
-      fontSize: "1.2rem",
-    },
-    cardText: {
-      margin: 0,
-      fontSize: "0.95rem",
-      color: "#555",
-    },
-  };
-
-  return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>🎟️ Vé của tôi</h2>
-      {tickets.length === 0 ? (
-        <p style={styles.empty}>Chưa có vé nào</p>
-      ) : (
-        <ul style={styles.list}>
-          {tickets.map((t) => (
-            <li
-              key={t._id || t.id}
-              style={styles.card}
-              onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.cardHover)}
-              onMouseLeave={(e) =>
-                Object.assign(e.currentTarget.style, {
-                  transform: "none",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                })
-              }
+        {/* --- Tabs --- */}
+        <div className="tab-container">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`tab-button ${activeTab === tab ? "active" : ""}`}
             >
-              <h3 style={styles.cardTitle}>{t.eventId?.title || "Không rõ sự kiện"}</h3>
-<p style={styles.cardText}>
-  📍 {t.eventId?.locationId?.name || "Chưa có địa điểm"}
-</p>
-<p style={styles.cardText}>
-  📅 {t.eventId?.date ? new Date(t.eventId.date).toLocaleDateString() : "Chưa có ngày"}
-</p>
-<p style={styles.cardText}>💰 {t.totalPrice ?? "Chưa có giá"} VNĐ</p>
-
-
-            </li>
+              {tab}
+            </button>
           ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+        </div>
+
+        {/* --- Card Vé --- */}
+        <div className="grid-container">
+          {filteredTickets.map((t) => {
+            const viStatus = statusMap[t.status?.toLowerCase()] || "Chưa xác định";
+            const statusClass =
+              viStatus === "Thành công"
+                ? "status-success"
+                : viStatus === "Đang xử lý"
+                ? "status-pending"
+                : "status-cancelled";
+
+            return (
+              <div
+                key={t._id || t.id}
+                className="ticket-card"
+                style={{
+                  marginBottom: "20px", // Khoảng cách giữa các card
+                }}
+              >
+                <h3
+                  className="text-lg font-semibold mb-2 truncate"
+                  style={{ color: "#222" }}
+                >
+                  {t.eventId?.title || "Không rõ sự kiện"}
+                </h3>
+                <p className="text-sm mb-1" style={{ color: "#555" }}>
+                  📍 {t.eventId?.locationId?.name || "Chưa có địa điểm"}
+                </p>
+                <p className="text-sm mb-1" style={{ color: "#555" }}>
+                  📅{" "}
+                  {t.eventId?.date
+                    ? new Date(t.eventId.date).toLocaleDateString("vi-VN")
+                    : "Chưa có ngày"}
+                </p>
+                <p className="text-sm mb-3" style={{ color: "#ff7b00" }}>
+                  💰 {t.totalPrice?.toLocaleString() ?? "Chưa có giá"} VNĐ
+                </p>
+
+                <span className={`status-tag ${statusClass}`}>
+                  {viStatus}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }

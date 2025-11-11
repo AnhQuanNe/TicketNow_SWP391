@@ -12,6 +12,7 @@ const bookingSchema = new mongoose.Schema(
       default: "pending",
     },
     paymentId: { type: String, default: null },
+    qrCode: { type: String, default: null },
   },
   { timestamps: true } // ✅ tự động thêm createdAt + updatedAt
 );
