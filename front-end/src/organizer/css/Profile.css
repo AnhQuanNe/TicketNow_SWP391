@@ -1,0 +1,77 @@
+/* ========== Khung chính ========== */
+.profile-container {
+  max-width: 600px;
+  margin: 80px auto;
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: "Inter", sans-serif;
+}
+
+/* ========== Tiêu đề ========== */
+.profile-container h2 {
+  text-align: center;
+  color: #ff7a00;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* ========== Label và Input ========== */
+.profile-container label {
+  font-weight: 600;
+  color: #333;
+  margin-top: 5px;
+}
+
+.profile-container input,
+.profile-container textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.profile-container input:focus,
+.profile-container textarea:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
+  outline: none;
+}
+
+/* ========== Textarea ========== */
+.profile-container textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* ========== Nút Lưu ========== */
+.profile-container button {
+  align-self: center;
+  margin-top: 20px;
+  background-color: #ff7a00;
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.1s ease;
+}
+
+.profile-container button:hover {
+  background-color: #e96b00;
+  transform: translateY(-1px);
+}
+
+/* ========== Khi chưa có hồ sơ ========== */
+.profile-container p {
+  text-align: center;
+  line-height: 1.5;
+}

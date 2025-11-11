@@ -16,6 +16,7 @@ import MyNavbar from "./user/js/MyNavbar";
 import Footer from "./user/js/Footer";
 import EventDetail from "./user/js/EventDetail";
 import HomePage from "./user/js/HomePage";
+import OrganizerLayout from "./organizer/js/OrganizerLayout";
 import TicketPage from "./user/js/PaymentPage";
 import SelectTicket from "./user/js/SelectTickets";
 import PaymentSuccess from "./user/js/PaymentSuccess";
@@ -86,12 +87,12 @@ function App() {
           element={
             <FavoritesPage
               favorites={favorites}
-toggleFavorite={toggleFavorite}
+              toggleFavorite={toggleFavorite}
             />
           }
         />
         <Route path="/search" element={<SearchResult />} />
-        {/* <Route path="/organizer/*" element={<OrganizerLayout />} /> */}
+        <Route path="/organizer/*" element={<OrganizerLayout />} />
         {/* ✅ Thêm route test upload ảnh */}
         <Route path="/upload" element={<ImageUpload />} />
         <Route path="/select-ticket/:id" element={<SelectTicket />} />

@@ -9,7 +9,7 @@ const bookingSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["pending", "confirmed", "cancelled"],
-      default: "confirmed",
+      default: "pending",
     },
     paymentId: { type: String, default: null },
     qrCode: { type: String, default: null },

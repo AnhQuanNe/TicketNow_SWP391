@@ -22,6 +22,9 @@ import authRoutes from "./routes/authRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
 // import router cho payments
 import paymentRoutes from "./routes/paymentRoutes.js";
+// 🟢 Import router cho Organizer
+import organizerRoutes from "./routes/organizerRoutes.js";
+
 //import booking
 import bookingRoutes from "./routes/bookingRoutes.js";
 
@@ -80,7 +83,7 @@ mongoose
             await p.save();
             console.log('Rescheduled pending notification into Agenda', { notificationId: p._id.toString(), jobId: p.jobId });
           } catch (e) {
-console.error('Failed to schedule pending notification', p._id.toString(), e);
+            console.error('Failed to schedule pending notification', p._id.toString(), e);
           }
         }
       } catch (e) {
@@ -154,6 +157,9 @@ app.use("/api/bookings", bookingRoutes); // api booking
 // 🟢 🔑 API: Sửa thông tin người dùng
 app.use("/api/users", userRoutes);
 
+// 🟢 API: Dành cho Organizer (Dashboard, Profile, Event,...)
+app.use("/api/organizer", organizerRoutes);
+
 // � Socket.IO basic events
 io.on("connection", (socket) => {
   // client join theo userId và theo event room để nhận review mới
@@ -177,3 +183,4 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () =>
   console.log(`🚀 Server chạy tại http://localhost:${PORT}`)
 );
+

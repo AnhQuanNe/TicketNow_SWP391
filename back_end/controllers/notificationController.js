@@ -1,6 +1,35 @@
 import Notification from "../model/Notification.js";
 import Event from "../model/Event.js";
 
+// Helper: resolve a sensible title for event-backed notifications
+const resolveTitle = async (eventId, title) => {
+  if (!eventId) return title;
+  if (title && title !== 'Nhắc nhở sự kiện') return title;
+  try {
+    const ev = await Event.findById(eventId).select('title');
+    if (ev && ev.title) return ev.title;
+  } catch (e) {
+    // ignore
+  }
+  return title || 'Thông báo';
+};
+
+// Helper: emit immediate notify and mark sentAt
+const emitImmediate = async (n, io) => {
+  try {
+    io?.to(`user:${String(n.userId)}`).emit('notify', {
+      id: n._id.toString(),
+      title: n.title,
+      message: n.message,
+      time: new Date().toISOString(),
+    });
+    n.sentAt = new Date();
+    await n.save();
+  } catch (e) {
+    console.error('emitImmediate error', e);
+  }
+};
+
 // GET /api/notifications?page=&limit=
 export const getMyNotifications = async (req, res) => {
   try {
@@ -52,66 +81,49 @@ export const markRead = async (req, res) => {
 
 // Utility: tạo thông báo (có thể là tức thời hoặc future)
 export const createNotification = async ({ userId, title, message, eventId, scheduledFor }, io, agenda) => {
-  // Defensive de-duplication: for immediate notifications, avoid creating the same message twice in a short window
+  // normalize inputs
+  title = await resolveTitle(eventId, title);
+  const now = new Date();
+
+  // dedupe: immediate (last 30s) and scheduled (within +/-60s)
   if (!scheduledFor) {
     try {
-      const recent = await Notification.findOne({
-        userId,
-        title,
-        message,
-        createdAt: { $gte: new Date(Date.now() - 30 * 1000) },
-      });
+      const recent = await Notification.findOne({ userId, title, message, createdAt: { $gte: new Date(now.getTime() - 30 * 1000) } });
       if (recent) return recent;
-    } catch (e) {
-      // ignore dedupe errors and proceed to create
-    }
+    } catch (e) { /* ignore */ }
+  } else {
+    try {
+      const wStart = new Date(scheduledFor.getTime() - 60 * 1000);
+      const wEnd = new Date(scheduledFor.getTime() + 60 * 1000);
+      const existing = await Notification.findOne({ userId, eventId, title, scheduledFor: { $gte: wStart, $lte: wEnd }, sentAt: { $exists: false } });
+      if (existing) return existing;
+    } catch (e) { /* ignore */ }
   }
 
   const n = await Notification.create({ userId, title, message, eventId, scheduledFor });
-  // If scheduledFor is not provided -> send immediately
-  if (!scheduledFor) {
-    io?.to(`user:${String(userId)}`).emit('notify', {
-      id: n._id.toString(),
-      title: n.title,
-      message: n.message,
-      time: new Date().toISOString(),
-    });
-    n.sentAt = new Date();
-    await n.save();
-    return n;
-  }
 
-  // If scheduledFor is in the past, treat it as immediate (send now)
-    if (scheduledFor <= new Date()) {
-    io?.to(`user:${String(userId)}`).emit('notify', {
-      id: n._id.toString(),
-      title: n.title,
-      message: n.message,
-      time: new Date().toISOString(),
-    });
-    n.sentAt = new Date();
-    await n.save();
+  // Immediate send or scheduled-in-past -> emit now
+  if (!scheduledFor || scheduledFor.getTime() <= now.getTime()) {
+    await emitImmediate(n, io);
+    if (!scheduledFor) return n;
     console.log('createNotification: scheduledFor was in the past, sent immediately', { userId, eventId, scheduledFor: scheduledFor.toISOString() });
     return n;
   }
 
-  // scheduledFor is in the future. If agenda is provided, schedule a job and record jobId
+  // scheduledFor in the future -> schedule with Agenda if available
   if (agenda) {
     try {
       const job = await agenda.schedule(scheduledFor, 'send-notification', { notificationId: n._id.toString() });
-      // store job id for potential cancel/reschedule
       n.jobId = job.attrs._id?.toString?.() || null;
       await n.save();
       console.log('createNotification: scheduled job with agenda', { notificationId: n._id.toString(), jobId: n.jobId, scheduledFor: scheduledFor.toISOString() });
       return n;
     } catch (err) {
       console.error('createNotification: failed to schedule agenda job, falling back to DB-only', err);
-      // leave the notification in DB without jobId; scheduler-rescue on startup will pick it up
       return n;
     }
   }
 
-  // If no agenda provided, just leave notification in DB (previous polling scheduler may pick it up)
   console.log('createNotification: agenda not provided, notification saved for future delivery', { notificationId: n._id.toString(), scheduledFor: scheduledFor.toISOString() });
   return n;
 };
@@ -138,15 +150,9 @@ export const afterPayment = async (req, res) => {
       // Normalize seconds/milliseconds
       oneHourBefore.setSeconds(0, 0);
       // Only schedule if more than 1 hour remains
-      if (oneHourBefore > new Date()) {
+      if (oneHourBefore.getTime() > Date.now()) {
         console.log('afterPayment: scheduling reminder', { eventId, userId, startTime: startTime.toISOString(), scheduledFor: oneHourBefore.toISOString() });
-        const scheduled = await createNotification({
-          userId,
-          eventId,
-          title: 'Nhắc nhở sự kiện',
-          message: 'Sự kiện bạn đã mua sẽ bắt đầu sau 1 giờ',
-          scheduledFor: oneHourBefore,
-        }, io, agenda);
+        const scheduled = await createNotification({ userId, eventId, title: 'Nhắc nhắc sự kiện', message: 'Sự kiện bạn đã mua sẽ bắt đầu sau 1 giờ', scheduledFor: oneHourBefore }, io, agenda);
         scheduledId = scheduled._id;
       } else {
         console.log('afterPayment: reminder skipped because less than 1 hour remains', { eventId, userId, startTime: startTime.toISOString(), oneHourBefore: oneHourBefore.toISOString() });
