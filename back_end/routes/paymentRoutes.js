@@ -2,6 +2,8 @@ import express from "express";
 import { PayOS } from "@payos/node";
 import dotenv from "dotenv";
 import Booking from "../model/Booking.js"; // model MongoDB của bạn
+import Event from "../model/Event.js";
+import { createNotification } from "../controllers/notificationController.js";
 
 dotenv.config();
 const router = express.Router();
@@ -48,6 +50,45 @@ router.post("/payment-success", async (req, res) => {
     });
 
     await booking.save();
+    // Tạo thông báo thanh toán thành công (gửi ngay bằng Socket.IO)
+    try {
+      const io = req.app.get('io');
+      const agenda = req.app.get('agenda');
+      await createNotification({
+        userId: booking.userId,
+        title: 'Thanh toán thành công',
+        message: `Thanh toán thành công. Mã đơn: ${booking.paymentId || ''}`,
+        eventId: booking.eventId,
+      }, io, agenda);
+    } catch (notifyErr) {
+      console.error('❌ Lỗi khi tạo notification sau thanh toán:', notifyErr);
+      // Không block luồng chính nếu notification thất bại
+    }
+    // Đồng thời lên lịch nhắc 1 giờ trước sự kiện (nếu có thời gian sự kiện và còn >1 giờ)
+    try {
+      const io = req.app.get('io');
+      const agenda = req.app.get('agenda');
+      const ev = await Event.findById(booking.eventId);
+      if (ev && ev.date) {
+        const startTime = new Date(ev.date);
+        let oneHourBefore = new Date(startTime.getTime() - 60 * 60 * 1000);
+        oneHourBefore.setSeconds(0, 0);
+        if (oneHourBefore > new Date()) {
+          await createNotification({
+            userId: booking.userId,
+            eventId: booking.eventId,
+            title: 'Nhắc nhở sự kiện',
+            message: 'Sự kiện bạn đã mua sẽ bắt đầu sau 1 giờ',
+            scheduledFor: oneHourBefore,
+          }, io, agenda);
+          console.log('⏰ Đã lên lịch nhắc 1 giờ trước sự kiện', { bookingId: booking._id.toString(), eventId: booking.eventId.toString(), scheduledFor: oneHourBefore.toISOString() });
+        } else {
+          console.log('ℹ️ Bỏ qua nhắc vì thời gian sự kiện < 1 giờ', { eventId: booking.eventId.toString(), startTime: startTime.toISOString() });
+        }
+      }
+    } catch (schedErr) {
+      console.error('❌ Lỗi khi lên lịch nhắc sự kiện:', schedErr);
+    }
     res.json({ success: true, message: "Booking created successfully!" });
   } catch (err) {
     console.error("❌ Lỗi lưu booking:", err);
