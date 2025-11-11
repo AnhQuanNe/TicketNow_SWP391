@@ -20,6 +20,14 @@ const userSchema = new mongoose.Schema(
     },
     dob: { type: String, default: "" },
     gender: { type: String, default: "" },
+    // 🟢 Vai trò của người dùng (liên kết tới bảng Roles)
+    role: {
+      type: String,
+      enum: ["admin", "user", "organizer"],
+      required: true,
+      default: "user",
+    },
+
     // 🧡 [THÊM NGAY DƯỚI ĐÂY]
     // Danh sách sự kiện yêu thích của user
     favoriteEvents: [
@@ -28,6 +36,9 @@ const userSchema = new mongoose.Schema(
         ref: "Event", // tham chiếu tới model Event
       },
     ],
+    isBanned: { type: Boolean, default: false },
+    banReason: { type: String, default: "" },
+
     // 🧡 [HẾT PHẦN THÊM MỚI]
     resetOTP: { type: String, default: null },
     resetOTPExpire: { type: Date, default: null },

@@ -7,7 +7,10 @@ export const protect = async (req, res, next) => {
     ? req.headers.authorization.split(" ")[1]
     : null;
 
-  if (!token) return res.status(401).json({ message: "Không có token, truy cập bị từ chối" });
+  if (!token)
+    return res
+      .status(401)
+      .json({ message: "Không có token, truy cập bị từ chối" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -19,5 +22,16 @@ export const protect = async (req, res, next) => {
     next();
   } catch (error) {
     res.status(401).json({ message: "Token không hợp lệ" });
+  }
+};
+
+// 🟢 Kiểm tra quyền Admin
+export const verifyAdmin = (req, res, next) => {
+  if (req.user && req.user.role === "role_admin") {
+    next();
+  } else {
+    res
+      .status(403)
+      .json({ message: "Bạn không có quyền truy cập tính năng này" });
   }
 };

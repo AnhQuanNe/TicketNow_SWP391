@@ -4,11 +4,18 @@ import {
   updateUser,
   updateAvatar,
   upload,
-  toggleFavoriteEvent, // 🟩 Thêm dòng này
+  toggleFavoriteEvent,
+  getAllUsers,        // 🟢 thêm
+  adminUpdateUser,    // 🟢 thêm
+  deleteUser,
+  banUser          // 🟢 thêm
 } from "../controllers/userController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, verifyAdmin } from "../middleware/authMiddleware.js"; // 🟢 thêm verifyAdmin
 
 const router = express.Router();
+
+
+// ======================= USER (self) =======================
 
 // 🟠 Lấy thông tin người dùng
 router.get("/:id", protect, getUserById);
@@ -19,10 +26,25 @@ router.put("/:id", protect, updateUser);
 // 📸 Upload & cập nhật ảnh đại diện
 router.put("/:id/avatar", protect, upload.single("avatar"), updateAvatar);
 
-// 💖🟩 THÊM ROUTE NÀY Ở ĐÂY
-// [POST] /api/users/:id/favorites
-// 👉 Khi user bấm "tim" 1 sự kiện, gọi route này để thêm hoặc xoá event khỏi danh sách yêu thích
+// 💖 Thêm hoặc xóa sự kiện yêu thích
 router.post("/:id/favorites", protect, toggleFavoriteEvent);
 
+
+// ======================= ADMIN =======================
+
+// 🧩 Lấy danh sách tất cả người dùng
+router.get("/", protect, verifyAdmin, getAllUsers);
+
+// 🧩 Cập nhật vai trò hoặc trạng thái người dùng
+router.put("/admin/:id", protect, verifyAdmin, adminUpdateUser);
+
+// 🧩 Xóa người dùng
+router.delete("/admin/:id", protect, verifyAdmin, deleteUser);
+
+// 🧩 Ban (khóa / mở khóa) người dùng
+router.put("/admin/ban/:id", protect, verifyAdmin, banUser);
+
+
+// =========================================================
 
 export default router;
