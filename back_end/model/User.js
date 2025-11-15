@@ -27,6 +27,8 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: "user",
     },
+    emailVerified: { type: Boolean, default: false },
+    emailVerifyToken: { type: String, default: null },
 
     // 🧡 [THÊM NGAY DƯỚI ĐÂY]
     // Danh sách sự kiện yêu thích của user

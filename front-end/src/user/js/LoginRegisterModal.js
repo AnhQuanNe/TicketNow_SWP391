@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../css/LoginRegisterModal.css";
 import {
   loginUser,
@@ -26,14 +26,20 @@ export default function LoginRegisterModal({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // ✅ State cho quên mật khẩu
-  const [forgotStep, setForgotStep] = useState(0); // 0 = tắt, 1 = nhập email, 2 = nhập OTP, 3 = đặt mật khẩu
+  // Quên mật khẩu
+  const [forgotStep, setForgotStep] = useState(0);
   const [otp, setOtp] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  useEffect(() => {
+    if (window.grecaptcha) {
+      window.grecaptcha.ready(() => {});
+    }
+  }, []);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -42,54 +48,51 @@ export default function LoginRegisterModal({
     e.preventDefault();
     setLoading(true);
     setMessage("");
+
     try {
       if (type === "login") {
         const data = await loginUser({
           email: form.email,
           password: form.password,
         });
+
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data));
         onLoginSuccess?.(data);
 
-        // ✅ Phân quyền điều hướng
-        if (type === "login") {
-          const data = await loginUser({
-            email: form.email,
-            password: form.password,
-          });
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data));
-          onLoginSuccess?.(data);
-
-          // 🧩 Nếu là admin thì lưu thêm adminToken để AdminRoute nhận ra
-          if (data.role?.name === "admin" || data.role === "role_admin") {
-            localStorage.setItem("adminToken", data.token);
-          }
-
-          // ✅ Phân quyền điều hướng
-          if (data.role?.name === "admin" || data.role === "role_admin") {
-            window.location.href = "/admin";
-          } else if (
-            data.role?.name === "organizer" ||
-            data.role === "role_organizer"
-          ) {
-            window.location.href = "/organizer";
-          } else {
-            window.location.href = "/";
-          }
-
-          setTimeout(onClose, 500);
+        if (data.role === "admin") {
+          localStorage.setItem("adminToken", data.token);
         }
+
+        if (data.role === "admin") {
+          window.location.href = "/admin";
+        } else if (data.role === "organizer") {
+          window.location.href = "/organizer";
+        } else {
+          window.location.href = "/";
+        }
+
+        setTimeout(onClose, 500);
       } else {
-        const data = await registerUser({
+        // ⛳ LẤY TOKEN reCAPTCHA
+        const recaptchaToken = await window.grecaptcha.execute(
+          process.env.REACT_APP_RECAPTCHA_SITE_KEY,
+          { action: "register" }
+        );
+
+        // GỌI API REGISTER
+        await registerUser({
           name: form.name,
           email: form.email,
           passwordHash: form.password,
           phone: form.phone,
           studentId: form.studentId,
+          recaptchaToken,
         });
-        setMessage(`🎉 Đăng ký thành công, chào ${data.name}!`);
+
+        setMessage(
+          "🎉 Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản."
+        );
       }
     } catch (err) {
       setMessage("❌ " + (err.message || "Lỗi kết nối"));
@@ -98,18 +101,20 @@ export default function LoginRegisterModal({
     }
   };
 
-  // ✅ Google login
+  // GOOGLE
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const data = await googleLoginUser({
         credential: credentialResponse.credential,
       });
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
-      // 🧩 Nếu là admin thì lưu thêm adminToken để AdminRoute nhận ra
-      if (data.role?.name === "admin" || data.role === "role_admin") {
+
+      if (data.role === "admin") {
         localStorage.setItem("adminToken", data.token);
       }
+
       onLoginSuccess?.(data);
       setTimeout(onClose, 500);
     } catch (err) {
@@ -117,7 +122,7 @@ export default function LoginRegisterModal({
     }
   };
 
-  // ✅ Gửi OTP
+  // QUÊN MẬT KHẨU
   const handleSendOtp = async () => {
     try {
       setLoading(true);
@@ -131,7 +136,6 @@ export default function LoginRegisterModal({
     }
   };
 
-  // ✅ Xác minh OTP
   const handleVerifyOtp = async () => {
     try {
       setLoading(true);
@@ -145,7 +149,6 @@ export default function LoginRegisterModal({
     }
   };
 
-  // ✅ Đặt lại mật khẩu
   const handleResetPassword = async () => {
     if (newPass !== confirmPass) {
       return setMessage("❌ Mật khẩu xác nhận không khớp!");
@@ -154,6 +157,7 @@ export default function LoginRegisterModal({
       setLoading(true);
       await resetPassword(form.email, otp, newPass);
       setMessage("🎉 Mật khẩu mới đã được đặt lại thành công!");
+
       setTimeout(() => {
         setForgotStep(0);
         switchType("login");
@@ -188,6 +192,7 @@ export default function LoginRegisterModal({
         </>
       );
     }
+
     if (forgotStep === 2) {
       return (
         <>
@@ -220,19 +225,23 @@ export default function LoginRegisterModal({
               />
             ))}
           </div>
+
           <button type="button" onClick={handleVerifyOtp} disabled={loading}>
             {loading ? "Đang xác minh..." : "Xác nhận OTP"}
           </button>
+
           <p className="back-to-login" onClick={() => setForgotStep(1)}>
             ← Quay lại nhập email
           </p>
         </>
       );
     }
+
     if (forgotStep === 3) {
       return (
         <>
           <h2>Đặt lại mật khẩu</h2>
+
           <div className="password-field">
             <input
               type={showNewPass ? "text" : "password"}
@@ -271,13 +280,10 @@ export default function LoginRegisterModal({
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={handleResetPassword}
-            disabled={loading}
-          >
+          <button type="button" onClick={handleResetPassword} disabled={loading}>
             {loading ? "Đang cập nhật..." : "Xác nhận đặt lại"}
           </button>
+
           <p className="back-to-login" onClick={() => setForgotStep(0)}>
             ← Quay lại đăng nhập
           </p>
@@ -292,6 +298,7 @@ export default function LoginRegisterModal({
         <button className="close-btn" onClick={onClose}>
           ×
         </button>
+
         {forgotStep > 0 ? (
           <>
             {renderForgotPasswordSteps()}
@@ -300,6 +307,7 @@ export default function LoginRegisterModal({
         ) : (
           <>
             <h2>{type === "login" ? "Đăng nhập" : "Đăng ký"}</h2>
+
             <form onSubmit={handleSubmit}>
               {type === "register" && (
                 <>
@@ -321,6 +329,7 @@ export default function LoginRegisterModal({
                   />
                 </>
               )}
+
               <input
                 name="email"
                 placeholder="Nhập email"
@@ -359,10 +368,7 @@ export default function LoginRegisterModal({
             </form>
 
             {type === "login" && (
-              <p
-                className="forgot-password-link"
-                onClick={() => setForgotStep(1)}
-              >
+              <p className="forgot-password-link" onClick={() => setForgotStep(1)}>
                 Quên mật khẩu?
               </p>
             )}
