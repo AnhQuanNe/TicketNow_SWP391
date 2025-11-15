@@ -9,30 +9,38 @@ export const createBookingAfterPayment = async (req, res) => {
   try {
     const { userId, eventId, quantity, totalPrice, paymentId } = req.body;
 
-    if (!userId || !eventId || !quantity || !totalPrice) {
-      return res.status(400).json({ message: "Thiếu thông tin cần thiết" });
+    if (!userId || !eventId || !quantity || !totalPrice || !paymentId) {
+      return res.status(400).json({ message: "❌ Thiếu thông tin cần thiết" });
     }
 
     const userObjectId = new mongoose.Types.ObjectId(userId.trim());
     const eventObjectId = new mongoose.Types.ObjectId(eventId.trim());
 
-    const event = await Event.findById(eventObjectId);
-    if (!event) return res.status(404).json({ message: "Event không tồn tại" });
-
-    if (event.ticketsAvailable < quantity) {
-      return res.status(400).json({ message: "Không đủ vé khả dụng" });
-    }
-
-    // Trừ vé
-    await Event.findByIdAndUpdate(eventObjectId, { $inc: { ticketsAvailable: -quantity } });
-
-    // Kiểm tra booking trùng theo paymentId
+    // 🔹 Kiểm tra nếu booking này đã tồn tại (tránh tạo trùng, trừ vé 2 lần)
     const existingBooking = await Booking.findOne({ paymentId });
     if (existingBooking) {
-      return res.status(200).json({ message: "Vé đã tồn tại", booking: existingBooking });
+      return res.status(200).json({
+        message: "⚠️ Vé đã tồn tại, không trừ thêm vé",
+        booking: existingBooking,
+      });
     }
 
-    // Tạo booking mới
+    // 🔹 Lấy sự kiện
+    const event = await Event.findById(eventObjectId);
+    if (!event) {
+      return res.status(404).json({ message: "❌ Event không tồn tại" });
+    }
+
+    // 🔹 Kiểm tra còn đủ vé
+    if (event.ticketsAvailable < quantity) {
+      return res.status(400).json({ message: "❌ Không đủ vé khả dụng" });
+    }
+
+    // 🔹 Trừ vé & lưu lại
+    event.ticketsAvailable -= quantity;
+    await event.save();
+
+    // 🔹 Tạo booking
     const newBooking = new Booking({
       userId: userObjectId,
       eventId: eventObjectId,
@@ -74,14 +82,15 @@ export const createBookingAfterPayment = async (req, res) => {
     }
 
     return res.status(201).json({
-      message: "🎟️ Đặt vé thành công (QR + email tách try/catch riêng)",
+      message: "🎟️ Đặt vé thành công & đã trừ vé trong sự kiện",
       booking: newBooking,
     });
   } catch (err) {
     console.error("❌ Lỗi chung khi tạo booking:", err.message);
-    return res.status(500).json({ message: "Lỗi khi lưu booking", error: err.message });
+return res.status(500).json({ message: "Lỗi khi lưu booking", error: err.message });
   }
 };
+ 
 
 
 // ✅ Lấy danh sách vé của user

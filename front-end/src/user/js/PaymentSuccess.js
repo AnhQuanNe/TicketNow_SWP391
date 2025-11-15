@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 
 function PaymentSuccess() {
   const navigate = useNavigate();
-  const hasRun = useRef(false); // ✅ đảm bảo chỉ chạy 1 lần
+  const hasRun = useRef(false);
 
   useEffect(() => {
     if (hasRun.current) return;
@@ -28,8 +28,8 @@ function PaymentSuccess() {
       }
 
       try {
-        // Gửi request để lưu vé vào cơ sở dữ liệu
-        const res = await fetch("http://localhost:5000/api/payment/payment-success", {
+        // ✅ Gọi đúng API backend
+        const res = await fetch("http://localhost:5000/api/bookings/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -41,32 +41,24 @@ function PaymentSuccess() {
           }),
         });
 
-        if (res.ok) {
-          // Sau khi lưu vé thành công, gửi email
-          await fetch("http://localhost:5000/api/payment/send-ticket-email", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userEmail: pendingTicket.userEmail, // Đảm bảo email người dùng đã lưu trong pendingTicket
-              ticket: pendingTicket,
-            }),
-          });
+        const data = await res.json();
+        console.log("🎟️ Booking API response:", data);
 
+        if (res.ok) {
           Swal.fire("🎉 Thành công!", "Vé của bạn đã được lưu và gửi qua email!", "success");
           localStorage.removeItem("pendingTicket");
           setTimeout(() => navigate("/my-tickets"), 2000);
         } else {
-          const data = await res.json();
           Swal.fire("❌ Lỗi", data.message || "Không thể lưu vé!", "error");
         }
       } catch (err) {
-        console.error(err);
+        console.error("❌ Lỗi khi lưu vé:", err);
         Swal.fire("❌ Lỗi", "Không thể kết nối máy chủ!", "error");
       }
     };
 
     saveBooking();
-  }, []); // ⚠️ bỏ [navigate], để effect chỉ chạy 1 lần
+  }, []);
 
   return null;
 }
