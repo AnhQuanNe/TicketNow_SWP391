@@ -36,10 +36,11 @@ import CategoryPage from "./user/js/CategoryPage";
 import AdminLayout from "./admin/js/AdminLayout";
 import Dashboard from "./admin/js/Dashboard";
 import UserManagement from "./admin/js/UserManager";
-import Event from "./admin/js/Event";
 import Report from "./admin/js/Report";
 import Notification from "./admin/js/Notification";
 import AdminRoute from "./admin/js/AdminRoute";
+import EventManager from "./admin/js/EventManager";
+import VerifyEmail from "./user/js/VerifyEmail";
 
 // 🧩 Tách phần logic ra component riêng
 function AppContent() {
@@ -93,6 +94,8 @@ function AppContent() {
         <Route path="/my-tickets" element={<MyTickets />} />
         <Route path="/payment" element={<TicketPage />} />
         <Route path="/my-account" element={<MyAccount />} />
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
+
 
         {/* 🟠 Trang admin (ẩn header/footer) */}
         <Route
@@ -106,7 +109,7 @@ function AppContent() {
           <Route index element={<Dashboard />} /> {/* /admin */}
           <Route path="users" element={<UserManagement />} />{" "}
           {/* /admin/users */}
-          <Route path="events" element={<Event />} /> {/* /admin/events */}
+          <Route path="events" element={<EventManager />} /> {/* /admin/events */}
           <Route path="reports" element={<Report />} /> {/* /admin/reports */}
           <Route path="notifications" element={<Notification />} />{" "}
           {/* /admin/notifications */}
