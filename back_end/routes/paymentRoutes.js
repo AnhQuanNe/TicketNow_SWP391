@@ -37,12 +37,13 @@ router.post("/create-payment", async (req, res) => {
 // ✅ 2. Sau khi thanh toán thành công → lưu vé
 router.post("/payment-success", async (req, res) => {
   try {
-    const { userId, eventId, quantity, totalPrice, paymentId } = req.body;
+    const { userId, eventId, quantity, totalPrice, paymentId, ticketType } = req.body;
 
     const booking = new Booking({
       userId,
       eventId,
       quantity,
+      ticketType: ticketType || null,
       totalPrice,
       paymentId,
       status: "confirmed",

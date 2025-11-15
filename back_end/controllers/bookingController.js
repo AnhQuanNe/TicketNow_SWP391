@@ -5,7 +5,7 @@ import Event from "../model/Event.js";
 // ✅ Tạo booking sau thanh toán
 export const createBookingAfterPayment = async (req, res) => {
   try {
-    const { userId, eventId, quantity, totalPrice, paymentId } = req.body;
+    const { userId, eventId, quantity, totalPrice, paymentId, ticketType } = req.body;
 
     if (!userId || !eventId || !quantity || !totalPrice) {
       return res.status(400).json({ message: "Thiếu thông tin cần thiết" });
@@ -57,6 +57,7 @@ if (existing) {
       userId: userObjectId,
       eventId: eventObjectId,
       quantity,
+      ticketType: ticketType || null,
       totalPrice,
       paymentId,
       status: "confirmed",
@@ -118,5 +119,60 @@ export const getBookingsByUser = async (req, res) => {
       message: "Lỗi khi lấy vé",
       error: err.message,
     });
+  }
+};
+
+// ✅ Lấy danh sách booking theo event (dùng cho organizer xem danh sách attendees)
+export const getBookingsByEvent = async (req, res) => {
+  try {
+    let { eventId } = req.params;
+    if (!eventId) return res.status(400).json({ message: "Thiếu eventId" });
+
+    eventId = eventId.trim();
+    if (!mongoose.Types.ObjectId.isValid(eventId))
+      return res.status(400).json({ message: "eventId không hợp lệ" });
+
+    const eventObjectId = new mongoose.Types.ObjectId(eventId);
+
+    // pagination
+    const page = Math.max(1, parseInt(req.query.page || "1", 10));
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || "10", 10)));
+    const skip = (page - 1) * limit;
+
+    const total = await Booking.countDocuments({ eventId: eventObjectId });
+    // calculate revenue and unique buyers using aggregation
+    const agg = await Booking.aggregate([
+      { $match: { eventId: eventObjectId } },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: { $ifNull: ["$totalPrice", 0] } },
+          uniqueBuyers: { $addToSet: "$userId" },
+        },
+      },
+    ]);
+
+    const totalRevenue = agg[0]?.totalRevenue || 0;
+    const uniqueBuyersCount = (agg[0]?.uniqueBuyers || []).length;
+
+    const bookings = await Booking.find({ eventId: eventObjectId })
+      .populate({ path: "userId", select: "name email" })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json({
+      message: "✅ Lấy booking theo event thành công",
+      count: bookings.length,
+      total,
+      totalRevenue,
+      uniqueBuyers: uniqueBuyersCount,
+      page,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+      bookings,
+    });
+  } catch (err) {
+    console.error("❌ Lỗi khi lấy booking theo event:", err);
+    return res.status(500).json({ message: "Lỗi khi lấy booking theo event", error: err.message });
   }
 };

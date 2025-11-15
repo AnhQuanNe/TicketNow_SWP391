@@ -5,6 +5,8 @@ const bookingSchema = new mongoose.Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true }, // ✅ ref đúng rồi
     quantity: { type: Number, required: true },
+    // optional: type of ticket purchased (guest, student, ...)
+    ticketType: { type: String, default: null },
     totalPrice: { type: Number, required: true },
     status: {
       type: String,

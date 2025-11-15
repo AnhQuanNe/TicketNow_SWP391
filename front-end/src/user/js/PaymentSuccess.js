@@ -28,6 +28,8 @@ function PaymentSuccess() {
       }
 
       try {
+        // include ticketType (take first selected ticket type if multiple)
+        const firstTicketType = pendingTicket.tickets && pendingTicket.tickets.length ? (pendingTicket.tickets[0].ticketType || pendingTicket.tickets[0].type) : null;
         const res = await fetch("http://localhost:5000/api/payment/payment-success", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -37,6 +39,7 @@ function PaymentSuccess() {
             quantity: pendingTicket.quantity || 1,
             totalPrice: pendingTicket.price,
             paymentId: pendingTicket.paymentId,
+            ticketType: firstTicketType,
           }),
         });
 

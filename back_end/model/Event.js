@@ -7,10 +7,11 @@ const eventSchema = new mongoose.Schema({
   description: { type: String },
   // 🔗 Tham chiếu sang các collection khác (để populate)
   categoryId: { type: String, ref: "Category" },
-  organizerId: { type: String, ref: "Organizer" },
+  organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   locationId: { type: String, ref: "Location" },
   date: { type: Date },
   ticketsAvailable: { type: Number, default: 0 },
+  ticketTotal:{type: Number, default: 0},
   imageUrl: { type: String }, // nếu bạn có thêm ảnh sau này
   createdAt: { type: Date, default: Date.now },
 });
