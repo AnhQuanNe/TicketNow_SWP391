@@ -180,20 +180,55 @@ function EventDetail() {
             <b>🗓️ Thời gian:</b> {new Date(event.date).toLocaleString()}
           </p>
 
-          <button
-            style={styles.btn}
-            onMouseEnter={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #ff80bf, #ff99cc)")
-            }
-            onMouseLeave={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #ff66b2, #ff4da6)")
-            }
-            onClick={handleBuyTicket}
-          >
-            💖 Mua vé ngay
-          </button>
+          {(() => {
+            const isExpired = new Date(event.date) < new Date();
+            const isSoldOut = (event.ticketsAvailable || 0) <= 0;
+            const canBuy = !isExpired && !isSoldOut;
+            const dynamicLabel = isSoldOut
+              ? "Hết vé"
+              : isExpired
+              ? "Đã kết thúc"
+              : "💖 Mua vé ngay";
+            return (
+              <button
+                disabled={!canBuy}
+                style={{
+                  ...styles.btn,
+                  ...(canBuy
+                    ? {}
+                    : {
+                        background: "#ccc",
+                        boxShadow: "none",
+                        cursor: "not-allowed",
+                      }),
+                }}
+                onMouseEnter={
+                  canBuy
+                    ? (e) =>
+                        (e.target.style.background =
+                          "linear-gradient(90deg, #ff80bf, #ff99cc)")
+                    : undefined
+                }
+                onMouseLeave={
+                  canBuy
+                    ? (e) =>
+                        (e.target.style.background =
+                          "linear-gradient(90deg, #ff66b2, #ff4da6)")
+                    : undefined
+                }
+                onClick={canBuy ? handleBuyTicket : undefined}
+                title={
+                  isSoldOut
+                    ? "Sự kiện đã hết vé"
+                    : isExpired
+                    ? "Sự kiện đã kết thúc"
+                    : "Mua vé cho sự kiện này"
+                }
+              >
+                {dynamicLabel}
+              </button>
+            );
+          })()}
         </div>
       </div>
 
