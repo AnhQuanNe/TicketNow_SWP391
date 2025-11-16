@@ -40,7 +40,7 @@ export default function Report() {
 
   useEffect(() => {
     // Fake fetch API, dùng dữ liệu test nếu server chưa sẵn sàng
-    fetch(`http://localhost:5000/api/reports?period=${period}`)
+    fetch(`${process.env.REACT_APP_API_URL}/reports?period=${period}`)
       .then(res => {
         if (!res.ok) throw new Error('Server not ready');
         return res.json();

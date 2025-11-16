@@ -17,12 +17,12 @@ function SelectTicket() {
     if (!id) return;
     setLoading(true);
 
-    const fetchEvent = fetch(`http://localhost:5000/api/events/${id}`)
+    const fetchEvent = fetch(`${process.env.REACT_APP_API_URL}/events/${id}`)
       .then((res) => res.json())
       .then((data) => setEvent(data))
       .catch((err) => console.error(err));
 
-    const fetchTickets = fetch(`http://localhost:5000/api/tickets/event/${id}`)
+    const fetchTickets = fetch(`${process.env.REACT_APP_API_URL}/tickets/event/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setTickets(data || []);

@@ -58,7 +58,7 @@ export default function MyAccount() {
 
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/users/${user._id}/avatar`,
+        `${process.env.REACT_APP_API_URL}/users/${user._id}/avatar`,
         fd,
         {
           headers: {
@@ -72,7 +72,7 @@ export default function MyAccount() {
         const updated = { ...user, avatar: res.data.avatar };
         localStorage.setItem("user", JSON.stringify(updated));
         setUser(updated);
-        setPreview(`http://localhost:5000${res.data.avatar}`);
+        setPreview(`${process.env.REACT_APP_API_URL.replace(/\/api$/, '')}${res.data.avatar}`);
       }
     } catch (err) {
       console.error("❌ Upload avatar lỗi:", err);
@@ -91,7 +91,7 @@ export default function MyAccount() {
       };
 
       const res = await axios.put(
-        `http://localhost:5000/api/users/${user._id}`,
+        `${process.env.REACT_APP_API_URL}/users/${user._id}`,
         body,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -103,7 +103,7 @@ export default function MyAccount() {
         localStorage.setItem("user", JSON.stringify(res.data));
         setUser(res.data);
         if (res.data.avatar)
-          setPreview(`http://localhost:5000${res.data.avatar}`);
+          setPreview(`${process.env.REACT_APP_API_URL.replace(/\/api$/, '')}${res.data.avatar}`);
       }
     } catch (err) {
       console.error("❌ Update error:", err);
@@ -129,7 +129,7 @@ export default function MyAccount() {
               src={
                 preview?.startsWith("http")
                   ? preview
-                  : `http://localhost:5000${
+                  : `${process.env.REACT_APP_API_URL.replace(/\/api$/, '')}${
                       preview || user.avatar || "/uploads/default.png"
                     }`
               }

@@ -31,7 +31,7 @@ export default function MyEventsList({ setActivePage, setSelectedEventId }) {
 				}
 				setOrganizer(org);
 
-				const res = await axios.get(`http://localhost:5000/api/events/search?organizerId=${org._id}`);
+				const res = await axios.get(`${process.env.REACT_APP_API_URL}/events/search?organizerId=${org._id}`);
 				setEvents(res.data || []);
 			} catch (err) {
 				console.error("Lỗi khi tải sự kiện organizer:", err);

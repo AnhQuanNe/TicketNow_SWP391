@@ -26,10 +26,10 @@ export default function UserManagement() {
 
         // Fetch users & roles song song
         const [usersRes, rolesRes] = await Promise.all([
-          fetch("http://localhost:5000/api/users", {
+          fetch(`${process.env.REACT_APP_API_URL}/users`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5000/api/roles", {
+          fetch(`${process.env.REACT_APP_API_URL}/roles`, {
             headers: { Authorization: `Bearer ${token}` }, // nếu sau này bảo vệ role API
           }),
         ]);
@@ -85,7 +85,7 @@ export default function UserManagement() {
     if (window.confirm(`Bạn có chắc muốn xóa ${user.name}?`)) {
       try {
         const res = await fetch(
-`http://localhost:5000/api/users/admin/${user._id}`,
+      `${process.env.REACT_APP_API_URL}/users/admin/${user._id}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
@@ -123,7 +123,7 @@ export default function UserManagement() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/admin/ban/${selectedUser._id}`,
+        `${process.env.REACT_APP_API_URL}/users/admin/ban/${selectedUser._id}`,
         {
           method: "PUT",
           headers: {
@@ -159,7 +159,7 @@ export default function UserManagement() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/admin/ban/${user._id}`,
+        `${process.env.REACT_APP_API_URL}/users/admin/ban/${user._id}`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },

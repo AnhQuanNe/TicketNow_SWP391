@@ -26,7 +26,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     // Fetch dashboard data from API
-    fetch('http://localhost:5000/api/dashboard/stats')
+    fetch(`${process.env.REACT_APP_API_URL}/dashboard/stats`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error('Error fetching stats:', err));

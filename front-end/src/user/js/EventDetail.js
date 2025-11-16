@@ -9,7 +9,7 @@ function EventDetail() {
   const [event, setEvent] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/events/${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/events/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Không tìm thấy sự kiện");
         return res.json();

@@ -21,7 +21,7 @@ export default function EventManager() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/events/search");
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/events/search`);
       const data = await res.json();
       setEvents(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -34,7 +34,7 @@ export default function EventManager() {
   // 🟢 Lấy danh mục sự kiện
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categories");
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/categories`);
       const data = await res.json();
       if (Array.isArray(data)) setCategories(data);
     } catch (err) {
@@ -51,7 +51,7 @@ export default function EventManager() {
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa sự kiện này không?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/events/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/events/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -77,7 +77,7 @@ export default function EventManager() {
     if (!selectedEvent) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/events/${selectedEvent._id}`,
+        `${process.env.REACT_APP_API_URL}/events/${selectedEvent._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

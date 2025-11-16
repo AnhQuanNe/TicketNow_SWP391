@@ -12,7 +12,7 @@ function SelectTicket() {
   // 🔹 Lấy danh sách vé từ database
   useEffect(() => {
     if (!event) return;
-    fetch(`http://localhost:5000/api/tickets?eventId=${event._id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/tickets?eventId=${event._id}`)
       .then((res) => res.json())
       .then((data) => {
         setTickets(data);

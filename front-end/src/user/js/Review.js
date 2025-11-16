@@ -6,7 +6,8 @@ let socketSingleton = null;
 const getSocket = async () => {
     if (socketSingleton) return socketSingleton;
     const { io } = await import("socket.io-client");
-    socketSingleton = io("http://localhost:5000", { transports: ["websocket"] });
+    const SOCKET_BASE = (process.env.REACT_APP_API_URL || "").replace(/\/api$/, "");
+    socketSingleton = io(SOCKET_BASE, { transports: ["websocket"] });
     return socketSingleton;
 };
 
@@ -32,7 +33,7 @@ const Review = ({ eventId, token, currentUser }) => {
     const fetchPage = async (p) => {
         if (!eventId) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/reviews/event/${eventId}?page=${p}&limit=${limit}`);
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/reviews/event/${eventId}?page=${p}&limit=${limit}`);
             const json = await res.json();
             if (Array.isArray(json)) {
                 // legacy array response (no pagination/stats)
@@ -98,7 +99,7 @@ const Review = ({ eventId, token, currentUser }) => {
         e?.preventDefault();
         if (!canPost) return alert("Vui lòng đăng nhập để đánh giá");
         try {
-            const res = await fetch(`http://localhost:5000/api/reviews/event/${eventId}`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/reviews/event/${eventId}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

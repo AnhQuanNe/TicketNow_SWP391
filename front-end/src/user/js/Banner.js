@@ -7,7 +7,7 @@ function Banner({ bannerIndex, nextBanner, prevBanner, selectBanner }) {
 
   // 🟢 Gọi API featured để lấy 3–5 sự kiện cho banner
   useEffect(() => {
-    fetch("http://localhost:5000/api/events/featured")
+    fetch(`${process.env.REACT_APP_API_URL}/events/featured`)
       .then((res) => res.json())
       .then((data) => setEvents(data))
       .catch((err) => console.error("Lỗi fetch:", err));
@@ -15,7 +15,7 @@ function Banner({ bannerIndex, nextBanner, prevBanner, selectBanner }) {
 
   // 🟢 Nếu chưa có API featured, dùng tạm /search
   // useEffect(() => {
-  //   fetch("http://localhost:5000/api/events/search")
+  //   fetch(`${process.env.REACT_APP_API_URL}/events/search`)
   //     .then((res) => res.json())
   //     .then((data) => setEvents(data.slice(0, 5))) // lấy 5 sự kiện đầu tiên
   //     .catch((err) => console.error("Lỗi fetch:", err));

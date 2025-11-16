@@ -33,7 +33,7 @@ function SearchResult() {
         if (startDate) params.append('startDate', startDate);
         if (endDate) params.append('endDate', endDate);
 
-        axios.get(`http://localhost:5000/api/events/search?${params.toString()}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/events/search?${params.toString()}`)
             .then(res => {
                 setResults(res.data);
             })

@@ -13,7 +13,7 @@ export default function Notification() {
     return;
   }
 
-  fetch('http://localhost:5000/api/event-requests', {
+  fetch(`${process.env.REACT_APP_API_URL}/event-requests`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,

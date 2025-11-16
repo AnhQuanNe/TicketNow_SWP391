@@ -61,7 +61,7 @@ export default function OrganizerEventDetail({ eventId, setActivePage }) {
   useEffect(() => {
     if (!eventId) return;
     setLoadingEvent(true);
-    fetch(`http://localhost:5000/api/events/${eventId}`)
+    fetch(`${process.env.REACT_APP_API_URL}/events/${eventId}`)
       .then((r) => {
         if (!r.ok) throw new Error("Không tìm thấy sự kiện");
         return r.json();
@@ -75,7 +75,7 @@ export default function OrganizerEventDetail({ eventId, setActivePage }) {
     if (!eventId) return;
     setLoadingBookings(true);
     setError("");
-    fetch(`http://localhost:5000/api/bookings/event/${eventId}?page=${page}&limit=${limit}`)
+    fetch(`${process.env.REACT_APP_API_URL}/bookings/event/${eventId}?page=${page}&limit=${limit}`)
       .then((r) => r.json())
         .then((data) => {
           if (data && Array.isArray(data.bookings)) {
@@ -100,7 +100,7 @@ export default function OrganizerEventDetail({ eventId, setActivePage }) {
   // fetch stats (revenue by month, rating distribution, tickets)
   useEffect(() => {
     if (!eventId) return;
-    fetch(`http://localhost:5000/api/events/${eventId}/stats`)
+    fetch(`${process.env.REACT_APP_API_URL}/events/${eventId}/stats`)
       .then((r) => r.json())
       .then((data) => {
         if (data) {

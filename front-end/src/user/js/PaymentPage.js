@@ -33,7 +33,7 @@ function Payment() {
       try {
         const orderCode = Date.now(); // 👉 dùng làm paymentId duy nhất
 
-        const res = await fetch("http://localhost:5000/api/payment/create-payment", {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/payment/create-payment`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

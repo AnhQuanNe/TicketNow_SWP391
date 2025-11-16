@@ -28,7 +28,7 @@ export default function EventRequestForm() {
   
   // load categories to populate select
   React.useEffect(() => {
-    fetch("http://localhost:5000/api/categories")
+    fetch(`${process.env.REACT_APP_API_URL}/categories`)
       .then((res) => res.json())
       .then((data) => setCategories(data || []))
       .catch((err) => {

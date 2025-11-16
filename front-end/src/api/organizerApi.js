@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const ORGANIZER_API_URL = "http://localhost:5000/api/organizer";
-const EVENT_REQUEST_API_URL = "http://localhost:5000/api/event-requests";
+const ORGANIZER_API_URL = `${process.env.REACT_APP_API_URL}/organizer`;
+const EVENT_REQUEST_API_URL = `${process.env.REACT_APP_API_URL}/event-requests`;
 
 
 // =============================
@@ -78,7 +78,7 @@ export const getAllEventRequests = async (token) => {
 export const updateEventStatus = async (eventId, status) => {
   const token = localStorage.getItem("token"); // ✔️ thêm dòng này
   try {
-    const res = await axios.put(`http://localhost:5000/api/event-requests/status`, {
+    const res = await axios.put(`${process.env.REACT_APP_API_URL}/event-requests/status`, {
       eventId,
       status
     }, {

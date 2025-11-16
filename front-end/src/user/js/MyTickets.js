@@ -17,7 +17,7 @@ export default function MyTickets() {
       return;
     }
 
-    fetch(`http://localhost:5000/api/bookings/${user._id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/bookings/${user._id}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.bookings)) setTickets(data.bookings);

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/users"; // ⚠️ đổi port nếu backend khác
+const API_URL = `${process.env.REACT_APP_API_URL}/users`;
 
 // 🔹 Lấy thông tin người dùng
 export const getUserById = async (userId, token) => {

@@ -1,5 +1,5 @@
 // src/api/authAPI.js
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = `${process.env.REACT_APP_API_URL}/auth`;
 
 /* ----------------------- LOGIN ----------------------- */
 export async function loginUser(credentials) {

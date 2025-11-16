@@ -8,7 +8,7 @@ function Favorites() {
   useEffect(() => {
     async function fetchFavorites() {
       try {
-        const res = await fetch(`http://localhost:5000/api/users/${userId}/favorites`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/users/${userId}/favorites`);
         const data = await res.json();
         setFavoriteEvents(data);
       } catch (err) {

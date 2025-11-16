@@ -16,7 +16,7 @@ export default function Reports() {
     const fetchReport = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch("http://localhost:5000/api/organizer/reports", {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/organizer/reports`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!res.ok) throw new Error('Không thể lấy reports');
