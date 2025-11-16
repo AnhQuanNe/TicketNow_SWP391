@@ -6,107 +6,127 @@ import User from "../model/User.js";
 import { sendTicketEmail } from "../utils/sendEmail.js";
 import { createNotification } from "../controllers/notificationController.js";
 import crypto from "crypto";
+
 // ======================================================
-// 1) Create Booking After Payment
+// 1) Create Booking After Payment (multi-ticket + canceled)
 // ======================================================
 export const createBookingAfterPayment = async (req, res) => {
   try {
-    const {
-      userId,
-      eventId,
-      quantity,
-      totalPrice,
-      paymentId,
-      userEmail,
-      ticketType,
-    } = req.body;
+    const { userId, eventId, tickets, paymentId, userEmail, paymentStatus } = req.body;
 
-    if (!userId || !eventId || !quantity || !totalPrice || !paymentId || !ticketType) {
-      return res.status(400).json({ message: "Thiếu thông tin đặt vé!" });
+    if (!userId || !eventId || !tickets || !Array.isArray(tickets) || tickets.length === 0) {
+      return res.status(400).json({ message: "Thiếu dữ liệu vé!" });
     }
 
-    const userObjectId = new mongoose.Types.ObjectId(userId.trim());
-    const eventObjectId = new mongoose.Types.ObjectId(eventId.trim());
+    const userObj = new mongoose.Types.ObjectId(userId.trim());
+    const eventObj = new mongoose.Types.ObjectId(eventId.trim());
 
-    // Kiểm tra trùng giao dịch
-    const existing = await Booking.findOne({ paymentId });
-    if (existing)
-      return res.status(200).json({ message: "Booking đã tồn tại", booking: existing });
+    const event = await Event.findById(eventObj);
+    if (!event) return res.status(404).json({ message: "Không tìm thấy event!" });
 
-    const event = await Event.findById(eventObjectId);
-    if (!event) return res.status(404).json({ message: "Event không tồn tại" });
+    let createdBookings = [];
 
-    // Trừ vé
-    const updatedEvent = await Event.findOneAndUpdate(
-      { _id: eventObjectId, ticketsAvailable: { $gte: quantity } },
-      { $inc: { ticketsAvailable: -quantity } },
-      { new: true }
-    );
+    for (const tic of tickets) {
+      for (let i = 0; i < tic.quantity; i++) {
+        const updatedEvent = await Event.findOneAndUpdate(
+          { _id: eventObj, ticketsAvailable: { $gte: 1 } },
+          { $inc: { ticketsAvailable: -1 } },
+          { new: true }
+        );
 
-    if (!updatedEvent)
-      return res.status(400).json({ message: "Không đủ vé khả dụng!" });
+        if (!updatedEvent)
+          return res.status(400).json({ message: "Không đủ vé khả dụng!" });
 
-    // Tạo booking
-    const verifyToken = crypto.randomBytes(16).toString("hex");
-    const newBooking = new Booking({
-      userId: userObjectId,
-      eventId: eventObjectId,
-      quantity,
-      totalPrice,
-      paymentId,
-      ticketType: ticketType || null,
-      status: "confirmed",
-        verifyToken,   // ⭐ thêm token chống giả
+        const verifyToken = crypto.randomBytes(16).toString("hex");
 
-    });
+        const booking = new Booking({
+          userId: userObj,
+          eventId: eventObj,
+          quantity: 1,
+          totalPrice: tic.price,
+          ticketType: tic.type,
+          paymentId: `${paymentId}_${tic.type}_${i}`,
+          status: paymentStatus === "PAYMENT_CANCELED" ? "canceled" : "confirmed",
+          verifyToken,
+        });
 
-    await newBooking.save();
+        const qrUrl = `https://your-domain/check?token=${verifyToken}`;
+        booking.qrCode = await QRCode.toDataURL(qrUrl);
 
-    // QR Code
-    const qrUrl = `http://192.168.1.117:5000/check?token=${verifyToken}`;
+        await booking.save();
+        createdBookings.push(booking);
+      }
+    }
 
-
-newBooking.qrCode = await QRCode.toDataURL(qrUrl);
-
-    await newBooking.save();
-
-    // Gửi email
+    // Gửi email từng vé
     try {
       const user = await User.findById(userId);
-      const email = user?.email || userEmail;
+      const emailToSend = user?.email || userEmail;
 
-      if (email) {
-        await sendTicketEmail(email, event, newBooking, newBooking.qrCode);
+      if (emailToSend && paymentStatus !== "PAYMENT_CANCELED") {
+        for (const b of createdBookings) {
+          await sendTicketEmail(emailToSend, event, b, b.qrCode);
+        }
       }
     } catch (err) {
       console.error("Lỗi gửi email:", err.message);
     }
 
-    // Notification
+    // Gửi thông báo thanh toán
     try {
       const io = req.app.get("io");
       const agenda = req.app.get("agenda");
 
       await createNotification(
         {
-          userId: newBooking.userId,
-          eventId: newBooking.eventId,
-          title: "Thanh toán thành công",
-          message: `Bạn đã mua ${quantity} vé loại ${ticketType}.`,
+          userId,
+          eventId,
+          title: paymentStatus === "PAYMENT_CANCELED" ? "Thanh toán bị hủy" : "Thanh toán thành công",
+          message:
+paymentStatus === "PAYMENT_CANCELED"
+              ? "Giao dịch đã bị hủy, vé đã hủy."
+              : `Bạn đã mua: ${tickets.map((t) => `${t.type} x${t.quantity}`).join(", ")}`,
         },
         io,
         agenda
       );
-} catch (err) {
-console.error("Lỗi thông báo:", err.message);
+    } catch (err) {
+      console.error("Lỗi thông báo:", err.message);
     }
 
-    res.status(201).json({
-      message: "Đặt vé thành công!",
-      booking: newBooking,
+    // Nhắc sự kiện trước 1 giờ
+    try {
+      const io = req.app.get("io");
+      const agenda = req.app.get("agenda");
+
+      if (event?.date && paymentStatus !== "PAYMENT_CANCELED") {
+        const startTime = new Date(event.date);
+        const oneHourBefore = new Date(startTime.getTime() - 60 * 60 * 1000);
+
+        if (oneHourBefore > new Date()) {
+          await createNotification(
+            {
+              userId,
+              eventId,
+              title: "Nhắc nhở sự kiện",
+              message: `Sự kiện '${event.title}' sẽ bắt đầu trong 1 giờ.`,
+              scheduledFor: oneHourBefore,
+            },
+            io,
+            agenda
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi tạo nhắc sự kiện:", err.message);
+    }
+
+    return res.status(201).json({
+      message: paymentStatus === "PAYMENT_CANCELED" ? "Tạo vé (canceled)" : "Đặt vé thành công!",
+      bookings: createdBookings,
     });
   } catch (err) {
-    console.error("Lỗi tạo booking:", err);
+    console.error("Lỗi createBooking:", err);
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
@@ -118,9 +138,8 @@ export const getBookingsByUser = async (req, res) => {
   try {
     const userId = req.params.userId.trim();
 
-    // ❗ FIX: KHÔNG populate Location nữa (vì locationId là string)
     const bookings = await Booking.find({ userId })
-      .populate("eventId")   // chỉ populate Event
+      .populate("eventId")
       .sort({ createdAt: -1 });
 
     res.json({ bookings });
@@ -134,16 +153,19 @@ export const getBookingsByUser = async (req, res) => {
 // ======================================================
 export const checkInBooking = async (req, res) => {
   try {
-    const { token } = req.body; // nhận token từ QR
+    const { token, eventId } = req.body;
 
     const booking = await Booking.findOne({ verifyToken: token });
-
     if (!booking) {
       return res.status(404).json({ message: "❌ Vé giả — token không hợp lệ!" });
     }
 
+    if (booking.eventId.toString() !== eventId) {
+      return res.status(400).json({ message: "❌ Token không thuộc về sự kiện này!" });
+    }
+
     if (booking.isCheckedIn) {
-      return res.status(400).json({ message: "⚠ Vé đã được sử dụng trước đó!" });
+      return res.status(400).json({ message: "⚠ Vé đã được sử dụng!" });
     }
 
     booking.isCheckedIn = true;
@@ -151,15 +173,11 @@ export const checkInBooking = async (req, res) => {
     booking.status = "checked-in";
     await booking.save();
 
-    res.json({
-      message: "✔ Check-in thành công!",
-      booking,
-    });
+    res.json({ message: "✔ Check-in thành công!", booking });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 // ======================================================
 // 4) Check-out
@@ -180,7 +198,9 @@ export const checkOutBooking = async (req, res) => {
   }
 };
 
-// ✅ Lấy danh sách booking theo event (dùng cho organizer xem danh sách attendees)
+// ======================================================
+// 5) getBookingsByEvent (⭐ analytics đầy đủ)
+// ======================================================
 export const getBookingsByEvent = async (req, res) => {
   try {
     let { eventId } = req.params;
@@ -192,13 +212,14 @@ export const getBookingsByEvent = async (req, res) => {
 
     const eventObjectId = new mongoose.Types.ObjectId(eventId);
 
-    // pagination
-    const page = Math.max(1, parseInt(req.query.page || "1", 10));
-const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || "10", 10)));
+    // Pagination
+    const page = Math.max(1, parseInt(req.query.page || "1"));
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || "10")));
     const skip = (page - 1) * limit;
 
     const total = await Booking.countDocuments({ eventId: eventObjectId });
-    // calculate revenue and unique buyers using aggregation
+
+    // Analytics: revenue + unique buyers
     const agg = await Booking.aggregate([
       { $match: { eventId: eventObjectId } },
       {
@@ -211,7 +232,7 @@ const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || "10", 10)));
     ]);
 
     const totalRevenue = agg[0]?.totalRevenue || 0;
-    const uniqueBuyersCount = (agg[0]?.uniqueBuyers || []).length;
+    const uniqueBuyersCount = agg[0]?.uniqueBuyers?.length || 0;
 
     const bookings = await Booking.find({ eventId: eventObjectId })
       .populate({ path: "userId", select: "name email" })
@@ -220,17 +241,20 @@ const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || "10", 10)));
       .limit(limit);
 
     return res.status(200).json({
-      message: "✅ Lấy booking theo event thành công",
+      message: "Lấy booking theo event thành công",
       count: bookings.length,
       total,
       totalRevenue,
       uniqueBuyers: uniqueBuyersCount,
       page,
-      totalPages: Math.max(1, Math.ceil(total / limit)),
+      totalPages: Math.ceil(total / limit),
       bookings,
     });
   } catch (err) {
-    console.error("❌ Lỗi khi lấy booking theo event:", err);
-    return res.status(500).json({ message: "Lỗi khi lấy booking theo event", error: err.message });
+    console.error("Lỗi getBookingsByEvent:", err);
+    return res.status(500).json({
+      message: "Lỗi khi lấy booking theo event",
+      error: err.message,
+    });
   }
 };

@@ -6,28 +6,50 @@ function PaymentFail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Swal.fire({
-      icon: "error",
-      title: "Thanh toán thất bại 😢",
-      text: "Giao dịch của bạn không thành công. Vui lòng thử lại!",
-      confirmButtonColor: "#e60073",
-    }).then(() => {
-      navigate("/"); // quay về trang chủ sau khi đóng thông báo
-    });
-  }, [navigate]);
+    async function run() {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get("status");
 
-  return (
-    <div
-      style={{
-        padding: "50px",
-        textAlign: "center",
-        fontFamily: "'Poppins', sans-serif",
-      }}
-    >
-      <h2 style={{ color: "#e60073" }}>❌ Thanh toán thất bại</h2>
-      <p>Đang chuyển bạn về trang chủ...</p>
-    </div>
-  );
+      if (status !== "cancel") {
+        Swal.fire("❌ Thanh toán thất bại", "", "error");
+        return navigate("/");
+      }
+
+      // 🟢 Tìm đúng key lưu data trước thanh toán
+      const pending =
+        JSON.parse(localStorage.getItem("pendingTicket")) ||
+        JSON.parse(localStorage.getItem("pendingOrder")) ||
+        JSON.parse(localStorage.getItem("pendingPayment")) ||
+        {};
+
+      if (!pending.userId || !pending.eventId || !pending.tickets) {
+        Swal.fire("⚠ Không tìm thấy dữ liệu để tạo vé canceled", "", "warning");
+        return navigate("/");
+      }
+
+      // 🟢 Gửi request và CHỜ nó chạy xong
+      await fetch("http://localhost:5000/api/bookings/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: pending.userId,
+          eventId: pending.eventId,
+          tickets: pending.tickets,
+          userEmail: pending.userEmail,
+          paymentId: pending.paymentId,
+          paymentStatus: "PAYMENT_CANCELED",
+        }),
+      });
+
+      Swal.fire("⚠ Bạn đã hủy thanh toán", "Vé đã được lưu dạng CANCELED", "warning");
+
+      navigate("/my-tickets");
+    }
+
+    run();
+  }, []);
+
+  return null;
 }
 
 export default PaymentFail;

@@ -92,8 +92,9 @@ if (ipLog) {
     // =========================================================
     // (GIỮ NGUYÊN CODE CŨ TỪ ĐÂY TRỞ XUỐNG)
     // =========================================================
-// 🟢 1️⃣ Kiểm tra đầu vào
-    if (!name || !email || !passwordHash || !phone) {
+
+    // 🟢 1️⃣ Kiểm tra đầu vào
+if (!name || !email || !passwordHash || !phone) {
       return res.status(400).json({
         message:
           "Vui lòng nhập đầy đủ họ tên, email, mật khẩu và số điện thoại.",
@@ -182,8 +183,8 @@ if (ipLog) {
         subject: "Xác thực tài khoản TicketNow",
         html: `
           <h3>Xin chào ${name},</h3>
-<p>Vui lòng nhấn vào link bên dưới để kích hoạt tài khoản:</p>
-          <a href="${verifyURL}">${verifyURL}</a>
+          <p>Vui lòng nhấn vào link bên dưới để kích hoạt tài khoản:</p>
+<a href="${verifyURL}">${verifyURL}</a>
           <p>Link hết hạn sau 24 giờ.</p>
         `,
       });
@@ -271,9 +272,9 @@ export const login = async (req, res) => {
         token: generateToken(user._id),
       });
     } else {
-return res.status(401).json({ message: "Email hoặc mật khẩu không đúng!" });
+      return res.status(401).json({ message: "Email hoặc mật khẩu không đúng!" });
     }
-  } catch (err) {
+} catch (err) {
     res.status(500).json({ message: "Lỗi máy chủ, vui lòng thử lại." });
   }
 };
@@ -302,6 +303,19 @@ export const verifyEmailToken = async (req, res) => {
     });
 
     // 🟢 Trả token và thông tin user cho frontend
+    // determine roleName to return (supports roleId or role string)
+    let roleName = "user";
+    if (user.roleId) {
+      try {
+        const r = await Role.findById(user.roleId).lean();
+        roleName = r?.name || "user";
+      } catch (e) {
+        roleName = "user";
+      }
+    } else if (user.role) {
+      roleName = user.role;
+    }
+
     return res.json({
       message: "Kích hoạt tài khoản thành công!",
       token: loginToken,
@@ -358,7 +372,7 @@ export const googleLogin = async (req, res) => {
         avatar: picture,
         authProvider: "google",
         roleId,
-        emailVerified: true, // Google auto-verified
+emailVerified: true, // Google auto-verified
       });
     }
 
@@ -369,9 +383,23 @@ export const googleLogin = async (req, res) => {
         }`,
       });
     }
-const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
+
+    // determine roleName to return
+    let roleName = "user";
+    if (user.roleId) {
+      try {
+        const r = await Role.findById(user.roleId).lean();
+        roleName = r?.name || "user";
+      } catch (e) {
+        roleName = "user";
+      }
+    } else if (user.role) {
+      roleName = user.role;
+    }
 
     res.json({
       _id: user._id,
@@ -444,7 +472,7 @@ export const verifyOTP = async (req, res) => {
 
     res.json({ message: "OTP hợp lệ, bạn có thể đặt mật khẩu mới." });
   } catch (err) {
-    res.status(500).json({ message: "Lỗi xác minh OTP." });
+res.status(500).json({ message: "Lỗi xác minh OTP." });
   }
 };
 
@@ -461,7 +489,8 @@ export const resetPassword = async (req, res) => {
 
     if (user.resetOTPExpire < Date.now())
       return res.status(400).json({ message: "Mã OTP đã hết hạn." });
-user.passwordHash = newPassword;
+
+    user.passwordHash = newPassword;
     user.resetOTP = null;
     user.resetOTPExpire = null;
 

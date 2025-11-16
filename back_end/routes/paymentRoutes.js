@@ -28,7 +28,7 @@ router.post("/create-payment", async (req, res) => {
       orderCode,
       amount,
       description,
-      cancelUrl: "http://localhost:3000/payment-fail",
+      cancelUrl: "http://localhost:3000/payment-fail?status-cancel",
       returnUrl: `http://localhost:3000/payment-success?status=PAID`,
     });
 

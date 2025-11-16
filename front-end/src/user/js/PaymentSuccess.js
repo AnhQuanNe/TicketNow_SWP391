@@ -23,37 +23,39 @@ function PaymentSuccess() {
       if (!pending) return navigate("/");
 
       try {
-        const normalizeTicketType = (t) => {
-          if (!t) return t;
-          // If already matches backend enum, return as-is
-          if (t === "Student" || t === "Guest") return t;
-          const lower = t.toString().toLowerCase();
-          if (lower === "student") return "Student";
-          if (lower === "guest") return "Guest";
-          // Fallback: capitalize first letter
-          return t.charAt(0).toUpperCase() + t.slice(1);
-        };
+        const ticketsLower = pending.tickets.map(t => ({
+          ...t,
+          type: t.type.toLowerCase()
+        }));
 
-        for (const ticket of pending.tickets) {
-          const normalizedType = normalizeTicketType(ticket.type);
-          await fetch("http://localhost:5000/api/bookings/create", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId: pending.userId,
-              eventId: pending.eventId,
-              quantity: ticket.quantity,
-              totalPrice: ticket.price * ticket.quantity,
-              paymentId: (pending.paymentId || "") + "_" + (ticket.type || ""),
-              userEmail: pending.userEmail,
-              ticketType: normalizedType, // use enum-correct value
-            }),
-          });
+        const res = await fetch("http://localhost:5000/api/bookings/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: pending.userId,
+            eventId: pending.eventId,
+            tickets: ticketsLower,
+            paymentId: pending.paymentId,
+            userEmail: pending.userEmail,
+
+            // ⭐⭐⭐ THÊM DÒNG NÀY — RẤT QUAN TRỌNG ⭐⭐⭐
+            paymentStatus: "PAYMENT_SUCCESS"
+          }),
+        });
+
+        const data = await res.json();
+        console.log("Booking response:", data);
+
+        if (!res.ok) {
+          Swal.fire("❌ Lỗi server", data.message || "Không tạo được vé", "error");
+          return;
         }
 
         Swal.fire("🎉 Thành công!", "Vé đã được lưu!", "success");
+
         localStorage.removeItem("pendingTicket");
-        setTimeout(() => navigate("/my-tickets"), 1500);
+
+        setTimeout(() => navigate("/my-tickets"), 1200);
 
       } catch (err) {
         Swal.fire("❌ Lỗi server", "", "error");

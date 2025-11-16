@@ -203,7 +203,7 @@ const total = tickets.reduce((sum, t) => {
 
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <button
-                      onClick={() => handleQuantityChange(ticket.type, -1)}
+                      onClick={() => handleQuantityChange(typeLabel, -1)}
                       style={btnStyle}
                       disabled={isStudentTicket}
                     >
