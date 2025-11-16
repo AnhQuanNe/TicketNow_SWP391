@@ -36,7 +36,7 @@ import CategoryPage from "./user/js/CategoryPage";
 import AdminLayout from "./admin/js/AdminLayout";
 import Dashboard from "./admin/js/Dashboard";
 import UserManagement from "./admin/js/UserManager";
-import Report from "./admin/js/Report";
+import Reports from "./admin/js/Reports";
 import Notification from "./admin/js/Notification";
 import AdminRoute from "./admin/js/AdminRoute";
 import EventManager from "./admin/js/EventManager";
@@ -110,7 +110,7 @@ function AppContent() {
           <Route path="users" element={<UserManagement />} />{" "}
           {/* /admin/users */}
           <Route path="events" element={<EventManager />} /> {/* /admin/events */}
-          <Route path="reports" element={<Report />} /> {/* /admin/reports */}
+          <Route path="reports" element={<Reports />} /> {/* /admin/reports */}
           <Route path="notifications" element={<Notification />} />{" "}
           {/* /admin/notifications */}
         </Route>

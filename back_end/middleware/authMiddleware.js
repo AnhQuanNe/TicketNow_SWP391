@@ -38,6 +38,17 @@ export const protect = async (req, res, next) => {
 
 // 🟢 Kiểm tra quyền Admin
 export const verifyAdmin = (req, res, next) => {
-  if (req.user && (req.user.roleName === "admin")) return next();
-  return res.status(403).json({ message: "Bạn không có quyền truy cập tính năng này" });
+  if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+  // Hỗ trợ nhiều kiểu role
+  const isAdmin =
+    req.user.role === "admin" ||
+    req.user.role === "role_admin" ||
+    req.user.roleName === "admin";
+
+  if (isAdmin) return next();
+
+  return res.status(403).json({
+    message: "Bạn không có quyền truy cập tính năng này",
+  });
 };
