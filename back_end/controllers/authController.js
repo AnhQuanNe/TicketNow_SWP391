@@ -20,27 +20,10 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // ============================================================================
 export const register = async (req, res) => {
   try {
-    const { name, email, passwordHash, phone, studentId, recaptchaToken } =
+    const { name, email, passwordHash, phone, studentId } =
       req.body;
 
-    // =========================================================
-    // 🆕 0️⃣ Kiểm tra reCAPTCHA
-    // =========================================================
-    // try {
-    //   const verifyRes = await fetch(
-    //     `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`,
-    //     { method: "POST" }
-    //   );
-    //   const gData = await verifyRes.json();
-    //   if (!gData.success) {
-    //     return res.status(400).json({
-    //       message: "Xác minh reCAPTCHA thất bại.",
-    //     });
-    //   }
-    // } catch (err) {
-    //   return res.status(400).json({ message: "Không thể xác minh reCAPTCHA." });
-    // }
-
+    
     // =========================================================
     // 🆕 1️⃣ Kiểm tra mật khẩu mạnh
     // =========================================================

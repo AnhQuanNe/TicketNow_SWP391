@@ -1,42 +1,13 @@
 // src/api/authAPI.js
 const API_URL = "http://localhost:5000/api/auth";
 
-// 🟠 reCAPTCHA v3 — Site Key
-const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
-
-/* ----------------------- TẠO TOKEN reCAPTCHA ----------------------- */
-async function generateRecaptchaToken(actionName) {
-  return new Promise((resolve, reject) => {
-    if (!window.grecaptcha) {
-      console.error("⚠️ reCAPTCHA chưa load");
-      return resolve(null);
-    }
-
-    window.grecaptcha.ready(async () => {
-      try {
-        const token = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, {
-          action: actionName,
-        });
-        resolve(token);
-      } catch (err) {
-        console.error("⚠️ Lỗi khi tạo reCAPTCHA token:", err);
-        resolve(null);
-      }
-    });
-  });
-}
-
-
 /* ----------------------- LOGIN ----------------------- */
 export async function loginUser(credentials) {
-  const recaptchaToken = await generateRecaptchaToken("login");
-
   const res = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       ...credentials,
-      recaptchaToken, // 🔥 gửi token
     }),
   });
 
@@ -47,18 +18,11 @@ export async function loginUser(credentials) {
 
 /* ----------------------- REGISTER ----------------------- */
 export async function registerUser(userData) {
-  let recaptchaToken = await generateRecaptchaToken("register");
-if (!recaptchaToken) {
-    console.warn("Token null, retry...");
-    recaptchaToken = await generateRecaptchaToken("register");
-}
-
   const res = await fetch(`${API_URL}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       ...userData,
-      recaptchaToken, // 🔥 gửi token
     }),
   });
 
@@ -69,14 +33,11 @@ if (!recaptchaToken) {
 
 /* ----------------------- GOOGLE LOGIN ----------------------- */
 export async function googleLoginUser(googleData) {
-  const recaptchaToken = await generateRecaptchaToken("google");
-
   const res = await fetch(`${API_URL}/google-login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       ...googleData,
-      recaptchaToken, // 🔥 thêm token để tránh spam bot
     }),
   });
 
