@@ -3,169 +3,179 @@ import QRCode from "qrcode";
 import Booking from "../model/Booking.js";
 import Event from "../model/Event.js";
 import User from "../model/User.js";
-import { sendTicketEmail } from "../utils/sendEmail.js"; // bản chuẩn Gmail App Password
-
+import { sendTicketEmail } from "../utils/sendEmail.js";
+import { createNotification } from "../controllers/notificationController.js";
+import crypto from "crypto";
+// ======================================================
+// 1) Create Booking After Payment
+// ======================================================
 export const createBookingAfterPayment = async (req, res) => {
   try {
-    const { userId, eventId, quantity, totalPrice, paymentId } = req.body;
+    const {
+      userId,
+      eventId,
+      quantity,
+      totalPrice,
+      paymentId,
+      userEmail,
+      ticketType,
+    } = req.body;
 
-    if (!userId || !eventId || !quantity || !totalPrice || !paymentId) {
-      return res.status(400).json({ message: "❌ Thiếu thông tin cần thiết" });
+    if (!userId || !eventId || !quantity || !totalPrice || !paymentId || !ticketType) {
+      return res.status(400).json({ message: "Thiếu thông tin đặt vé!" });
     }
 
     const userObjectId = new mongoose.Types.ObjectId(userId.trim());
     const eventObjectId = new mongoose.Types.ObjectId(eventId.trim());
 
-    // 🔹 Kiểm tra nếu booking này đã tồn tại (tránh tạo trùng, trừ vé 2 lần)
-    const existingBooking = await Booking.findOne({ paymentId });
-    if (existingBooking) {
-      return res.status(200).json({
-        message: "⚠️ Vé đã tồn tại, không trừ thêm vé",
-        booking: existingBooking,
-      });
-    }
+    // Kiểm tra trùng giao dịch
+    const existing = await Booking.findOne({ paymentId });
+    if (existing)
+      return res.status(200).json({ message: "Booking đã tồn tại", booking: existing });
 
-    // 🔹 Lấy sự kiện
     const event = await Event.findById(eventObjectId);
-    if (!event) {
-      return res.status(404).json({ message: "❌ Event không tồn tại" });
-    }
+    if (!event) return res.status(404).json({ message: "Event không tồn tại" });
 
-    // 🔹 Kiểm tra còn đủ vé
-    if (event.ticketsAvailable < quantity) {
-      return res.status(400).json({ message: "❌ Không đủ vé khả dụng" });
-    }
+    // Trừ vé
+    const updatedEvent = await Event.findOneAndUpdate(
+      { _id: eventObjectId, ticketsAvailable: { $gte: quantity } },
+      { $inc: { ticketsAvailable: -quantity } },
+      { new: true }
+    );
 
-    // 🔹 Trừ vé & lưu lại
-    event.ticketsAvailable -= quantity;
-    await event.save();
+    if (!updatedEvent)
+      return res.status(400).json({ message: "Không đủ vé khả dụng!" });
 
-    // 🔹 Tạo booking
+    // Tạo booking
+    const verifyToken = crypto.randomBytes(16).toString("hex");
     const newBooking = new Booking({
       userId: userObjectId,
       eventId: eventObjectId,
       quantity,
       totalPrice,
       paymentId,
+      ticketType,
       status: "confirmed",
+        verifyToken,   // ⭐ thêm token chống giả
+
     });
 
     await newBooking.save();
-    console.log("✅ Booking lưu thành công:", newBooking._id);
 
-    // --- Tạo QR code ---
-    try {
-      const qrData = {
-        bookingId: newBooking._id,
-        userId,
-        eventId,
-      };
-      const qrImage = await QRCode.toDataURL(JSON.stringify(qrData));
-      newBooking.qrCode = qrImage;
-      await newBooking.save();
-      console.log("✅ QR code đã lưu");
-    } catch (qrErr) {
-      console.error("❌ Lỗi tạo QR code:", qrErr.message);
-    }
+    // QR Code
+    const qrUrl = `http://192.168.1.117:5000/check?token=${verifyToken}`;
 
-    // --- Gửi email ---
+
+newBooking.qrCode = await QRCode.toDataURL(qrUrl);
+
+    await newBooking.save();
+
+    // Gửi email
     try {
       const user = await User.findById(userId);
-      if (user?.email) {
-        await sendTicketEmail(user.email, newBooking, newBooking.qrCode);
-        console.log("📧 Email vé đã gửi");
-      } else {
-        console.warn("⚠️ Không tìm thấy email người dùng, bỏ qua gửi email");
+      const email = user?.email || userEmail;
+
+      if (email) {
+        await sendTicketEmail(email, event, newBooking, newBooking.qrCode);
       }
-    } catch (emailErr) {
-      console.error("❌ Lỗi gửi email:", emailErr.message);
+    } catch (err) {
+      console.error("Lỗi gửi email:", err.message);
     }
 
-    return res.status(201).json({
-      message: "🎟️ Đặt vé thành công & đã trừ vé trong sự kiện",
+    // Notification
+    try {
+      const io = req.app.get("io");
+      const agenda = req.app.get("agenda");
+
+      await createNotification(
+        {
+          userId: newBooking.userId,
+          eventId: newBooking.eventId,
+          title: "Thanh toán thành công",
+          message: `Bạn đã mua ${quantity} vé loại ${ticketType}.`,
+        },
+        io,
+        agenda
+      );
+    } catch (err) {
+console.error("Lỗi thông báo:", err.message);
+    }
+
+    res.status(201).json({
+      message: "Đặt vé thành công!",
       booking: newBooking,
     });
   } catch (err) {
-    console.error("❌ Lỗi chung khi tạo booking:", err.message);
-return res.status(500).json({ message: "Lỗi khi lưu booking", error: err.message });
+    console.error("Lỗi tạo booking:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
- 
 
-
-// ✅ Lấy danh sách vé của user
+// ======================================================
+// 2) Get bookings by user
+// ======================================================
 export const getBookingsByUser = async (req, res) => {
   try {
-    let { userId } = req.params;
-    if (!userId) return res.status(400).json({ message: "Thiếu userId" });
+    const userId = req.params.userId.trim();
 
-    userId = userId.trim();
-    if (!mongoose.Types.ObjectId.isValid(userId))
-      return res.status(400).json({ message: "userId không hợp lệ" });
-
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-
-    const bookings = await Booking.find({ userId: userObjectId })
-      .populate({
-        path: "eventId",
-        populate: { path: "locationId", model: "Location", select: "name address" },
-        select: "title date locationId image ticketsAvailable",
-      })
+    // ❗ FIX: KHÔNG populate Location nữa (vì locationId là string)
+    const bookings = await Booking.find({ userId })
+      .populate("eventId")   // chỉ populate Event
       .sort({ createdAt: -1 });
 
-    if (!bookings.length) {
-      return res.status(404).json({ message: "Không tìm thấy vé nào" });
-    }
-
-    return res.status(200).json({
-      message: "✅ Lấy danh sách vé thành công",
-      count: bookings.length,
-      bookings,
-    });
+    res.json({ bookings });
   } catch (err) {
-    console.error("❌ Lỗi khi lấy vé theo user:", err);
-    return res.status(500).json({ message: "Lỗi khi lấy vé", error: err.message });
+    res.status(500).json({ message: "Lỗi lấy vé", error: err.message });
   }
 };
 
-// ✅ Check-in bằng mã QR
+// ======================================================
+// 3) Check-in
+// ======================================================
 export const checkInBooking = async (req, res) => {
   try {
-    const { bookingId } = req.body;
-    if (!bookingId) return res.status(400).json({ message: "Thiếu bookingId" });
+    const { token } = req.body; // nhận token từ QR
 
-    const booking = await Booking.findById(bookingId).populate("eventId");
-    if (!booking) return res.status(404).json({ message: "Không tìm thấy vé" });
-    if (booking.status === "checked-in")
-      return res.status(400).json({ message: "Vé đã được check-in trước đó" });
+    const booking = await Booking.findOne({ verifyToken: token });
 
+    if (!booking) {
+      return res.status(404).json({ message: "❌ Vé giả — token không hợp lệ!" });
+    }
+
+    if (booking.isCheckedIn) {
+      return res.status(400).json({ message: "⚠ Vé đã được sử dụng trước đó!" });
+    }
+
+    booking.isCheckedIn = true;
+    booking.checkInTime = new Date();
     booking.status = "checked-in";
     await booking.save();
 
-    return res.status(200).json({ message: "✅ Check-in thành công!", booking });
-  } catch (error) {
-    console.error("❌ Lỗi check-in:", error);
-    return res.status(500).json({ message: "Lỗi check-in vé", error: error.message });
+    res.json({
+      message: "✔ Check-in thành công!",
+      booking,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// ✅ Check-out (rời sự kiện)
+
+// ======================================================
+// 4) Check-out
+// ======================================================
 export const checkOutBooking = async (req, res) => {
   try {
     const { bookingId } = req.body;
-    if (!bookingId) return res.status(400).json({ message: "Thiếu bookingId" });
 
-    const booking = await Booking.findById(bookingId).populate("eventId");
+    const booking = await Booking.findById(bookingId);
     if (!booking) return res.status(404).json({ message: "Không tìm thấy vé" });
-    if (booking.status !== "checked-in")
-      return res.status(400).json({ message: "Vé chưa check-in, không thể check-out" });
 
     booking.status = "checked-out";
     await booking.save();
 
-    return res.status(200).json({ message: "✅ Check-out thành công!", booking });
-  } catch (error) {
-    console.error("❌ Lỗi check-out:", error);
-    return res.status(500).json({ message: "Lỗi check-out vé", error: error.message });
+    res.json({ message: "Check-out thành công", booking });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

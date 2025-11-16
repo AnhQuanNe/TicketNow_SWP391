@@ -1,11 +1,12 @@
 import express from "express";
 import { PayOS } from "@payos/node";
 import dotenv from "dotenv";
-import Booking from "../model/Booking.js"; // model MongoDB của bạn
+import Booking from "../model/Booking.js";
+import Event from "../model/Event.js";
+import User from "../model/User.js";
 import { generateQRCode } from "../utils/generateQRCode.js";
 import { sendTicketEmail } from "../utils/sendEmail.js";
-import User from "../model/User.js";
-import Event from "../model/Event.js"; // đi lên 1 cấp rồi vào model
+import { createNotification } from "../controllers/notificationController.js";
 
 dotenv.config();
 const router = express.Router();
@@ -16,13 +17,15 @@ const payos = new PayOS({
   checksumKey: process.env.PAYOS_CHECKSUM_KEY,
 });
 
-// ✅ 1. Tạo link thanh toán
+/* ===========================================================
+   1) Tạo link thanh toán
+============================================================ */
 router.post("/create-payment", async (req, res) => {
   try {
     const { amount, orderCode, description } = req.body;
 
     const payment = await payos.paymentRequests.create({
-      orderCode, // sửa từ orderCodeNumber
+      orderCode,
       amount,
       description,
       cancelUrl: "http://localhost:3000/payment-fail",
@@ -36,143 +39,214 @@ router.post("/create-payment", async (req, res) => {
   }
 });
 
-// 2️⃣ Thanh toán thành công → lưu booking + tạo QR + gửi email
+/* ============================================================
+   2) Thanh toán thành công → Lưu booking + QR + email + notify ngay
+============================================================ */
 router.post("/payment-success", async (req, res) => {
   try {
     const { userId, eventId, quantity, totalPrice, paymentId } = req.body;
 
-    // Lưu booking
+    /* ============================================================
+       1) CHECK VÉ + TRỪ VÉ (Atomic – chống overbooking)
+    ============================================================= */
+    const ev = await Event.findById(eventId);
+    if (!ev) {
+      return res.status(404).json({ message: "Sự kiện không tồn tại!" });
+    }
+
+    if (ev.ticketQuantity < quantity) {
+      return res.status(400).json({
+        message: `Không đủ vé! Chỉ còn ${ev.ticketQuantity} vé.`,
+      });
+    }
+
+    // 🔥 Atomic update: chỉ trừ vé nếu còn đủ TẠI THỜI ĐIỂM UPDATE
+    const updatedEvent = await Event.findOneAndUpdate(
+      {
+        _id: eventId,
+        ticketQuantity: { $gte: quantity }
+      },
+      {
+        $inc: { ticketQuantity: -quantity }
+      },
+      { new: true }
+    );
+
+    if (!updatedEvent) {
+      return res.status(400).json({
+        message: "Không thể trừ vé — có người khác vừa mua trước!",
+      });
+    }
+
+    /* ============================================================
+       2) Tạo booking sau khi đã trừ vé thành công
+    ============================================================= */
     const booking = new Booking({
       userId,
       eventId,
       quantity,
       totalPrice,
       paymentId,
-      status: "confirmed",
+      orderCode: paymentId,
+status: "confirmed",
       createdAt: new Date(),
     });
+
     await booking.save();
 
-    // Tạo QR code
+    /* ============================================================
+       3) Gửi QR qua email
+    ============================================================= */
     const qrCode = await generateQRCode(booking._id.toString());
 
+    const user = await User.findById(userId);
+    const event = await Event.findById(eventId);
 
-    // Lấy thông tin user để gửi email
-    // Lấy thông tin user và event
-const user = await User.findById(userId);
-const event = await Event.findById(eventId);
+    if (user?.email) {
+      await sendTicketEmail(user, event, booking, qrCode);
+    }
 
-// Gửi email kèm QR
-if (user?.email) {
-  await sendTicketEmail(user, event, booking, qrCode);
-}
+    /* ============================================================
+       4) Notification thanh toán
+    ============================================================= */
+    try {
+      const io = req.app.get("io");
+      const agenda = req.app.get("agenda");
 
+      await createNotification(
+        {
+          userId: booking.userId,
+          eventId: booking.eventId,
+          title: "Thanh toán thành công",
+          message: `Vé của bạn đã được xác nhận.`,
+        },
+        io,
+        agenda
+      );
+    } catch (error) {
+      console.error("❌ Lỗi notification:", error);
+    }
 
-    res.json({ success: true, message: "Booking created, QR code generated, email sent!" });
+    /* ============================================================
+       5) Lên lịch nhắc 1 giờ trước sự kiện
+    ============================================================= */
+    try {
+      const io = req.app.get("io");
+      const agenda = req.app.get("agenda");
+
+      if (event?.date) {
+        const startTime = new Date(event.date);
+        let oneHourBefore = new Date(startTime.getTime() - 3600 * 1000);
+        oneHourBefore.setSeconds(0, 0);
+
+        if (oneHourBefore > new Date()) {
+          await createNotification(
+            {
+              userId: booking.userId,
+              eventId: booking.eventId,
+              title: "Nhắc nhở sự kiện",
+              message: "Sự kiện bạn đã mua sẽ bắt đầu trong 1 giờ!",
+              scheduledFor: oneHourBefore,
+            },
+            io,
+            agenda
+          );
+        }
+      }
+    } catch (error) {
+      console.error("❌ Lỗi scheduling:", error);
+    }
+
+    /* ============================================================
+       6) Thành công
+    ============================================================= */
+    res.json({
+      success: true,
+      message: "Booking created + tickets deducted + QR + email + notifications done.",
+    });
+
   } catch (err) {
-    console.error("❌ Lỗi lưu booking hoặc gửi email:", err);
-    res.status(500).json({ message: "Không thể lưu vé hoặc gửi email!" });
+    console.error("❌ Lỗi khi xử lý payment-success:", err);
+    res.status(500).json({ message: "Không thể xử lý thanh toán!" });
   }
 });
 
-// ✅ Verify payment after user returned to frontend (returnUrl) or when frontend calls verify
-// This endpoint will call PayOS to fetch payment status by orderCode (or accept status from provider)
-// then update Booking, create Notification(s) and emit realtime update via Socket.IO
+/* ============================================================
+   3) VERIFY – kiểm tra trạng thái thanh toán PayOS
+============================================================ */
 router.post("/verify", async (req, res) => {
   try {
     const { orderCode, paymentId } = req.body || {};
-    if (!orderCode && !paymentId) return res.status(400).json({ error: 'Missing orderCode or paymentId' });
+    if (!orderCode && !paymentId)
+      return res.status(400).json({ error: "Missing orderCode or paymentId" });
 
-    // Try to fetch payment info from PayOS SDK (attempt common method names)
     let paymentInfo = null;
     try {
-      if (orderCode && payos.paymentRequests && typeof payos.paymentRequests.get === 'function') {
+if (orderCode && typeof payos.paymentRequests.get === "function") {
         paymentInfo = await payos.paymentRequests.get(orderCode);
-      } else if (orderCode && payos.paymentRequests && typeof payos.paymentRequests.retrieve === 'function') {
-        paymentInfo = await payos.paymentRequests.retrieve(orderCode);
-      } else if (paymentId && payos.payments && typeof payos.payments.get === 'function') {
+      } else if (paymentId && typeof payos.payments.get === "function") {
         paymentInfo = await payos.payments.get(paymentId);
       }
-    } catch (e) {
-      // don't fail hard here; we'll fall back to using provided fields
-      console.warn('Could not fetch payment info from PayOS SDK:', e.message);
-      paymentInfo = null;
+    } catch (error) {
+      console.warn("⚠ Không thể fetch PayOS:", error.message);
     }
 
-    const status = (paymentInfo && (paymentInfo.status || paymentInfo.paymentStatus)) || req.body.status || null;
-    const resolvedPaymentId = (paymentInfo && (paymentInfo.paymentId || paymentInfo.id || paymentInfo.transactionId)) || paymentId || null;
+    const status =
+      paymentInfo?.status ||
+      paymentInfo?.paymentStatus ||
+      req.body.status ||
+      null;
 
-    if (status !== 'PAID') {
-      return res.status(200).json({ ok: false, message: 'Payment not completed', status });
+    const resolvedPaymentId =
+      paymentInfo?.paymentId ||
+      paymentInfo?.id ||
+      paymentInfo?.transactionId ||
+      paymentId;
+
+    if (status !== "PAID") {
+      return res.json({ ok: false, message: "Payment not completed", status });
     }
 
-    const orderCodeStr = orderCode ? String(orderCode) : null;
-    const booking = await Booking.findOne({ orderCode: orderCodeStr });
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
+    // Tìm booking theo orderCode
+    const booking = await Booking.findOne({ orderCode: String(orderCode) });
 
-    // Use an atomic conditional update to avoid race creating duplicate confirmations/notifications
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    // Tránh duplicate update
     const updated = await Booking.findOneAndUpdate(
-      { _id: booking._id, status: { $ne: 'confirmed' } },
-      { $set: { status: 'confirmed', paidAt: new Date(), ...(resolvedPaymentId ? { paymentId: resolvedPaymentId } : {}) } },
+      { _id: booking._id, status: { $ne: "confirmed" } },
+      {
+        $set: {
+          status: "confirmed",
+          paidAt: new Date(),
+          paymentId: resolvedPaymentId,
+        },
+      },
       { new: true }
     );
 
-    // If update returned null, booking was already confirmed by another process -> emit and return
     if (!updated) {
-      const io = req.app.get('io');
-      if (io) io.to(`user:${String(booking.userId)}`).emit('payment:update', { bookingId: booking._id, status: booking.status, paidAt: booking.paidAt });
-      return res.json({ ok: true, message: 'Already confirmed' });
+      return res.json({ ok: true, message: "Already confirmed" });
     }
 
-    // Use the updated booking instance for downstream actions
     const confirmedBooking = updated;
 
-    // Immediate notification to user (use helper that may schedule/send)
-    const io = req.app.get('io');
-    const agenda = req.app.get('agenda');
-    const notif = await createNotification({
-      userId: confirmedBooking.userId,
-      eventId: confirmedBooking.eventId,
-      title: 'Thanh toán thành công',
-      message: `Đơn hàng ${confirmedBooking.orderCode} đã được thanh toán.`,
-    }, io, agenda);
-
-    // Lên lịch nhắc 1 giờ trước event (nếu event có ngày và còn thời gian)
-    try {
-      const ev = await Event.findById(booking.eventId);
-      if (ev?.date) {
-        // Normalize and compute reminder time
-        const startTime = new Date(ev.date);
-        let oneHourBefore = new Date(startTime.getTime() - 60 * 60 * 1000);
-        // Truncate seconds/milliseconds for cleaner schedule (e.g., 09:00:00)
-        oneHourBefore.setSeconds(0, 0);
-        console.log('Scheduling reminder: event start=', startTime.toISOString(), ' reminderAt=', oneHourBefore.toISOString());
-        if (oneHourBefore > new Date()) {
-          await createNotification({
-            userId: confirmedBooking.userId,
-            eventId: confirmedBooking.eventId,
-            title: 'Nhắc nhở sự kiện',
-            message: 'Sự kiện bạn đã mua sẽ bắt đầu sau 1 giờ',
-            scheduledFor: oneHourBefore,
-          }, io, req.app.get('agenda'));
-        } else {
-          console.log('Skipping scheduling reminder because less than 1 hour remains', { bookingId: booking._id.toString(), startTime: startTime.toISOString(), oneHourBefore: oneHourBefore.toISOString() });
-        }
-      }
-    } catch (e) {
-      console.warn('Could not schedule reminder notification:', e.message);
-    }
-
-    // Emit realtime events (payment update).
-    // Note: notification emission is handled inside createNotification() for immediate notifications
+    // Emit real-time update
+    const io = req.app.get("io");
     if (io) {
-  io.to(`user:${String(confirmedBooking.userId)}`).emit('payment:update', { bookingId: confirmedBooking._id, status: confirmedBooking.status, paidAt: confirmedBooking.paidAt });
+      io.to(`user:${String(confirmedBooking.userId)}`).emit("payment:update", {
+        bookingId: confirmedBooking._id,
+        status: confirmedBooking.status,
+      });
     }
 
-    return res.json({ ok: true, message: 'Payment verified and booking confirmed' });
+    return res.json({
+      ok: true,
+      message: "Payment verified and booking confirmed",
+    });
   } catch (error) {
-    console.error('Error in /api/payment/verify:', error);
-    return res.status(500).json({ error: error.message });
+    console.error("❌ Lỗi verify:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 

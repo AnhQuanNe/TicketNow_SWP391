@@ -1,4 +1,4 @@
-  import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
   import "../../user/css/MyTicket.css";  // Đảm bảo đúng đường dẫn
 
   export default function MyTickets() {
@@ -98,7 +98,7 @@
 
         {/* --- Card Vé --- */}
         <div className="grid-container">
-          {filteredTickets.map((t) => {
+{filteredTickets.map((t) => {
             const viStatus = statusMap[t.status?.toLowerCase()] || "Chưa xác định";
             const statusClass =
               viStatus === "Thành công"
@@ -133,6 +133,10 @@
                 <p className="text-sm mb-3" style={{ color: "#ff7b00" }}>
                   💰 {t.totalPrice?.toLocaleString() ?? "Chưa có giá"} VNĐ
                 </p>
+                <p className="text-sm mb-2" style={{ color: "#444" }}>
+  🎫 Loại vé: <b>{t.ticketType === "student" ? "Student" : "Guest"}</b>
+</p>
+
 
                 <span className={`status-tag ${statusClass}`}>
                   {viStatus}

@@ -6,24 +6,37 @@ function EventList({ events, favorites, toggleFavorite }) {
     <div className="scroll-row">
       {events.map((ev) => (
         <div className="suggest-card" key={ev._id}>
+          
+          {/* Image */}
           <img
             src={ev.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
             alt={ev.title}
           />
-          <h4>{ev.title}</h4>
-          <p>{ev.categoryName || ev.categoryId}</p>
 
-          {/* 🟩 Nút xem chi tiết */}
+          {/* Title */}
+          <h4>{ev.title}</h4>
+
+          {/* 📍 Location */}
+          <p className="text-sm mt-1" style={{ color: "#ffdd57", fontWeight: 500 }}>
+            📍 {ev.locationId || "Chưa có địa điểm"}
+          </p>
+
+          {/* 📅 Date */}
+          <p className="text-sm mt-1" style={{ color: "#ddd" }}>
+            📅 {ev.date ? new Date(ev.date).toLocaleDateString("vi-VN") : "Chưa có ngày"}
+          </p>
+
+          {/* View Detail */}
           <Link to={`/event/${ev._id}`}>
             <button className="btn btn-info my-2">View Detail</button>
           </Link>
 
-          {/* 🩷 Nút tim */}
+          {/* ❤️ Favorite */}
           <button
-            className={`fav-btn ${favorites.some(f => f._id === ev._id) ? "active" : ""}`}
+            className={`fav-btn ${favorites.some((f) => f._id === ev._id) ? "active" : ""}`}
             onClick={() => toggleFavorite(ev)}
           >
-            {favorites.some(f => f._id === ev._id) ? "❤️" : "🤍"}
+            {favorites.some((f) => f._id === ev._id) ? "❤️" : "🤍"}
           </button>
         </div>
       ))}

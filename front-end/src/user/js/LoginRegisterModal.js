@@ -35,11 +35,7 @@ export default function LoginRegisterModal({
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  useEffect(() => {
-    if (window.grecaptcha) {
-      window.grecaptcha.ready(() => {});
-    }
-  }, []);
+  
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -60,11 +56,11 @@ export default function LoginRegisterModal({
         localStorage.setItem("user", JSON.stringify(data));
         onLoginSuccess?.(data);
 
-        if (data.role === "admin") {
+        if (data.role === "role_admin") {
           localStorage.setItem("adminToken", data.token);
         }
 
-        if (data.role === "admin") {
+        if (data.role === "role_admin") {
           window.location.href = "/admin";
         } else if (data.role === "organizer") {
           window.location.href = "/organizer";
@@ -74,21 +70,15 @@ export default function LoginRegisterModal({
 
         setTimeout(onClose, 500);
       } else {
-        // ⛳ LẤY TOKEN reCAPTCHA
-        const recaptchaToken = await window.grecaptcha.execute(
-          process.env.REACT_APP_RECAPTCHA_SITE_KEY,
-          { action: "register" }
-        );
-
-        // GỌI API REGISTER
+        // GỌI API REGISTER trực tiếp
         await registerUser({
           name: form.name,
           email: form.email,
           passwordHash: form.password,
           phone: form.phone,
           studentId: form.studentId,
-          recaptchaToken,
         });
+
 
         setMessage(
           "🎉 Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản."
@@ -111,7 +101,7 @@ export default function LoginRegisterModal({
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
 
-      if (data.role === "admin") {
+      if (data.role === "role_admin") {
         localStorage.setItem("adminToken", data.token);
       }
 
@@ -362,8 +352,8 @@ export default function LoginRegisterModal({
                 {loading
                   ? "Đang xác minh..."
                   : type === "login"
-                  ? "Đăng nhập"
-                  : "Đăng ký"}
+                    ? "Đăng nhập"
+                    : "Đăng ký"}
               </button>
             </form>
 

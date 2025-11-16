@@ -15,45 +15,36 @@ function PaymentSuccess() {
       const status = params.get("status");
 
       if (status !== "PAID") {
-        Swal.fire("❌ Thanh toán thất bại", "Vui lòng thử lại!", "error");
-        setTimeout(() => navigate("/"), 3000);
-        return;
+        Swal.fire("❌ Thanh toán thất bại", "", "error");
+        return navigate("/");
       }
 
-      const pendingTicket = JSON.parse(localStorage.getItem("pendingTicket"));
-      if (!pendingTicket) {
-        Swal.fire("⚠️ Lỗi", "Không tìm thấy thông tin vé!", "error");
-        navigate("/");
-        return;
-      }
+      const pending = JSON.parse(localStorage.getItem("pendingTicket"));
+      if (!pending) return navigate("/");
 
       try {
-        // ✅ Gọi đúng API backend
-        const res = await fetch("http://localhost:5000/api/bookings/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: pendingTicket.userId,
-            eventId: pendingTicket.eventId,
-            quantity: pendingTicket.quantity || 1,
-            totalPrice: pendingTicket.price,
-            paymentId: pendingTicket.paymentId,
-          }),
-        });
-
-        const data = await res.json();
-        console.log("🎟️ Booking API response:", data);
-
-        if (res.ok) {
-          Swal.fire("🎉 Thành công!", "Vé của bạn đã được lưu và gửi qua email!", "success");
-          localStorage.removeItem("pendingTicket");
-          setTimeout(() => navigate("/my-tickets"), 2000);
-        } else {
-          Swal.fire("❌ Lỗi", data.message || "Không thể lưu vé!", "error");
+        for (const ticket of pending.tickets) {
+          await fetch("http://localhost:5000/api/bookings/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: pending.userId,
+              eventId: pending.eventId,
+              quantity: ticket.quantity,
+              totalPrice: ticket.price * ticket.quantity,
+              paymentId: pending.paymentId + "_" + ticket.type,
+              userEmail: pending.userEmail,
+              ticketType: ticket.type.toLowerCase(), // REQUIRED
+            }),
+          });
         }
+
+        Swal.fire("🎉 Thành công!", "Vé đã được lưu!", "success");
+        localStorage.removeItem("pendingTicket");
+        setTimeout(() => navigate("/my-tickets"), 1500);
+
       } catch (err) {
-        console.error("❌ Lỗi khi lưu vé:", err);
-        Swal.fire("❌ Lỗi", "Không thể kết nối máy chủ!", "error");
+        Swal.fire("❌ Lỗi server", "", "error");
       }
     };
 

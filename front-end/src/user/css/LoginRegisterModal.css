@@ -118,7 +118,7 @@
 }
 
 /* ✅ ========== NÚT PHỤ (Gửi OTP, Xác nhận OTP, Xác nhận đặt lại) ========== */
-.modal-box button:not(.google-login-btn) {
+.modal-box button:not(.google-login-btn):not(.close-btn) {
   width: 100%;
   padding: 12px;
   margin-top: 10px;

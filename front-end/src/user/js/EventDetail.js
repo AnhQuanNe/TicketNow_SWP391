@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Review from "./Review";
+import Swal from "sweetalert2";
 
 function EventDetail() {
   const { id } = useParams();
@@ -28,12 +29,23 @@ function EventDetail() {
         ❌ Không tìm thấy sự kiện.
       </div>
     );
+const handleBuyTicket = () => {
+  const loggedIn = localStorage.getItem("user");
 
-  const handleBuyTicket = () => {
-    const loggedIn = localStorage.getItem("user");
-    if (!loggedIn) navigate("/login");
-    else navigate(`/select-ticket/${event._id}`);
-  };
+  if (!loggedIn) {
+    Swal.fire({
+      icon: "warning",
+      title: "Bạn chưa đăng nhập",
+      text: "Vui lòng đăng nhập để mua vé!",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
+  navigate(`/select-ticket/${event._id}`);
+};
+
+
 
   const styles = {
     page: {
@@ -112,7 +124,7 @@ function EventDetail() {
     btn: {
       width: "100%",
       marginTop: "20px",
-      padding: "14px 0",
+padding: "14px 0",
       background: "linear-gradient(90deg, #ff66b2, #ff4da6)",
       color: "#fff",
       fontWeight: 600,
