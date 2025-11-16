@@ -12,12 +12,8 @@ const categorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    description: {
-      type: String,
-      default: "",
-    },
   },
   { timestamps: true } // tự động thêm createdAt, updatedAt
 );
 
-export default mongoose.model("Category", categorySchema);
+export default mongoose.model("Category", categorySchema,"Categories");

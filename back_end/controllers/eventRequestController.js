@@ -4,6 +4,7 @@ import Event from '../model/Event.js';
 import User from '../model/User.js';
 import Role from '../model/Role.js';
 import Organizer from '../model/Organizer.js';
+import Category from '../model/Category.js';
 import fs from "fs";
 import path from "path";
 
@@ -15,8 +16,10 @@ export const createEventRequest = async (req, res) => {
       eventDate,
       eventLocation,
       ticketCount,
-        studentPrice,
-  regularPrice,
+      studentPrice,
+      regularPrice,
+      categoryId: rawCategoryId,
+      startTime,
       description,
     } = req.body;
 
@@ -41,7 +44,21 @@ export const createEventRequest = async (req, res) => {
       coverImage = `/uploads/${req.file.filename}`;
     }
 
-    // ✅ Tạo mới sự kiện
+    // Chuẩn hoá categoryId: phải là _id (string) tồn tại trong Categories
+    let categoryId = rawCategoryId || null;
+    if (categoryId) {
+      // Nếu client gửi tên (ví dụ "Âm nhạc") thay vì id, chuyển sang id
+      const byId = await Category.findById(categoryId).lean();
+      if (!byId) {
+        const byName = await Category.findOne({ name: categoryId }).lean();
+        if (byName) categoryId = byName._id; // map name -> id
+      }
+      // Nếu vẫn không tìm thấy => bỏ qua để tránh lưu tên
+      const valid = await Category.findById(categoryId).lean();
+      if (!valid) categoryId = null;
+    }
+
+    // ✅ Tạo mới request sự kiện
     const newEvent = new EventRequest({
       eventName,
       eventDate,
@@ -49,6 +66,8 @@ export const createEventRequest = async (req, res) => {
       ticketCount,
       studentPrice,
       regularPrice,
+      categoryId: categoryId || null,
+      startTime: startTime || null,
       description,
       coverImage,
       organizerId,
@@ -77,8 +96,7 @@ export const getAllEventRequests = async (req, res) => {
     }
 
     let events;
-
-    // Nếu là admin => lấy tất cả sự kiện pending
+// Nếu là admin => lấy tất cả sự kiện pending
     if (req.user.roleName === "admin") {
       events = await EventRequest.find({ status: "pending" }).sort({ createdAt: -1 });
     } 
@@ -122,17 +140,26 @@ export const updateEventStatus = async (req, res) => {
         description: eventRequest.description,  // Mô tả từ EventRequest
         // EventRequest may not include categoryId/locationId fields coming from the organizer form,
         // so provide safe fallbacks to avoid Mongoose validation errors when creating Event.
-        categoryId: eventRequest.categoryId || 'uncategorized',  // Fallback category
+        categoryId: await (async () => {
+          let cid = eventRequest.categoryId;
+          if (cid) {
+            const existsId = await Category.findById(cid).lean();
+            if (existsId) return existsId._id; // hợp lệ dạng id
+            const byName = await Category.findOne({ name: cid }).lean();
+            if (byName) return byName._id; // map tên sang id
+          }
+          return 'uncategorized';
+        })(),
         organizerId: eventRequest.organizerId,  // Organizer ID từ EventRequest
         // Map eventLocation (string) from EventRequest to Event.locationId (string expected)
         locationId: eventRequest.locationId || eventRequest.eventLocation || null,
         date: eventRequest.eventDate,  // Ngày tổ chức từ EventRequest
         ticketsAvailable: eventRequest.ticketCount,  // Số lượng vé từ EventRequest
+        ticketTotal: eventRequest.ticketCount, // Tổng số vé ban đầu (không giảm khi bán)
         imageUrl: eventRequest.coverImage,  // Hình ảnh sự kiện từ EventRequest
         createdAt: Date.now(),  // Thời gian tạo mới sự kiện
       });
-
-      // Kiểm tra xem đối tượng mới có phải là instance của Mongoose không
+// Kiểm tra xem đối tượng mới có phải là instance của Mongoose không
       console.log(newEvent instanceof Event);  // Phải trả về true
 
       // Lưu sự kiện vào collection 'Event'
@@ -156,7 +183,7 @@ export const updateEventStatus = async (req, res) => {
           }
         }
       } catch (e) {
-console.error('❌ Lỗi khi promote user thành organizer:', e);
+        console.error('❌ Lỗi khi promote user thành organizer:', e);
       }
       // 🔰 TẠO HOẶC CẬP NHẬT DOCUMENT Organizer tương ứng
       try {
@@ -187,7 +214,7 @@ console.error('❌ Lỗi khi promote user thành organizer:', e);
               org.name = org.name || user.name || org.name;
               org.contactEmail = org.contactEmail || user.email;
               org.phone = org.phone || user.phone;
-              org.locationId = org.locationId || eventRequest.locationId;
+org.locationId = org.locationId || eventRequest.locationId;
               await org.save();
               console.log('🔁 Đã cập nhật Organizer tồn tại cho user:', user._id.toString());
             }
@@ -215,9 +242,8 @@ console.error('❌ Lỗi khi promote user thành organizer:', e);
     }
 
     res.status(200).json({ message: "Cập nhật trạng thái sự kiện thành công!" });
-} catch (error) {
+  } catch (error) {
     console.error("Lỗi khi cập nhật trạng thái sự kiện:", error);
     res.status(500).json({ message: "Lỗi khi cập nhật trạng thái sự kiện", error: error.message });
   }
 };
-

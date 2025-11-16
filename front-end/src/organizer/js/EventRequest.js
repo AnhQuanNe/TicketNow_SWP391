@@ -15,12 +15,27 @@ export default function EventRequestForm() {
     // 🟢 THÊM 2 TRƯỜNG MỚI TRÙNG TÊN VỚI BACKEND:
     studentPrice: "",
     regularPrice: "",
+    categoryId: "",
+    startTime: "",
+    endTime: "",
     description: "",
     coverImage: null,
   });
 
   const [message, setMessage] = useState("");
   const fileInputRef = useRef(null); // Thêm ref cho input file
+  const [categories, setCategories] = useState([]);
+  
+  // load categories to populate select
+  React.useEffect(() => {
+    fetch("http://localhost:5000/api/categories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data || []))
+      .catch((err) => {
+        console.error("Lỗi khi lấy danh sách categories", err);
+        setCategories([]);
+      });
+  }, []);
   // const navigate = useNavigate();
 
   // 🟢 KHÔNG ĐỔI — vẫn dùng handleChange như cũ
@@ -56,6 +71,9 @@ export default function EventRequestForm() {
       const data = new FormData();
       data.append("eventName", formData.eventName);
       data.append("eventDate", formData.eventDate);
+      data.append("categoryId", formData.categoryId);
+      data.append("startTime", formData.startTime);
+      data.append("endTime", formData.endTime);
       data.append("eventLocation", formData.eventLocation);
       data.append("ticketCount", formData.ticketCount);
 
@@ -70,8 +88,7 @@ export default function EventRequestForm() {
       if (formData.coverImage) {
         data.append("coverImage", formData.coverImage);
       }
-
-      const res = await createEventRequest(token, data);
+const res = await createEventRequest(token, data);
       setMessage(res.message || "🎉 Gửi yêu cầu sự kiện thành công!");
 
       // Ẩn thông báo sau 3 giây
@@ -137,6 +154,38 @@ setTimeout(() => {
         </label>
 
         <label>
+          Thể loại (Category):
+          <select
+            name="categoryId"
+            value={formData.categoryId}
+            onChange={handleChange}
+            required
+          >
+            <option value="" disabled>
+              -- Chọn thể loại --
+            </option>
+            {categories.map((c) => {
+              const id = c._id; // _id trong collection Categories (ví dụ: cat_music)
+              return (
+                <option key={id} value={id}>
+                  {c.name}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+
+        <label>
+          Thời gian bắt đầu:
+          <input
+            type="time"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleChange}
+          />
+        </label>
+
+        <label>
           Địa Điểm:
           <input
             type="text"
@@ -152,7 +201,7 @@ setTimeout(() => {
           <input
             type="number"
             name="ticketCount"
-            value={formData.ticketCount}
+value={formData.ticketCount}
             onChange={handleChange}
             required
           />

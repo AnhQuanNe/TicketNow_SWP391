@@ -13,6 +13,7 @@ import eventRoutes from './routes/eventRoutes.js'
 import reviewRoutes from './routes/reviewRoutes.js'
 import notificationRoutes from './routes/notificationRoutes.js'
 import Notification from './model/Notification.js'
+import Category from './model/Category.js';
 import Booking from './model/Booking.js'
 import crypto from 'crypto'
 import Agenda from 'agenda';
@@ -124,13 +125,6 @@ await Role.create({ name });
   })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// 🟢 Schema cho Category
-const categorySchema = new mongoose.Schema({
-  name: String,
-  description: String,
-});
-
-const Category = mongoose.model("Category", categorySchema, "Categories");
 
 
 

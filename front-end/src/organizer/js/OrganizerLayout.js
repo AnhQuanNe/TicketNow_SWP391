@@ -11,7 +11,7 @@ import MyEventsList from "./MyEventsList";
 import Reports from "./Reports";
 import OrganizerEventDetail from "./OrganizerEventDetail";
 import "../css/organizer.css";
-
+import CheckinPage from "./CheckinPage";
 function OrganizerLayout() {
 
   const [activePage, setActivePage] = useState("rules");
@@ -30,6 +30,9 @@ function OrganizerLayout() {
         return <EventRequestForm />;
       case "profile":
         return <Profile />;
+        case "checkin":
+        return <CheckinPage />;   // ⭐ THÊM DÒNG NÀY
+      
       case "rules":
       default:
         return <OrganizerRule />;

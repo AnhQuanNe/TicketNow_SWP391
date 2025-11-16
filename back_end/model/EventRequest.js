@@ -9,6 +9,9 @@ const EventRequestSchema = new mongoose.Schema({
   ticketCount: { type: Number, required: true },   // Số lượng vé
   studentPrice: { type: Number, required: true },   // 🟢 thêm
   regularPrice: { type: Number, required: true },   // 🟢 thêm
+  categoryId: { type: String }, // liên kết tới Category._id (string)
+  startTime: { type: String }, // giờ bắt đầu (HH:MM)
+  endTime: { type: String }, // giờ kết thúc (HH:MM)
   description: { type: String }, // Mô tả sự kiện
   coverImage: { type: String },  // Ảnh bìa sự kiện (nếu có)
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }, // Trạng thái sự kiện

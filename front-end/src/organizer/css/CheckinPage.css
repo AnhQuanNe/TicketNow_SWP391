@@ -1,0 +1,74 @@
+.checkin-container {
+  padding: 20px;
+  color: white;
+}
+
+.checkin-title {
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 25px;
+  font-weight: bold;
+}
+
+.qr-section, .manual-section, .history-section {
+  margin-bottom: 30px;
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.qr-reader {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.manual-section input {
+  width: 70%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  margin-right: 10px;
+}
+
+.manual-section button {
+  padding: 10px 15px;
+  background: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.checkin-result {
+  padding: 15px;
+  font-size: 18px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.checkin-result.success {
+  background: #0f990f;
+}
+
+.checkin-result.error {
+  background: #cc0000;
+}
+
+.history-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-section th, .history-section td {
+  padding: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.success {
+  color: #00ff7f;
+}
+
+.error {
+  color: #ff5555;
+}

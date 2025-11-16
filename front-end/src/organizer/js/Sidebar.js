@@ -76,6 +76,11 @@ function Sidebar({ setActivePage, activePage }) {
           <FaCalendarAlt /> Tạo sự kiện
         </li>
 
+        {/* ⭐ NEW: Check-in */}
+    <li onClick={() => onSelect("checkin")} className={activePage === "checkin" ? "active" : ""}>
+        <FaTicketAlt /> Check-in
+    </li>
+
         <li onClick={() => onSelect("profile")} className={activePage === "profile" ? "active" : ""}>
           <FaUser /> Hồ sơ
         </li>

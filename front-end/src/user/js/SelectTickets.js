@@ -139,7 +139,7 @@ const total = tickets.reduce((sum, t) => {
               {event.description}
             </p>
             <p>
-              <b>📍 Địa điểm:</b> {event.location || "Đang cập nhật"}
+              <b>📍 Địa điểm:</b> {event.locationId || "Đang cập nhật"}
             </p>
             <p>
               <b>📅 Ngày diễn ra:</b>{" "}
