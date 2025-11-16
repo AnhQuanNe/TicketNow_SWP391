@@ -7,6 +7,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs"; // 🟢 THÊM: để tự tạo thư mục uploads khi chưa có
 import Event from './model/Event.js'
 import eventRoutes from './routes/eventRoutes.js'
 import reviewRoutes from './routes/reviewRoutes.js'
@@ -24,7 +25,8 @@ import ticketRoutes from "./routes/ticketRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 // 🟢 Import router cho Organizer
 import organizerRoutes from "./routes/organizerRoutes.js";
-
+import eventRequestRoutes from "./routes/eventRequestRoutes.js"; // Import routes
+import roleRoutes from "./routes/roleRoutes.js";
 //import booking
 import bookingRoutes from "./routes/bookingRoutes.js";
 
@@ -47,6 +49,18 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// 🟢 THÊM DÒNG NÀY: để xử lý form-data có file (FormData từ React)
+app.use(express.urlencoded({ extended: true }));
+
+// 🟢 TỰ ĐỘNG TẠO THƯ MỤC "uploads" NẾU CHƯA CÓ
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+  console.log("📁 Đã tự tạo thư mục 'uploads' vì chưa tồn tại");
+}
+
+// 🟢 CHO PHÉP TRUY CẬP ẢNH UPLOAD QUA ĐƯỜNG LINK /uploads
+app.use("/uploads", express.static(uploadDir));
 
 // 🟢 Kết nối MongoDB
 mongoose
@@ -56,6 +70,21 @@ mongoose
   })
   .then(async () => {
     console.log("✅ MongoDB connected");
+
+    // Ensure default roles exist
+    try {
+      const rolesToEnsure = ["admin", "organizer", "user"];
+      const Role = (await import('./model/Role.js')).default;
+      for (const name of rolesToEnsure) {
+        const exists = await Role.findOne({ name }).lean();
+        if (!exists) {
+await Role.create({ name });
+          console.log(`🔰 Đã tạo role mặc định: ${name}`);
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ Không thể tạo roles mặc định:', e.message || e);
+    }
 
     // Initialize Agenda after Mongo connection
     try {
@@ -146,7 +175,6 @@ app.get("/api/events/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 // 🟢 🔑 API: Đăng ký & đăng nhập người dùng
 app.use(cors());
 app.use("/api/auth", authRoutes);
@@ -156,9 +184,10 @@ app.use("/api/bookings", bookingRoutes); // api booking
 
 // 🟢 🔑 API: Sửa thông tin người dùng
 app.use("/api/users", userRoutes);
-
+app.use("/api/roles", roleRoutes);
 // 🟢 API: Dành cho Organizer (Dashboard, Profile, Event,...)
 app.use("/api/organizer", organizerRoutes);
+app.use("/api/event-requests", eventRequestRoutes); // Đường dẫn xử lý tạo sự kiện
 
 // � Socket.IO basic events
 io.on("connection", (socket) => {
@@ -183,4 +212,3 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () =>
   console.log(`🚀 Server chạy tại http://localhost:${PORT}`)
 );
-

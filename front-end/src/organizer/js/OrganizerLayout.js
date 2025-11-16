@@ -3,22 +3,30 @@
 
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
-import Dashboard from "./Dashboard";
+
 import EventRequestForm from "./EventRequest";
 import Profile from "./Profile";
 import OrganizerRule from "./OrganizerRule";
+import MyEventsList from "./MyEventsList";
+import Reports from "./Reports";
+import OrganizerEventDetail from "./OrganizerEventDetail";
 import "../css/organizer.css";
 
 function OrganizerLayout() {
-  // 🟢 State dùng để xác định trang hiện tại trong layout
-  const [activePage, setActivePage] = useState("rules");
 
-  // 🟢 Hàm hiển thị nội dung chính tuỳ theo trang đang chọn
+  const [activePage, setActivePage] = useState("rules");
+  // id của event đang được xem chi tiết
+  const [selectedEventId, setSelectedEventId] = useState(null);
+
   const renderContent = () => {
     switch (activePage) {
-      case "dashboard":
-        return <Dashboard />;
       case "my-events":
+        return <MyEventsList setActivePage={setActivePage} setSelectedEventId={setSelectedEventId} />;
+      case "event-detail":
+        return <OrganizerEventDetail eventId={selectedEventId} setActivePage={setActivePage} />;
+      case "reports":
+        return <Reports />;
+      case "create-event":
         return <EventRequestForm />;
       case "profile":
         return <Profile />;
@@ -30,10 +38,8 @@ function OrganizerLayout() {
 
   return (
     <div className="organizer-layout">
-      {/* 🟩 Sidebar hiển thị menu điều hướng, nhận setActivePage để thay đổi trang */}
       <Sidebar setActivePage={setActivePage} activePage={activePage} />
 
-      {/* 🟦 Khu vực nội dung chính */}
       <div className="organizer-main">
         <main className="organizer-content">{renderContent()}</main>
       </div>

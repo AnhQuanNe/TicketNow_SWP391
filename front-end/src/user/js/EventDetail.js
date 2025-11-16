@@ -29,21 +29,21 @@ function EventDetail() {
         ❌ Không tìm thấy sự kiện.
       </div>
     );
-const handleBuyTicket = () => {
-  const loggedIn = localStorage.getItem("user");
+  const handleBuyTicket = () => {
+    const loggedIn = localStorage.getItem("user");
 
-  if (!loggedIn) {
-    Swal.fire({
-      icon: "warning",
-      title: "Bạn chưa đăng nhập",
-      text: "Vui lòng đăng nhập để mua vé!",
-      confirmButtonText: "OK",
-    });
-    return;
-  }
+    if (!loggedIn) {
+      Swal.fire({
+        icon: "warning",
+        title: "Bạn chưa đăng nhập",
+        text: "Vui lòng đăng nhập để mua vé!",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
 
-  navigate(`/select-ticket/${event._id}`);
-};
+    navigate(`/select-ticket/${event._id}`);
+  };
 
 
 
@@ -124,12 +124,12 @@ const handleBuyTicket = () => {
     btn: {
       width: "100%",
       marginTop: "20px",
-padding: "14px 0",
+      padding: "14px 0",
       background: "linear-gradient(90deg, #ff66b2, #ff4da6)",
       color: "#fff",
       fontWeight: 600,
       fontSize: "1.1rem",
-border: "none",
+      border: "none",
       borderRadius: "8px",
       cursor: "pointer",
       transition: "0.3s",
@@ -163,7 +163,10 @@ border: "none",
       <div style={styles.content}>
         <div style={styles.description}>
           <h2 style={styles.descTitle}>🎀 Giới thiệu sự kiện</h2>
-          <p>{event.description}</p>
+          <p style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}>
+            {event.description.replace(/\*\*/g, "")}
+          </p>
+
         </div>
 
         <div style={styles.infoBox}>
@@ -180,12 +183,12 @@ border: "none",
           <button
             style={styles.btn}
             onMouseEnter={(e) =>
-              (e.target.style.background =
-                "linear-gradient(90deg, #ff80bf, #ff99cc)")
+            (e.target.style.background =
+              "linear-gradient(90deg, #ff80bf, #ff99cc)")
             }
             onMouseLeave={(e) =>
-              (e.target.style.background =
-                "linear-gradient(90deg, #ff66b2, #ff4da6)")
+            (e.target.style.background =
+              "linear-gradient(90deg, #ff66b2, #ff4da6)")
             }
             onClick={handleBuyTicket}
           >

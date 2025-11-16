@@ -27,7 +27,11 @@ function SelectTicket() {
       .then((data) => {
         setTickets(data || []);
         const initial = {};
-        (data || []).forEach((t) => (initial[t.type] = 0));
+        // Use `ticketType` from DB when available, otherwise fall back to `type`.
+        (data || []).forEach((t) => {
+          const key = t.ticketType || t.type || "";
+          initial[key] = 0;
+        });
         setQuantities(initial);
       })
       .catch((err) => console.error(err));
@@ -41,7 +45,10 @@ function SelectTicket() {
 
   const handlePayment = () => {
     const selectedTickets = tickets
-      .map((t) => ({ type: t.type, price: t.price, quantity: quantities[t.type] || 0 }))
+      .map((t) => {
+        const key = t.ticketType || t.type || "";
+        return { type: key, price: t.price, quantity: quantities[key] || 0 };
+      })
       .filter((t) => t.quantity > 0);
 
     if (selectedTickets.length === 0) {
@@ -80,8 +87,10 @@ function SelectTicket() {
 
   if (loading) return <p>⏳ Đang tải dữ liệu...</p>;
   if (!event) return <p>❌ Không tìm thấy sự kiện.</p>;
-
-  const total = tickets.reduce((sum, t) => sum + (quantities[t.type] || 0) * t.price, 0);
+const total = tickets.reduce((sum, t) => {
+    const key = t.ticketType || t.type || "";
+    return sum + (quantities[key] || 0) * t.price;
+  }, 0);
 
   return (
      <div
@@ -156,13 +165,12 @@ function SelectTicket() {
             🎫 Chọn loại vé
           </h3>
 
-          {tickets.length === 0 ? (
+            {tickets.length === 0 ? (
             <p>Không có loại vé nào cho sự kiện này.</p>
           ) : (
             tickets.map((ticket, index) => {
-              const isStudentTicket =
-                ticket.type.toLowerCase() === "student" &&
-                (!user || !user.studentId);
+              const typeLabel = ticket.ticketType || ticket.type || "";
+              const isStudentTicket = (typeLabel || "").toLowerCase() === "student" && (!user || !user.studentId);
 
               return (
                 <div
@@ -176,9 +184,9 @@ function SelectTicket() {
                     opacity: isStudentTicket ? 0.5 : 1,
                   }}
                 >
-                  <div>
+<div>
                     <b style={{ fontSize: "17px", color: "#ff4da6" }}>
-                      {ticket.type}
+                      {typeLabel}
                     </b>
                     <p style={{ color: "#777" }}>
                       {ticket?.price != null
@@ -209,10 +217,10 @@ function SelectTicket() {
                         textAlign: "center",
                       }}
                     >
-                      {quantities[ticket.type] || 0}
+                      {quantities[typeLabel] || 0}
                     </span>
                     <button
-                      onClick={() => handleQuantityChange(ticket.type, 1)}
+                      onClick={() => handleQuantityChange(typeLabel, 1)}
                       style={btnStyle}
                       disabled={isStudentTicket}
                     >

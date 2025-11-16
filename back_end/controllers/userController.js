@@ -1,4 +1,5 @@
 import User from "../model/User.js";
+import Role from "../model/Role.js";
 import multer from "multer";
 import path from "path";
 import dayjs from "dayjs";
@@ -91,7 +92,7 @@ export const updateAvatar = async (req, res) => {
 
     const avatarPath = `/uploads/${req.file.filename}`;
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+userId,
       { avatar: avatarPath },
       { new: true }
     ).select("-passwordHash");
@@ -173,13 +174,18 @@ export const getAllUsers = async (req, res) => {
 export const adminUpdateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { role, isActive } = req.body;
+    const { role, roleId, isActive } = req.body;
 
-    const updated = await User.findByIdAndUpdate(
-      id,
-      { ...(role && { role }), ...(isActive !== undefined && { isActive }) },
-      { new: true }
-    ).select("-passwordHash");
+    const updateFields = {};
+    if (isActive !== undefined) updateFields.isActive = isActive;
+
+    if (roleId) {
+      updateFields.roleId = roleId;
+    } else if (role) {
+      const r = await Role.findOne({ name: role }).lean();
+      if (r) updateFields.roleId = r._id;
+    }
+const updated = await User.findByIdAndUpdate(id, updateFields, { new: true }).select("-passwordHash");
 
     if (!updated)
       return res.status(404).json({ message: "Không tìm thấy người dùng" });

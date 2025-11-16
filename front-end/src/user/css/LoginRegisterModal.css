@@ -17,33 +17,35 @@
   background: #fff;
   border-radius: 18px;
   width: 400px;
+  height: 500px;
   max-width: 92%;
   padding: 35px 32px 40px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.15);
   text-align: center;
   overflow: visible;
   animation: slideUp 0.25s ease;
   z-index: 0;
 }
 
-/* gradient cam */
+/* gradient cam  thanh ngang */
 .modal-box::before {
   content: "";
   position: absolute;
-  top: 0;
+  top: -1px !important;
   left: 0;
-  height: 45px;
+  height: 32px !important;
   width: 100%;
-  background: linear-gradient(90deg, #ff914d, #ffa85b);
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
-  z-index: 1; /* ✅ nâng lên để nền cam nằm dưới nút X */
+  background: rgba(255, 255, 255, 0.15);
+  border-top-left-radius: 14px !important;
+  border-top-right-radius: 14px  !important;
+  z-index: 1;
+  /* ✅ nâng lên để nền cam nằm dưới nút X */
 }
 
 .close-btn {
   position: absolute;
-  top: 8px;            
-  right: 12px;
+  top: 0;
+  right: 3px;
   background: rgba(255, 255, 255, 0.15);
   color: white;
   font-size: 18px;
@@ -52,7 +54,7 @@
   width: 26px;
   height: 26px;
   cursor: pointer;
-  z-index: 5;          
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,8 +69,8 @@
 
 /* ========== TIÊU ĐỀ ========== */
 .modal-box h2 {
-  margin-top: 10px;
-  margin-bottom: 20px;
+  margin-top: 25px;
+  margin-bottom: 22px;
   font-size: 22px;
   font-weight: 700;
   color: #222;
@@ -193,6 +195,7 @@
 .google-divider::before {
   left: 0;
 }
+
 .google-divider::after {
   right: 0;
 }
@@ -207,6 +210,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -217,6 +221,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -268,7 +273,7 @@
 
 .otp-input:focus {
   border-color: #ff914d;
-  box-shadow: 0 0 6px rgba(255,145,77,0.3);
+  box-shadow: 0 0 6px rgba(255, 145, 77, 0.3);
 }
 
 .password-field {
@@ -278,7 +283,8 @@
 
 .password-field input {
   width: 100%;
-  padding-right: 40px; /* chừa chỗ cho icon 👁️ */
+  padding-right: 40px;
+  /* chừa chỗ cho icon 👁️ */
 }
 
 .toggle-password {

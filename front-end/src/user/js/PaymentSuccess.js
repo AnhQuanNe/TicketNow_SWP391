@@ -23,7 +23,19 @@ function PaymentSuccess() {
       if (!pending) return navigate("/");
 
       try {
+        const normalizeTicketType = (t) => {
+          if (!t) return t;
+          // If already matches backend enum, return as-is
+          if (t === "Student" || t === "Guest") return t;
+          const lower = t.toString().toLowerCase();
+          if (lower === "student") return "Student";
+          if (lower === "guest") return "Guest";
+          // Fallback: capitalize first letter
+          return t.charAt(0).toUpperCase() + t.slice(1);
+        };
+
         for (const ticket of pending.tickets) {
+          const normalizedType = normalizeTicketType(ticket.type);
           await fetch("http://localhost:5000/api/bookings/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -32,9 +44,9 @@ function PaymentSuccess() {
               eventId: pending.eventId,
               quantity: ticket.quantity,
               totalPrice: ticket.price * ticket.quantity,
-              paymentId: pending.paymentId + "_" + ticket.type,
+              paymentId: (pending.paymentId || "") + "_" + (ticket.type || ""),
               userEmail: pending.userEmail,
-              ticketType: ticket.type.toLowerCase(), // REQUIRED
+              ticketType: normalizedType, // use enum-correct value
             }),
           });
         }

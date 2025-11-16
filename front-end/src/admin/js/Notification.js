@@ -1,26 +1,74 @@
 import React, { useState, useEffect } from 'react';
+import { updateEventStatus } from '../../api/organizerApi'; // Import API cập nhật trạng thái sự kiện
 
 export default function Notification() {
-  const [notifications, setNotifications] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-  fetch('http://localhost:5000/api/notifications')
+  const token = localStorage.getItem('token');  // Đảm bảo bạn đã đăng nhập và có token
+  if (!token) {
+    setMessage("⚠️ Bạn cần đăng nhập trước khi xem các sự kiện.");
+    return;
+  }
+
+  fetch('http://localhost:5000/api/event-requests', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  })
     .then(res => res.json())
-    .then(data => {
-      const arr = Array.isArray(data)
-        ? data
-        : data.notifications || []; // ✅ đảm bảo luôn là mảng
-      setNotifications(arr);
-      setLoading(false);
-    })
+.then(data => {
+  if (Array.isArray(data)) {
+    setEvents(data);   // ✔️ sửa tại đây
+  } else {
+    setMessage("Không có sự kiện chờ duyệt.");
+  }
+  setLoading(false); // ✔️ thêm dòng này
+})
+
     .catch(err => {
-      console.error(err);
-      setNotifications(mockNotifications);
-      setLoading(false);
+      console.error("Lỗi khi lấy sự kiện:", err);
+      setMessage("❌ Lỗi khi lấy sự kiện chờ duyệt.");
+      setLoading(false);   // ✔️ thêm dòng này
     });
 }, []);
 
+
+
+const handleApprove = (eventId) => {
+  console.log("Duyệt sự kiện với ID: ", eventId);  // Debug log
+
+  updateEventStatus(eventId, 'approved').then((response) => {
+    console.log("Phản hồi từ API duyệt sự kiện: ", response);  // Log phản hồi từ API
+
+    // Kiểm tra nếu sự kiện đã được duyệt thành công
+    if (response && response.message === "Cập nhật trạng thái sự kiện thành công!") {
+      setEvents(events.filter(event => event._id !== eventId));  // Loại bỏ sự kiện đã duyệt khỏi danh sách
+      setMessage('Sự kiện đã được duyệt!');
+      setTimeout(() => setMessage(""), 3000);  // Ẩn thông báo sau 3 giây
+    } else {
+      setMessage("❌ Lỗi khi duyệt sự kiện.");
+    }
+  }).catch(err => {
+    console.error("Lỗi khi duyệt sự kiện", err);
+    setMessage("❌ Lỗi khi duyệt sự kiện.");
+  });
+};
+
+
+
+
+  const handleReject = (eventId) => {
+    // Gọi API từ chối sự kiện
+    updateEventStatus(eventId, 'rejected').then(() => {
+      setEvents(events.filter(event => event._id !== eventId));  // Loại bỏ sự kiện đã từ chối khỏi danh sách
+      setMessage('Sự kiện đã bị từ chối!');
+      setTimeout(() => setMessage(""), 3000); // Ẩn thông báo sau 3 giây
+    }).catch(err => console.error("Lỗi khi từ chối sự kiện", err));
+  };
 
   const getIcon = (type) => {
     const icons = {
@@ -36,34 +84,8 @@ export default function Notification() {
     return `notification-${type}`;
   };
 
-  const markAsRead = (id) => {
-    setNotifications(notifications.map(notif =>
-      notif.id === id ? { ...notif, read: true } : notif
-    ));
-    
-    // TODO: Call API to mark as read
-    fetch(`http://localhost:5000/api/notifications/${id}/read`, {
-      method: 'PUT'
-    }).catch(err => console.error(err));
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(notif => ({ ...notif, read: true })));
-    
-    // TODO: Call API
-    fetch('http://localhost:5000/api/notifications/mark-all-read', {
-      method: 'PUT'
-    }).catch(err => console.error(err));
-  };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
-
   if (loading) {
-    return (
-      <div className="loading">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <div>Đang tải...</div>;
   }
 
   return (
@@ -72,38 +94,26 @@ export default function Notification() {
         className="page-header" 
         style={{ 
           display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
+          justifyContent: 'space-between',
+alignItems: 'center',
           marginBottom: '30px'
         }}
       >
         <div>
-          <h2>Thông báo</h2>
+          <h2>Danh sách sự kiện chờ duyệt</h2>
           <p style={{ color: '#7f8c8d', marginTop: '8px' }}>
-            Bạn có {unreadCount} thông báo chưa đọc
+            Bạn có {events.length} sự kiện chờ duyệt
           </p>
         </div>
-        <button 
-          onClick={markAllAsRead}
-          style={{
-            padding: '12px 24px',
-            background: '#ecf0f1',
-            color: '#2c3e50',
-            border: 'none',
-            borderRadius: '10px',
-            fontWeight: '600',
-            cursor: 'pointer'
-          }}
-        >
-          Đánh dấu tất cả đã đọc
-        </button>
       </div>
 
+      {message && <p>{message}</p>}
+
       <div className="notifications-list">
-        {notifications.map((notif) => (
+        {events.map((event) => (
           <div 
-            key={notif.id} 
-            className={`notification-item ${notif.read ? 'read' : 'unread'}`}
+            key={event._id} 
+            className={`event-item ${event.status === 'approved' ? 'approved' : event.status === 'rejected' ? 'rejected' : 'pending'}`}
             style={{
               background: 'white',
               borderRadius: '12px',
@@ -111,12 +121,11 @@ export default function Notification() {
               display: 'flex',
               gap: '16px',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-              borderLeft: notif.read ? 'none' : '4px solid #FF8C42',
               marginBottom: '16px'
             }}
           >
             <div 
-              className={`notification-icon ${getTypeClass(notif.type)}`}
+              className={`event-icon ${getTypeClass(event.status)}`}
               style={{
                 width: '48px',
                 height: '48px',
@@ -126,12 +135,12 @@ export default function Notification() {
                 justifyContent: 'center',
                 fontSize: '24px',
                 flexShrink: 0,
-                background: notif.type === 'success' ? '#d4edda' :
-                           notif.type === 'warning' ? '#fff3cd' :
-                           notif.type === 'info' ? '#d1ecf1' : '#f8d7da'
+                background: event.status === 'approved' ? '#d4edda' :
+                           event.status === 'rejected' ? '#f8d7da' :
+                           '#fff3cd'
               }}
             >
-              {getIcon(notif.type)}
+              {getIcon(event.status)}
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ 
@@ -141,31 +150,45 @@ export default function Notification() {
                 marginBottom: '8px'
               }}>
                 <h4 style={{ fontSize: '16px', fontWeight: 600, color: '#2c3e50', margin: 0 }}>
-                  {notif.title}
+                  {event.eventName}
                 </h4>
                 <span style={{ fontSize: '12px', color: '#95a5a6' }}>
-                  {notif.time}
+                  {event.eventDate}
                 </span>
               </div>
               <p style={{ color: '#7f8c8d', fontSize: '14px', margin: '0 0 12px 0', lineHeight: 1.5 }}>
-                {notif.message}
+                {event.description}
               </p>
-              {!notif.read && (
+              <div>
                 <button 
-                  onClick={() => markAsRead(notif.id)}
+                  onClick={() => handleApprove(event._id)}
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#FF8C42',
+                    color: '#28a745',
                     fontSize: '13px',
                     fontWeight: 600,
-                    padding: 0,
+                    padding: '5px',
                     cursor: 'pointer'
                   }}
                 >
-                  Đánh dấu đã đọc
+                  Duyệt
                 </button>
-              )}
+                <button 
+                  onClick={() => handleReject(event._id)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#dc3545',
+fontSize: '13px',
+                    fontWeight: 600,
+                    padding: '5px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Từ chối
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -173,38 +196,3 @@ export default function Notification() {
     </div>
   );
 }
-
-const mockNotifications = [
-  {
-    id: 1,
-    type: 'success',
-    title: 'Đơn hàng mới',
-    message: 'Có 5 đơn đặt vé mới cho sự kiện "Đại nhạc hội Rock Việt"',
-    time: '5 phút trước',
-    read: false
-  },
-  {
-    id: 2,
-    type: 'warning',
-    title: 'Vé sắp hết',
-    message: 'Sự kiện "Hội thảo AI" chỉ còn 50 vé',
-    time: '1 giờ trước',
-    read: false
-  },
-  {
-    id: 3,
-    type: 'info',
-    title: 'Cập nhật hệ thống',
-    message: 'Hệ thống sẽ bảo trì vào 2h sáng ngày mai',
-    time: '3 giờ trước',
-    read: true
-  },
-  {
-    id: 4,
-    type: 'success',
-    title: 'Thanh toán thành công',
-    message: 'Nhận được thanh toán 2,500,000đ từ khách hàng',
-    time: '1 ngày trước',
-    read: true
-  }
-];

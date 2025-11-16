@@ -84,8 +84,7 @@ export const createNotification = async ({ userId, title, message, eventId, sche
   // normalize inputs
   title = await resolveTitle(eventId, title);
   const now = new Date();
-
-  // dedupe: immediate (last 30s) and scheduled (within +/-60s)
+// dedupe: immediate (last 30s) and scheduled (within +/-60s)
   if (!scheduledFor) {
     try {
       const recent = await Notification.findOne({ userId, title, message, createdAt: { $gte: new Date(now.getTime() - 30 * 1000) } });
@@ -151,7 +150,7 @@ export const afterPayment = async (req, res) => {
       oneHourBefore.setSeconds(0, 0);
       // Only schedule if more than 1 hour remains
       if (oneHourBefore.getTime() > Date.now()) {
-        console.log('afterPayment: scheduling reminder', { eventId, userId, startTime: startTime.toISOString(), scheduledFor: oneHourBefore.toISOString() });
+console.log('afterPayment: scheduling reminder', { eventId, userId, startTime: startTime.toISOString(), scheduledFor: oneHourBefore.toISOString() });
         const scheduled = await createNotification({ userId, eventId, title: 'Nhắc nhắc sự kiện', message: 'Sự kiện bạn đã mua sẽ bắt đầu sau 1 giờ', scheduledFor: oneHourBefore }, io, agenda);
         scheduledId = scheduled._id;
       } else {

@@ -8,7 +8,7 @@ const bookingSchema = new mongoose.Schema(
     ticketType: {
       type: String,
       required: true,
-      enum: ["student", "guest"],
+      enum: ["Student", "Guest"],
     },
 
     quantity: { type: Number, required: true },

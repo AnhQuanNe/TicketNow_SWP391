@@ -92,8 +92,7 @@ if (ipLog) {
     // =========================================================
     // (GIỮ NGUYÊN CODE CŨ TỪ ĐÂY TRỞ XUỐNG)
     // =========================================================
-
-    // 🟢 1️⃣ Kiểm tra đầu vào
+// 🟢 1️⃣ Kiểm tra đầu vào
     if (!name || !email || !passwordHash || !phone) {
       return res.status(400).json({
         message:
@@ -134,14 +133,11 @@ if (ipLog) {
           .json({ message: "Mã sinh viên này đã tồn tại!" });
     }
 
-    // 🟢 3️⃣ Lấy role mặc định từ bảng Role
-    let userRole = "user"; 
+    // ✅ 3️⃣ Lấy Role mặc định (user) và gán roleId
     const defaultRole = await Role.findOne({ name: "user" });
-    if (
-      defaultRole &&
-      ["admin", "user", "organizer"].includes(defaultRole.name)
-    ) {
-      userRole = defaultRole.name;
+    const roleId = defaultRole?._id;
+    if (!roleId) {
+      return res.status(500).json({ message: "Không tìm thấy Role mặc định" });
     }
 
     // =========================================================
@@ -158,7 +154,7 @@ if (ipLog) {
       passwordHash,
       phone,
       studentId: studentId?.trim() || null,
-      role: userRole,
+      roleId,
       authProvider: "local",
 
       // 🆕 thêm 2 field mới
@@ -186,7 +182,7 @@ if (ipLog) {
         subject: "Xác thực tài khoản TicketNow",
         html: `
           <h3>Xin chào ${name},</h3>
-          <p>Vui lòng nhấn vào link bên dưới để kích hoạt tài khoản:</p>
+<p>Vui lòng nhấn vào link bên dưới để kích hoạt tài khoản:</p>
           <a href="${verifyURL}">${verifyURL}</a>
           <p>Link hết hạn sau 24 giờ.</p>
         `,
@@ -257,6 +253,11 @@ export const login = async (req, res) => {
     }
 
     if (user && (await user.matchPassword(password))) {
+      let roleName = "user";
+      if (user.roleId) {
+        const r = await Role.findById(user.roleId).lean();
+        if (r?.name) roleName = r.name;
+      }
       return res.json({
         _id: user._id,
         name: user.name,
@@ -266,11 +267,11 @@ export const login = async (req, res) => {
         avatar: user.avatar,
         gender: user.gender,
         dob: user.dob,
-        role: user.role,
+        role: roleName,
         token: generateToken(user._id),
       });
     } else {
-      return res.status(401).json({ message: "Email hoặc mật khẩu không đúng!" });
+return res.status(401).json({ message: "Email hoặc mật khẩu không đúng!" });
     }
   } catch (err) {
     res.status(500).json({ message: "Lỗi máy chủ, vui lòng thử lại." });
@@ -313,7 +314,7 @@ export const verifyEmailToken = async (req, res) => {
         avatar: user.avatar,
         gender: user.gender,
         dob: user.dob,
-        role: user.role,
+        role: roleName,
       },
     });
   } catch (err) {
@@ -348,13 +349,15 @@ export const googleLogin = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
+      const defaultRole = await Role.findOne({ name: "user" });
+      const roleId = defaultRole?._id;
       user = await User.create({
         name,
         email,
         passwordHash: null,
         avatar: picture,
         authProvider: "google",
-        role: "user",
+        roleId,
         emailVerified: true, // Google auto-verified
       });
     }
@@ -366,8 +369,7 @@ export const googleLogin = async (req, res) => {
         }`,
       });
     }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
@@ -376,7 +378,7 @@ export const googleLogin = async (req, res) => {
       name: user.name,
       email: user.email,
       avatar: user.avatar || picture,
-      role: user.role,
+      role: roleName,
       token,
     });
   } catch (err) {
@@ -459,8 +461,7 @@ export const resetPassword = async (req, res) => {
 
     if (user.resetOTPExpire < Date.now())
       return res.status(400).json({ message: "Mã OTP đã hết hạn." });
-
-    user.passwordHash = newPassword;
+user.passwordHash = newPassword;
     user.resetOTP = null;
     user.resetOTPExpire = null;
 
@@ -469,5 +470,34 @@ export const resetPassword = async (req, res) => {
     res.json({ message: "Đặt lại mật khẩu thành công!" });
   } catch (err) {
     res.status(500).json({ message: "Lỗi hệ thống." });
+  }
+};
+// Lấy thông tin profile hiện tại (dựa trên token)
+export const getProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    // Nếu user là mongoose doc, use method; if plain object, try to resolve
+    let roleName = "user";
+    if (user.getRoleName) {
+      roleName = await user.getRoleName();
+    } else if (user.roleId) {
+      const r = await Role.findById(user.roleId).lean();
+      roleName = r?.name || "user";
+    } else if (user.role) {
+      roleName = user.role;
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      role: roleName,
+    });
+  } catch (err) {
+    console.error('❌ getProfile error:', err);
+    res.status(500).json({ message: 'Lỗi khi lấy profile' });
   }
 };

@@ -7,7 +7,6 @@ const router = express.Router();
 const ticketSchema = new mongoose.Schema({
   eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event" },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // thêm để biết ai mua
-  seatNumber: String,
   price: Number,
   quantity: Number,
   status: { type: String, default: "sold" }, // available | sold

@@ -4,6 +4,8 @@ import "../css/UserManager.css";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [roleMap, setRoleMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [showBanModal, setShowBanModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -12,7 +14,7 @@ export default function UserManagement() {
 
   // 🟢 Lấy danh sách user
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
         const token =
           localStorage.getItem("token") || localStorage.getItem("adminToken");
@@ -22,27 +24,36 @@ export default function UserManagement() {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/users", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // Fetch users & roles song song
+        const [usersRes, rolesRes] = await Promise.all([
+          fetch("http://localhost:5000/api/users", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("http://localhost:5000/api/roles", {
+            headers: { Authorization: `Bearer ${token}` }, // nếu sau này bảo vệ role API
+          }),
+        ]);
 
-        const data = await res.json();
-        console.log("📦 Kết quả API /api/users:", data);
+        const usersData = await usersRes.json();
+        const rolesData = await rolesRes.json();
 
-        if (Array.isArray(data)) {
-          setUsers(data);
-        } else {
-          console.warn("⚠️ API không trả về mảng user hợp lệ:", data);
-          setUsers([]);
-        }
+        console.log("📦 /api/users:", usersData);
+        console.log("📦 /api/roles:", rolesData);
+
+        if (Array.isArray(usersData)) setUsers(usersData); else setUsers([]);
+        if (Array.isArray(rolesData)) setRoles(rolesData); else setRoles([]);
+
+        // Tạo map roleId -> name
+        const map = {};
+        (rolesData || []).forEach(r => { map[r._id] = r.name; });
+        setRoleMap(map);
       } catch (err) {
         console.error("❌ Lỗi fetch API:", err);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchUsers();
+    fetchData();
   }, []);
 
   // 🧾 Xuất Excel
@@ -57,7 +68,7 @@ export default function UserManagement() {
         Tên: u.name,
         Email: u.email,
         "Số điện thoại": u.phone || "—",
-        "Vai trò": u.role || "user",
+        "Vai trò": roleMap[u.roleId] || u.role || "user",
         "Ngày tạo": new Date(u.createdAt).toLocaleDateString("vi-VN"),
       }))
     );
@@ -74,7 +85,7 @@ export default function UserManagement() {
     if (window.confirm(`Bạn có chắc muốn xóa ${user.name}?`)) {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/users/admin/${user._id}`,
+`http://localhost:5000/api/users/admin/${user._id}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
@@ -176,7 +187,7 @@ export default function UserManagement() {
 
   // 🔍 Lọc người dùng theo tên hoặc email
   const filteredUsers = users
-    .filter((u) => u.role !== "role_admin")
+    .filter((u) => (roleMap[u.roleId] || u.role) !== "admin" ? true : true) // giữ tất cả; nếu muốn ẩn admin đổi về !== 'admin'
     .filter((u) => {
       const keyword = searchTerm.toLowerCase().trim();
       return (
@@ -187,7 +198,7 @@ export default function UserManagement() {
 
   return (
     <div className="user-manager">
-      <div className="user-header">
+<div className="user-header">
         <h2 className="user-title">Danh sách người dùng</h2>
 
         {/* 🔍 Ô tìm kiếm ở giữa */}
@@ -237,8 +248,8 @@ export default function UserManagement() {
                   <td>{u.email}</td>
                   <td>{u.phone || "—"}</td>
                   <td>
-                    <span className={`role-badge role-${u.role || "user"}`}>
-                      {u.role || "user"}
+                    <span className={`role-badge role-${roleMap[u.roleId] || u.role || "user"}`}>
+                      {roleMap[u.roleId] || u.role || "user"}
                     </span>
                   </td>
                   <td>{new Date(u.createdAt).toLocaleDateString("vi-VN")}</td>
@@ -275,7 +286,7 @@ export default function UserManagement() {
           <div className="modal-box">
             <h3>🔒 Khóa tài khoản</h3>
             <p>
-              Bạn có chắc muốn khóa tài khoản của{" "}
+Bạn có chắc muốn khóa tài khoản của{" "}
               <strong>{selectedUser?.name}</strong>?
             </p>
             <textarea

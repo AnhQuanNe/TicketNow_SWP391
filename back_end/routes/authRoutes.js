@@ -6,11 +6,13 @@ import {
   forgotPassword,
   verifyOTP,
   resetPassword,
-  verifyEmailToken
+  verifyEmailToken,
+  getProfile
 } from "../controllers/authController.js";
 
 // import { verifyRecaptcha } from "../middleware/reCaptcha.js";
 import { registerLimiter, loginLimiter } from "../middleware/rateLimit.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -30,5 +32,8 @@ router.post("/google-login", googleLogin);
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-otp", verifyOTP);
 router.post("/reset-password", resetPassword);
+
+// GET /api/auth/me -> profile (protected)
+router.get("/me", protect, getProfile);
 
 export default router;

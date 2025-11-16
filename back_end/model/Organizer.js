@@ -9,9 +9,10 @@ const organizerSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    organizationName: { type: String, required: true },
+    name: { type: String, required: true },
     description: { type: String },
-    contactPhone: { type: String },
+    contactEmail: { type: String },
+    phone:{type: String},
     address: { type: String },
     socialLinks: {
       facebook: String,

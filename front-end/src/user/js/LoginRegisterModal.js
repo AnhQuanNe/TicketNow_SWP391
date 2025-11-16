@@ -56,13 +56,18 @@ export default function LoginRegisterModal({
         localStorage.setItem("user", JSON.stringify(data));
         onLoginSuccess?.(data);
 
-        if (data.role === "role_admin") {
+        // Chuẩn hoá role: hỗ trợ cả dạng object {name} hoặc string
+        const roleName = data.role?.name || data.role || "user";
+
+        // Nếu là admin thì lưu thêm adminToken để AdminRoute nhận ra
+        if (roleName === "admin") {
           localStorage.setItem("adminToken", data.token);
         }
 
-        if (data.role === "role_admin") {
+        // Phân quyền điều hướng
+        if (roleName === "admin") {
           window.location.href = "/admin";
-        } else if (data.role === "organizer") {
+        } else if (roleName === "organizer") {
           window.location.href = "/organizer";
         } else {
           window.location.href = "/";
@@ -100,8 +105,8 @@ export default function LoginRegisterModal({
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
-
-      if (data.role === "role_admin") {
+const googleRole = data.role?.name || data.role || "user";
+      if (googleRole === "admin") {
         localStorage.setItem("adminToken", data.token);
       }
 
@@ -205,7 +210,7 @@ export default function LoginRegisterModal({
                 }}
                 onKeyDown={(e) => {
                   if (
-                    e.key === "Backspace" &&
+e.key === "Backspace" &&
                     !e.target.value &&
                     e.target.previousSibling
                   ) {
@@ -305,7 +310,7 @@ export default function LoginRegisterModal({
                     name="name"
                     placeholder="Họ tên"
                     onChange={handleChange}
-                    required
+required
                   />
                   <input
                     name="phone"
@@ -395,7 +400,7 @@ export default function LoginRegisterModal({
                 <p>
                   Đã có tài khoản?{" "}
                   <span onClick={() => switchType("login")}>Đăng nhập</span>
-                </p>
+</p>
               )}
             </div>
           </>

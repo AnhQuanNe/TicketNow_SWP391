@@ -15,6 +15,7 @@ const eventSchema = new mongoose.Schema({
 
   date: { type: Date },
   ticketsAvailable: { type: Number, default: 0 },
+  ticketTotal:{type: Number, default: 0},
   imageUrl: { type: String },
   createdAt: { type: Date, default: Date.now },
 });

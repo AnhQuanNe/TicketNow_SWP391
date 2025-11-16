@@ -44,7 +44,7 @@ router.post("/create-payment", async (req, res) => {
 ============================================================ */
 router.post("/payment-success", async (req, res) => {
   try {
-    const { userId, eventId, quantity, totalPrice, paymentId } = req.body;
+    const { userId, eventId, quantity, totalPrice, paymentId, ticketType } = req.body;
 
     /* ============================================================
        1) CHECK VÉ + TRỪ VÉ (Atomic – chống overbooking)
@@ -86,9 +86,10 @@ router.post("/payment-success", async (req, res) => {
       eventId,
       quantity,
       totalPrice,
-      paymentId,
+      ticketType: ticketType || null,
+paymentId,
       orderCode: paymentId,
-status: "confirmed",
+      status: "confirmed",
       createdAt: new Date(),
     });
 
@@ -179,8 +180,7 @@ router.post("/verify", async (req, res) => {
     const { orderCode, paymentId } = req.body || {};
     if (!orderCode && !paymentId)
       return res.status(400).json({ error: "Missing orderCode or paymentId" });
-
-    let paymentInfo = null;
+let paymentInfo = null;
     try {
 if (orderCode && typeof payos.paymentRequests.get === "function") {
         paymentInfo = await payos.paymentRequests.get(orderCode);

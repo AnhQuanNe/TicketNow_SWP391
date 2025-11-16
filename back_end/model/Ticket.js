@@ -6,7 +6,12 @@ if (mongoose.models.Tickets) {
 }
 
 const ticketSchema = new mongoose.Schema(
-  {
+  { 
+    eventId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "eventId",
+      required: true,
+    },
     bookingId: {
       type: String,
       ref: "Booking",
@@ -16,10 +21,6 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-    },
-    seatNumber: {
-      type: String,
-      required: true,
     },
     ticketType: {
       type: String,

@@ -21,12 +21,7 @@ const userSchema = new mongoose.Schema(
     dob: { type: String, default: "" },
     gender: { type: String, default: "" },
     // 🟢 Vai trò của người dùng (liên kết tới bảng Roles)
-    role: {
-      type: String,
-      enum: ["admin", "user", "organizer"],
-      required: true,
-      default: "user",
-    },
+    roleId: { type: mongoose.Schema.Types.ObjectId, ref: "Role", required: true },
     emailVerified: { type: Boolean, default: false },
     emailVerifyToken: { type: String, default: null },
 
@@ -78,6 +73,12 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.matchPassword = async function (enteredPassword) {
   if (!this.passwordHash) return false; // user Google thì không có mật khẩu
   return await bcrypt.compare(enteredPassword, this.passwordHash);
+};
+// Helper: lấy tên role (populate nhẹ nếu cần)
+userSchema.methods.getRoleName = async function () {
+  if (!this.roleId) return "user";
+  const roleDoc = await mongoose.model("Role").findById(this.roleId).lean();
+  return roleDoc?.name || "user";
 };
 
 // 🧩 Chỉ định đúng collection "Users"
