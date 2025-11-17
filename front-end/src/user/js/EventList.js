@@ -28,7 +28,8 @@ function EventList({ events, favorites, toggleFavorite }) {
 
           {/* View Detail */}
           <Link to={`/event/${ev._id}`}>
-            <button className="btn btn-info my-2">View Detail</button>
+            <button className="btn btn-info my-2" style={{
+      background: "linear-gradient(90deg, #FF7F50, #FFA500)"}}>View Detail</button>
           </Link>
 
           {/* ❤️ Favorite */}

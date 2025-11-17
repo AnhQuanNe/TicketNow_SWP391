@@ -95,7 +95,7 @@ const total = tickets.reduce((sum, t) => {
   return (
      <div
       style={{
-        backgroundColor: "#ffe6f2",
+        backgroundColor: "#FFF4E6",
         minHeight: "100vh",
         padding: "60px 80px",
         color: "#333",
@@ -132,7 +132,7 @@ const total = tickets.reduce((sum, t) => {
             style={{ width: "100%", height: "340px", objectFit: "cover" }}
           />
           <div style={{ padding: "25px" }}>
-            <h2 style={{ color: "#ff4da6", marginBottom: "10px" }}>
+            <h2 style={{ color: "#FFA500", marginBottom: "10px"  }}>
               {event.title}
             </h2>
             <p style={{ opacity: 0.9, marginBottom: "10px" }}>
@@ -161,7 +161,7 @@ const total = tickets.reduce((sum, t) => {
             border: "1px solid #ffd6eb",
           }}
         >
-          <h3 style={{ color: "#ff4da6", marginBottom: "25px" }}>
+          <h3 style={{ color: "#FFA500", marginBottom: "25px" }}>
             🎫 Chọn loại vé
           </h3>
 
@@ -179,13 +179,13 @@ const total = tickets.reduce((sum, t) => {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    borderBottom: "1px solid #f0cce0",
+                    borderBottom: "1px solid #ffe0cc",
                     padding: "12px 0",
                     opacity: isStudentTicket ? 0.5 : 1,
                   }}
                 >
 <div>
-                    <b style={{ fontSize: "17px", color: "#ff4da6" }}>
+                    <b style={{ fontSize: "17px", color: "#FFA500" }}>
                       {typeLabel}
                     </b>
                     <p style={{ color: "#777" }}>
@@ -195,7 +195,7 @@ const total = tickets.reduce((sum, t) => {
                       VND
                     </p>
                     {isStudentTicket && (
-                      <p style={{ color: "#ff4da6", fontSize: "13px" }}>
+                      <p style={{ color: "#FFA500", fontSize: "13px" }}>
                         * Chỉ dành cho sinh viên
                       </p>
                     )}
@@ -232,7 +232,7 @@ const total = tickets.reduce((sum, t) => {
             })
           )}
 
-          <h3 style={{ marginTop: "25px", color: "#ff4da6" }}>
+          <h3 style={{ marginTop: "25px", color: "#FFA500" }}>
             💰 Tổng: {total.toLocaleString()} VND
           </h3>
 
@@ -241,11 +241,11 @@ const total = tickets.reduce((sum, t) => {
             style={payBtnStyle}
             onMouseOver={(e) =>
               (e.target.style.background =
-                "linear-gradient(90deg, #ff99cc 0%, #ffb3d9 100%)")
+                "linear-gradient(90deg, #FF9F00 0%, #FFB84D 100%)")
             }
             onMouseOut={(e) =>
               (e.target.style.background =
-                "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)")
+                "linear-gradient(90deg, #FF7F50 0%, #FFA500 100%)")
             }
           >
             Thanh toán ngay
@@ -257,10 +257,10 @@ const total = tickets.reduce((sum, t) => {
 }
 
 const btnStyle = {
-  background: "#ffd6eb",
-  color: "#ff4da6",
+  background: "#ffd4b3",
+  color: "#ff8c42",
   padding: "6px 12px",
-  border: "1px solid #ffb3d9",
+  border: "1px solid #ffb380",
   borderRadius: "6px",
   cursor: "pointer",
   transition: "0.2s",
@@ -271,7 +271,7 @@ const payBtnStyle = {
   marginTop: "25px",
   width: "100%",
   padding: "14px 20px",
-  background: "linear-gradient(90deg, #ff80bf 0%, #ff4da6 100%)",
+  background: "linear-gradient(90deg, #ffa366 0%, #ff8c42 100%)",
   color: "#fff",
   border: "none",
   borderRadius: "10px",
@@ -279,6 +279,6 @@ const payBtnStyle = {
   fontWeight: "600",
   cursor: "pointer",
   transition: "0.3s",
-  boxShadow: "0 4px 12px rgba(255, 77, 166, 0.3)",
+  boxShadow: "0 4px 12px rgba(255, 140, 66, 0.3)",
 };
 export default SelectTicket;

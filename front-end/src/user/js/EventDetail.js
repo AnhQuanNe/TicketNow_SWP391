@@ -49,7 +49,7 @@ function EventDetail() {
 
   const styles = {
     page: {
-      backgroundColor: "#ffe6f2",
+      backgroundColor: "#FFF4E6",
       color: "#333",
       fontFamily: "Poppins, sans-serif",
       minHeight: "100vh",
@@ -60,7 +60,7 @@ function EventDetail() {
       width: "100%",
       height: "420px",
       overflow: "hidden",
-      borderBottom: "4px solid #ff4da6",
+      borderBottom: "4px solid #FFA500",
     },
     bannerImg: {
       width: "100%",
@@ -103,7 +103,7 @@ function EventDetail() {
       minWidth: "300px",
     },
     descTitle: {
-      color: "#ff4da6",
+      color: "#FF8C00",
       marginBottom: "15px",
       fontWeight: "600",
     },
@@ -112,8 +112,8 @@ function EventDetail() {
       background: "#fff",
       borderRadius: "16px",
       padding: "25px 30px",
-      boxShadow: "0 0 15px rgba(255, 77, 166, 0.25)",
-      border: "1px solid #ffd6eb",
+      boxShadow: "0 0 15px rgba(255, 165, 0, 0.25)",
+      border: "1px solid #FFD700",
       minWidth: "280px",
     },
     infoText: {
@@ -125,7 +125,7 @@ function EventDetail() {
       width: "100%",
       marginTop: "20px",
       padding: "14px 0",
-      background: "linear-gradient(90deg, #ff66b2, #ff4da6)",
+      background: "linear-gradient(90deg, #FF7F50, #FFA500)",
       color: "#fff",
       fontWeight: 600,
       fontSize: "1.1rem",
@@ -133,7 +133,7 @@ function EventDetail() {
       borderRadius: "8px",
       cursor: "pointer",
       transition: "0.3s",
-      boxShadow: "0 4px 12px rgba(255, 77, 166, 0.3)",
+      boxShadow: "0 4px 12px rgba(255, 165, 0, 0.3)",
     },
   };
 
@@ -180,20 +180,56 @@ function EventDetail() {
             <b>🗓️ Thời gian:</b> {new Date(event.date).toLocaleString()}
           </p>
 
-          <button
-            style={styles.btn}
-            onMouseEnter={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #ff80bf, #ff99cc)")
-            }
-            onMouseLeave={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #ff66b2, #ff4da6)")
-            }
-            onClick={handleBuyTicket}
-          >
-            💖 Mua vé ngay
-          </button>
+          {(() => {
+            const isExpired = new Date(event.date) < new Date();
+            const isSoldOut = (event.ticketsAvailable || 0) <= 0;
+            const canBuy = !isExpired && !isSoldOut;
+            const dynamicLabel = isSoldOut
+              ? "Hết vé"
+              : isExpired
+                ? "Đã kết thúc"
+                : "💖 Mua vé ngay";
+            return (
+              <button
+                disabled={!canBuy}
+                style={{
+                  ...styles.btn,
+                  ...(canBuy
+                    ? {}
+                    : {
+                      background: "#ccc",
+                      boxShadow: "none",
+                      cursor: "not-allowed",
+                    }),
+                }}
+                onMouseEnter={
+                  canBuy
+                    ? (e) =>
+                    (e.target.style.background =
+                      "linear-gradient(90deg, #FF9F00, #FFB84D)")
+                    : undefined
+                }
+                onMouseLeave={
+                  canBuy
+                    ? (e) =>
+                    (e.target.style.background =
+                      "linear-gradient(90deg, #FF7F50, #FFA500)")
+                    : undefined
+                }
+                onClick={canBuy ? handleBuyTicket : undefined}
+                title={
+                  isSoldOut
+                    ? "Sự kiện đã hết vé"
+                    : isExpired
+                      ? "Sự kiện đã kết thúc"
+                      : "Mua vé cho sự kiện này"
+                }
+              >
+                {dynamicLabel}
+              </button>
+            );
+          })()}
+
         </div>
       </div>
 

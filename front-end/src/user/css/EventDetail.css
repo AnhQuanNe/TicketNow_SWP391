@@ -1,9 +1,9 @@
 .ed-page {
-    background-color: #ffe6f2;
+    background-color: #FFF4E6; /* Light orange background */
     color: #333;
     font-family: Poppins, sans-serif;
     min-height: 100vh;
-    padding-bottom: 60px
+    padding-bottom: 60px;
 }
 
 .ed-banner {
@@ -11,14 +11,14 @@
     width: 100%;
     height: 420px;
     overflow: hidden;
-    border-bottom: 4px solid #ff4da6
+    border-bottom: 4px solid #FFA500; /* Orange border */
 }
 
 .ed-banner-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(80%)
+    filter: brightness(80%);
 }
 
 .ed-banner-overlay {
@@ -26,19 +26,19 @@
     bottom: 30px;
     left: 60px;
     color: #fff;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, .4)
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .ed-title {
     font-size: 2.6rem;
     margin-bottom: 10px;
     color: #fff;
-    font-weight: 700
+    font-weight: 700;
 }
 
 .ed-subtitle {
     font-size: 1.1rem;
-    opacity: .95
+    opacity: 0.95;
 }
 
 .ed-content {
@@ -48,7 +48,7 @@
     gap: 40px;
     margin: 60px auto;
     width: 80%;
-    flex-wrap: wrap
+    flex-wrap: wrap;
 }
 
 .ed-description {
@@ -56,14 +56,14 @@
     background: #fff;
     padding: 25px 30px;
     border-radius: 16px;
-    box-shadow: 0 0 12px rgba(255, 77, 166, .2);
-    min-width: 300px
+    box-shadow: 0 0 12px rgba(255, 165, 0, 0.2); /* Orange shadow */
+    min-width: 300px;
 }
 
 .ed-desc-title {
-    color: #ff4da6;
+    color: #FFA500; /* Orange title */
     margin-bottom: 15px;
-    font-weight: 600
+    font-weight: 600;
 }
 
 .ed-info {
@@ -71,34 +71,34 @@
     background: #fff;
     border-radius: 16px;
     padding: 25px 30px;
-    box-shadow: 0 0 15px rgba(255, 77, 166, .25);
-    border: 1px solid #ffd6eb;
-    min-width: 280px
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.25); /* Orange shadow */
+    border: 1px solid #FFD700; /* Gold border */
+    min-width: 280px;
 }
 
 .ed-info-text {
     margin-bottom: 12px;
     font-size: 1.05rem;
-    color: #444
+    color: #444;
 }
 
 .ed-btn {
     width: 100%;
     margin-top: 20px;
     padding: 14px 0;
-    background: linear-gradient(90deg, #ff66b2, #ff4da6);
+    background: linear-gradient(90deg, #FF7F50, #FFA500); /* Orange gradient */
     color: #fff;
     font-weight: 600;
     font-size: 1.1rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: .3s;
-    box-shadow: 0 4px 12px rgba(255, 77, 166, .3)
+    transition: 0.3s;
+    box-shadow: 0 4px 12px rgba(255, 165, 0, 0.3); /* Orange shadow */
 }
 
 .ed-btn:hover {
-    background: linear-gradient(90deg, #ff80bf, #ff99cc)
+    background: linear-gradient(90deg, #FF9F00, #FFB84D); /* Lighter orange gradient */
 }
 
 .ed-review-panel {
@@ -107,7 +107,7 @@
     background: #fff;
     padding: 25px 30px;
     border-radius: 20px;
-    box-shadow: 0 0 18px rgba(255, 77, 166, .22);
-    border: 1px solid #ffd6eb;
-    min-height: 420px
+    box-shadow: 0 0 18px rgba(255, 165, 0, 0.22); /* Orange shadow */
+    border: 1px solid #FFD700; /* Gold border */
+    min-height: 420px;
 }
