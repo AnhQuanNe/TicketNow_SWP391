@@ -149,20 +149,20 @@ function EventDetail() {
         <div style={styles.bannerOverlay}>
           <h1 style={styles.title}>{event.title}</h1>
           <p style={styles.subtitle}>
-            📅 {new Date(event.date).toLocaleDateString()} - 🕓{" "}
+             {new Date(event.date).toLocaleDateString()} - {" "}
             {new Date(event.date).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             })}
           </p>
-          <p style={styles.subtitle}>📍 {event.locationId}</p>
+          <p style={styles.subtitle}> {event.locationId}</p>
         </div>
       </div>
 
       {/* Nội dung chi tiết */}
       <div style={styles.content}>
         <div style={styles.description}>
-          <h2 style={styles.descTitle}>🎀 Giới thiệu sự kiện</h2>
+          <h2 style={styles.descTitle}> Giới thiệu sự kiện</h2>
           <p style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}>
             {event.description.replace(/\*\*/g, "")}
           </p>
@@ -171,13 +171,13 @@ function EventDetail() {
 
         <div style={styles.infoBox}>
           <p style={styles.infoText}>
-            <b>🎫 Vé còn lại:</b> {event.ticketsAvailable}
+            <b> Vé còn lại:</b> {event.ticketsAvailable}
           </p>
           <p style={styles.infoText}>
-            <b>📍 Địa điểm:</b> {event.locationId}
+            <b> Địa điểm:</b> {event.locationId}
           </p>
           <p style={styles.infoText}>
-            <b>🗓️ Thời gian:</b> {new Date(event.date).toLocaleString()}
+            <b> Thời gian:</b> {new Date(event.date).toLocaleString()}
           </p>
 
           {(() => {
@@ -188,7 +188,8 @@ function EventDetail() {
               ? "Hết vé"
               : isExpired
                 ? "Đã kết thúc"
-                : "💖 Mua vé ngay";
+                : " Mua vé ngay";
+
             return (
               <button
                 disabled={!canBuy}
@@ -197,23 +198,29 @@ function EventDetail() {
                   ...(canBuy
                     ? {}
                     : {
+
                       background: "#ccc",
                       boxShadow: "none",
                       cursor: "not-allowed",
                     }),
+
                 }}
                 onMouseEnter={
                   canBuy
                     ? (e) =>
+
                     (e.target.style.background =
                       "linear-gradient(90deg, #FF9F00, #FFB84D)")
+
                     : undefined
                 }
                 onMouseLeave={
                   canBuy
                     ? (e) =>
+
                     (e.target.style.background =
                       "linear-gradient(90deg, #FF7F50, #FFA500)")
+
                     : undefined
                 }
                 onClick={canBuy ? handleBuyTicket : undefined}
@@ -221,14 +228,18 @@ function EventDetail() {
                   isSoldOut
                     ? "Sự kiện đã hết vé"
                     : isExpired
+
                       ? "Sự kiện đã kết thúc"
                       : "Mua vé cho sự kiện này"
+
                 }
               >
                 {dynamicLabel}
               </button>
             );
           })()}
+
+
 
         </div>
       </div>
