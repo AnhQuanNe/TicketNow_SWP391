@@ -4,11 +4,7 @@ import {
   updateUser,
   updateAvatar,
   upload,
-  toggleFavoriteEvent,
-  getAllUsers,        // 🟢 thêm
-  adminUpdateUser,    // 🟢 thêm
-  deleteUser,
-  banUser          // 🟢 thêm
+  toggleFavoriteEvent
 } from "../controllers/userController.js";
 import { protect, verifyAdmin } from "../middleware/authMiddleware.js"; // 🟢 thêm verifyAdmin
 
@@ -30,21 +26,5 @@ router.put("/:id/avatar", protect, upload.single("avatar"), updateAvatar);
 router.post("/:id/favorites", protect, toggleFavoriteEvent);
 
 
-// ======================= ADMIN =======================
-
-// 🧩 Lấy danh sách tất cả người dùng
-router.get("/", protect, verifyAdmin, getAllUsers);
-
-// 🧩 Cập nhật vai trò hoặc trạng thái người dùng
-router.put("/admin/:id", protect, verifyAdmin, adminUpdateUser);
-
-// 🧩 Xóa người dùng
-router.delete("/admin/:id", protect, verifyAdmin, deleteUser);
-
-// 🧩 Ban (khóa / mở khóa) người dùng
-router.put("/admin/ban/:id", protect, verifyAdmin, banUser);
-
-
-// =========================================================
 
 export default router;

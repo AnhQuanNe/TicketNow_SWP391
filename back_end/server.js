@@ -33,6 +33,8 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 
 import userRoutes from "./routes/userRoutes.js"; 
 
+import adminRoutes from "./routes/adminRoutes.js";
+
 
 // 🟢 Cấu hình dotenv để đọc .env
 dotenv.config();
@@ -62,6 +64,8 @@ if (!fs.existsSync(uploadDir)) {
 
 // 🟢 CHO PHÉP TRUY CẬP ẢNH UPLOAD QUA ĐƯỜNG LINK /uploads
 app.use("/uploads", express.static(uploadDir));
+
+app.use("/api/admin", adminRoutes);
 
 // 🟢 Kết nối MongoDB
 mongoose
@@ -138,6 +142,7 @@ app.get("/api/categories", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 app.use('/api/events', eventRoutes);
 app.use('/api/reviews', reviewRoutes);

@@ -1,140 +1,138 @@
+// front-end/src/admin/js/EventManager.js
 import React, { useEffect, useState } from "react";
 import "../css/EventManager.css";
 import * as XLSX from "xlsx";
 
+// API
+import {
+  adminFetchEvents,
+  adminUpdateEvent,
+  adminDeleteEvent,
+} from "../api/eventAdminApi";
+
 export default function EventManager() {
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Modal
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const categoryMap = {
-    cat_music: "Âm nhạc",
-    cat_workshop: "Workshop / Kỹ năng",
-    cat_market: "Hội chợ",
-    cat_sport: "Thể thao",
-    cat_sports: "Thể thao",
+
+  // ============================
+  // LOAD EVENTS + CATEGORIES
+  // ============================
+
+  const loadEvents = async () => {
+    setLoading(true);
+    const data = await adminFetchEvents();
+    setEvents(data.events || []);
+    setLoading(false);
   };
 
-  // 🟢 Lấy danh sách sự kiện từ backend
-  const fetchEvents = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("http://localhost:5000/api/events/search");
-      const data = await res.json();
-      setEvents(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("❌ Lỗi tải sự kiện:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 🟢 Lấy danh mục sự kiện
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/categories");
-      const data = await res.json();
-      if (Array.isArray(data)) setCategories(data);
-    } catch (err) {
-      console.error("❌ Lỗi tải danh mục:", err);
-    }
+  const loadCategories = async () => {
+    const res = await fetch("http://localhost:5000/api/categories");
+    const data = await res.json();
+    if (Array.isArray(data)) setCategories(data);
   };
 
   useEffect(() => {
-    fetchEvents();
-    fetchCategories();
+    loadEvents();
+    loadCategories();
   }, []);
 
-  // 🗑️ Xóa sự kiện
+  // ============================
+  // DELETE EVENT
+  // ============================
+
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa sự kiện này không?")) return;
-    try {
-      const res = await fetch(`http://localhost:5000/api/events/${id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        alert("✅ Đã xóa sự kiện thành công!");
-        fetchEvents();
-      } else {
-        alert("❌ Không thể xóa sự kiện!");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("❌ Lỗi khi xóa sự kiện!");
+    if (!window.confirm("Bạn chắc chắn muốn xóa sự kiện này?")) return;
+
+    const res = await adminDeleteEvent(id);
+
+    if (res.success) {
+      alert("Xóa thành công!");
+      loadEvents();
+    } else {
+      alert("Xóa thất bại!");
     }
   };
 
-  // ✏️ Mở modal chỉnh sửa
+  // ============================
+  // EDIT EVENT
+  // ============================
+
   const handleEdit = (ev) => {
-    setSelectedEvent(ev);
+    setSelectedEvent({
+      ...ev,
+      dateOnly: ev.date?.substring(0, 10),
+      timeOnly: ev.date?.substring(11, 16),
+    });
+
     setShowModal(true);
   };
 
-  // 💾 Lưu thay đổi
   const handleSave = async () => {
-    if (!selectedEvent) return;
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/events/${selectedEvent._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(selectedEvent),
-        }
-      );
-      if (res.ok) {
-        alert("✅ Cập nhật sự kiện thành công!");
-        setShowModal(false);
-        fetchEvents();
-      } else {
-        alert("❌ Không thể cập nhật sự kiện!");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("❌ Lỗi khi cập nhật!");
+    const mergedDate = `${selectedEvent.dateOnly}T${selectedEvent.timeOnly}:00`;
+
+    const res = await adminUpdateEvent(selectedEvent._id, {
+      ...selectedEvent,
+      date: mergedDate,
+    });
+
+    if (res.success) {
+      alert("Cập nhật thành công!");
+      setShowModal(false);
+      loadEvents();
+    } else {
+      alert("Cập nhật thất bại!");
     }
   };
 
-  // 🔍 Lọc sự kiện theo tên hoặc danh mục
+  // ============================
+  // FILTER SEARCH
+  // ============================
+
   const filteredEvents = events.filter(
     (ev) =>
       ev.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ev.categoryId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 📥 Xuất file Excel
-  const exportToExcel = () => {
-    if (!events.length) {
-      alert("⚠️ Không có dữ liệu để xuất!");
-      return;
-    }
+  // ============================
+  // EXPORT TO EXCEL
+  // ============================
 
-    const worksheet = XLSX.utils.json_to_sheet(
+  const exportToExcel = () => {
+    if (!events.length) return alert("Không có dữ liệu!");
+
+    const ws = XLSX.utils.json_to_sheet(
       events.map((e) => ({
         ID: e._id,
         "Tên sự kiện": e.title,
         "Danh mục":
-          categories.find((c) => c._id === e.categoryId)?.name ||
-          e.categoryId ||
-          "—",
-        "Địa điểm": e.locationId?.name || e.locationId || "—",
+          categories.find((c) => c._id === e.categoryId)?.name || e.categoryId,
+        "Địa điểm": e.locationId || "—",
         "Ngày diễn ra": new Date(e.date).toLocaleDateString("vi-VN"),
-        "Vé còn lại": e.ticketsAvailable ?? "—",
-        "Trạng thái": e.isActive ? "Hiển thị" : "Ẩn",
+        "Vé còn lại": e.ticketsAvailable,
         "Ngày tạo": new Date(e.createdAt).toLocaleDateString("vi-VN"),
       }))
     );
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sự kiện");
-    XLSX.writeFile(workbook, "DanhSachSuKien.xlsx");
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sự kiện");
+    XLSX.writeFile(wb, "DanhSachSuKien.xlsx");
   };
+
+  // ============================
+  // RENDER
+  // ============================
 
   return (
     <div className="event-manager">
-      {/* Header */}
+      {/* HEADER */}
       <div className="event-header">
         <h2>🎫 Quản lý Sự kiện</h2>
 
@@ -151,28 +149,33 @@ export default function EventManager() {
         </button>
       </div>
 
-      {/* Table */}
+      {/* TABLE */}
       {loading ? (
-        <p>⏳ Đang tải dữ liệu...</p>
+        <p>⏳ Đang tải...</p>
       ) : filteredEvents.length === 0 ? (
-        <p>Không có sự kiện nào</p>
+        <p>Không tìm thấy sự kiện nào.</p>
       ) : (
         <table className="event-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>STT</th>
               <th>Ảnh</th>
               <th>Tên sự kiện</th>
               <th>Danh mục</th>
               <th>Ngày</th>
+              <th>Thời gian</th>
+              <th>Địa điểm</th>
               <th>Vé còn lại</th>
-              <th>Thao tác</th>
+              <th>Chỉnh sửa</th>
+              <th>Xóa</th>
             </tr>
           </thead>
+
           <tbody>
             {filteredEvents.map((ev, idx) => (
               <tr key={ev._id}>
                 <td>{idx + 1}</td>
+
                 <td>
                   <img
                     src={ev.imageUrl || "https://via.placeholder.com/80x50"}
@@ -180,16 +183,28 @@ export default function EventManager() {
                     className="event-img"
                   />
                 </td>
+
                 <td>{ev.title}</td>
+
                 <td>
-                  <td>{categoryMap[ev.categoryId] || "Không rõ"}</td>
+                  {categories.find((c) => c._id === ev.categoryId)?.name ||
+                    "Không rõ"}
                 </td>
+
                 <td>{new Date(ev.date).toLocaleDateString()}</td>
+
+                <td>{ev.date ? ev.date.substring(11, 16) : "—"}</td>
+                <td>{ev.locationId || "—"}</td>
+
                 <td>{ev.ticketsAvailable ?? "—"}</td>
+
                 <td>
                   <button className="edit-btn" onClick={() => handleEdit(ev)}>
                     ✏️
                   </button>
+                </td>
+
+                <td>
                   <button
                     className="delete-btn"
                     onClick={() => handleDelete(ev._id)}
@@ -203,12 +218,15 @@ export default function EventManager() {
         </table>
       )}
 
-      {/* Modal chỉnh sửa */}
+      {/* ============================
+          MODAL EDIT
+      ============================ */}
       {showModal && selectedEvent && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content event-edit-modal">
             <h3>Chỉnh sửa sự kiện</h3>
 
+            {/* Title */}
             <label>Tiêu đề</label>
             <input
               type="text"
@@ -218,6 +236,7 @@ export default function EventManager() {
               }
             />
 
+            {/* Description */}
             <label>Mô tả</label>
             <textarea
               value={selectedEvent.description}
@@ -229,15 +248,27 @@ export default function EventManager() {
               }
             />
 
-            <label>Ngày tổ chức</label>
+            {/* Date */}
+            <label>Ngày diễn ra</label>
             <input
               type="date"
-              value={selectedEvent.date?.substring(0, 10)}
+              value={selectedEvent.dateOnly}
               onChange={(e) =>
-                setSelectedEvent({ ...selectedEvent, date: e.target.value })
+                setSelectedEvent({ ...selectedEvent, dateOnly: e.target.value })
               }
             />
 
+            {/* Start time */}
+            <label>Giờ bắt đầu</label>
+            <input
+              type="time"
+              value={selectedEvent.timeOnly}
+              onChange={(e) =>
+                setSelectedEvent({ ...selectedEvent, timeOnly: e.target.value })
+              }
+            />
+
+            {/* Category */}
             <label>Danh mục</label>
             <select
               value={selectedEvent.categoryId}
@@ -249,20 +280,44 @@ export default function EventManager() {
               }
             >
               <option value="">-- Chọn danh mục --</option>
-              {categories.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
+              {categories.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.name}
                 </option>
               ))}
             </select>
 
+            {/* Location */}
+            <label>Địa điểm</label>
+            <input
+              type="text"
+              value={selectedEvent.locationId || ""}
+              onChange={(e) =>
+                setSelectedEvent({
+                  ...selectedEvent,
+                  locationId: e.target.value,
+                })
+              }
+            />
+
+            {/* Banner URL */}
+            <label>Link ảnh banner</label>
+            <input
+              type="text"
+              value={selectedEvent.imageUrl || ""}
+              onChange={(e) =>
+                setSelectedEvent({ ...selectedEvent, imageUrl: e.target.value })
+              }
+            />
+
+            {/* ACTIONS */}
             <div className="modal-actions">
-              <button onClick={handleSave} className="save-btn">
+              <button className="save-btn" onClick={handleSave}>
                 💾 Lưu
               </button>
               <button
-                onClick={() => setShowModal(false)}
                 className="cancel-btn"
+                onClick={() => setShowModal(false)}
               >
                 ❌ Hủy
               </button>
