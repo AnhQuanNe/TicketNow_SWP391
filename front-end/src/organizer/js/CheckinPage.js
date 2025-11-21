@@ -1,73 +1,99 @@
-import React, { useState, useEffect } from "react";
-import { FaCamera, FaSearch } from "react-icons/fa";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import React, { useEffect, useState } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 import "../css/CheckinPage.css";
 
 function CheckinPage() {
   const [result, setResult] = useState(null);
-  const [manualToken, setManualToken] = useState("");
-  const [manualEventId, setManualEventId] = useState("");
   const [history, setHistory] = useState([]);
+
+  const API_URL = "http://10.12.80.56:5000/api/bookings/checkin";
 
   const handleCheckin = async (rawText) => {
     try {
-      const raw = rawText?.decodedText || rawText;
-
-      let token = "";
-      let eventId = "";
-
-      // Nếu raw là URL đúng
-      try {
-        const url = new URL(raw);
-        token = url.searchParams.get("token");
-        eventId = url.searchParams.get("eventId");
-      } catch (_) {}
+      const url = new URL(rawText);
+      const token = url.searchParams.get("token");
+      const eventId = url.searchParams.get("eventId");
 
       if (!token || !eventId) {
-        setResult({
-          status: "error",
-          message: "QR không hợp lệ hoặc thiếu token/eventId!",
-        });
+        setResult({ status: "error", message: "QR không hợp lệ!" });
         return;
       }
 
-      // Gửi API
-      const res = await fetch("http://localhost:5000/api/bookings/checkin", {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, eventId }),
       });
 
       const data = await res.json();
-      const status = res.ok ? "success" : "error";
+      const ok = res.ok;
 
-      setResult({ status, message: data.message });
+      setResult({
+        status: ok ? "success" : "error",
+        message: data.message,
+      });
+
       setHistory((prev) => [
-        { token, status, message: data.message, time: new Date() },
+        {
+          token,
+          status: ok ? "success" : "error",
+          msg: data.message,
+          time: new Date(),
+        },
         ...prev,
       ]);
     } catch (err) {
-      setResult({ status: "error", message: "Lỗi kết nối server!" });
+      setResult({ status: "error", message: "Lỗi check-in!" });
     }
   };
 
-  // QR Scanner auto run
   useEffect(() => {
-    const el = document.getElementById("qr-reader");
-    if (el) el.innerHTML = ""; // 💥 FIX CAMERA BỊ NHÂN ĐÔI
+    let html5QrCode = null;
+    let isMounted = true;
+    let scannerStarted = false;
 
-    const scanner = new Html5QrcodeScanner(
-      "qr-reader",
-      { fps: 10, qrbox: 300 },
-      false
-    );
+    const startScanner = async () => {
+      try {
+        const reader = document.getElementById("qr-reader");
+        if (reader) reader.innerHTML = ""; // CLEAR UI cũ
 
-    scanner.render(
-      (decoded) => handleCheckin(decoded),
-      (err) => console.log("SCAN ERROR:", err)
-    );
+        html5QrCode = new Html5Qrcode("qr-reader");
 
-    return () => scanner.clear();
+        const cameras = await Html5Qrcode.getCameras();
+        if (!isMounted || cameras.length === 0) return;
+
+        const cameraId = cameras[0].id;
+
+        scannerStarted = true;
+
+        await html5QrCode.start(
+          cameraId,
+          {
+            fps: 10,
+            qrbox: { width: 260, height: 260 },
+            aspectRatio: 1,
+          },
+          (decodedText) => handleCheckin(decodedText),
+          () => {}
+        );
+      } catch (err) {
+        console.error("Start scanner error:", err);
+      }
+    };
+
+    startScanner();
+
+    return () => {
+      isMounted = false;
+      if (html5QrCode && scannerStarted) {
+        html5QrCode
+          .stop()
+          .then(() => html5QrCode.clear())
+          .catch(() => {
+            // ignore error "not running"
+          });
+      }
+    };
   }, []);
 
   return (
@@ -75,40 +101,11 @@ function CheckinPage() {
       <h1 className="checkin-title">Check-in Vé</h1>
 
       <div className="qr-section">
-        <h3><FaCamera /> Quét mã QR</h3>
         <div id="qr-reader" className="qr-reader"></div>
       </div>
 
-      <div className="manual-section">
-        <h3><FaSearch /> Nhập token + eventId</h3>
-
-        <input
-          type="text"
-          placeholder="token..."
-          value={manualToken}
-          onChange={(e) => setManualToken(e.target.value)}
-        />
-
-        <input
-          type="text"
-          placeholder="eventId..."
-          value={manualEventId}
-          onChange={(e) => setManualEventId(e.target.value)}
-        />
-
-        <button
-          onClick={() =>
-            handleCheckin(
-              `https://local.fake?token=${manualToken}&eventId=${manualEventId}`
-            )
-          }
-        >
-          Check-in
-        </button>
-      </div>
-
       {result && (
-<div className={`checkin-result ${result.status}`}>
+        <div className={`checkin-result ${result.status}`}>
           {result.message}
         </div>
       )}
@@ -120,14 +117,14 @@ function CheckinPage() {
             <tr>
               <th>Token</th>
               <th>Kết quả</th>
-              <th>Thời gian</th>
+<th>Thời gian</th>
             </tr>
           </thead>
           <tbody>
             {history.map((h, i) => (
               <tr key={i}>
                 <td>{h.token}</td>
-                <td className={h.status}>{h.message}</td>
+                <td className={h.status}>{h.msg}</td>
                 <td>{h.time.toLocaleTimeString()}</td>
               </tr>
             ))}

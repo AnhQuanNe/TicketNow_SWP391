@@ -7,14 +7,14 @@ export default function Sidebar() {
   // const navigate = useNavigate();
 
   const menuItems = [
-    { id: "home", path: "/admin", icon: "🏠", label: "Dashboard" },
-    { id: "customers", path: "/admin/users", icon: "👥", label: "Users" },
-    { id: "events", path: "/admin/events", icon: "🎫", label: "Events" },
-    { id: "reports", path: "/admin/reports", icon: "📊", label: "Reports" },
+    { id: "home", path: "/admin", icon: "", label: "" },
+    { id: "customers", path: "/admin/users", icon: "", label: "Users" },
+    { id: "events", path: "/admin/events", icon: "", label: "Events" },
+    { id: "reports", path: "/admin/reports", icon: "", label: "Reports" },
     {
       id: "notifications",
       path: "/admin/notifications",
-      icon: "🔔",
+      icon: "",
       label: "Notifications",
     },
   ];

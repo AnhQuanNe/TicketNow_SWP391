@@ -50,7 +50,7 @@ export const createBookingAfterPayment = async (req, res) => {
           verifyToken,
         });
 
-        const qrUrl = `https://your-domain/check?token=${verifyToken}`;
+        const qrUrl = `http://10.12.80.56:5000/api/bookings/check?token=${verifyToken}&eventId=${eventObj.toString()}`;
         booking.qrCode = await QRCode.toDataURL(qrUrl);
 
         await booking.save();
@@ -83,7 +83,7 @@ export const createBookingAfterPayment = async (req, res) => {
           eventId,
           title: paymentStatus === "PAYMENT_CANCELED" ? "Thanh toán bị hủy" : "Thanh toán thành công",
           message:
-paymentStatus === "PAYMENT_CANCELED"
+            paymentStatus === "PAYMENT_CANCELED"
               ? "Giao dịch đã bị hủy, vé đã hủy."
               : `Bạn đã mua: ${tickets.map((t) => `${t.type} x${t.quantity}`).join(", ")}`,
         },

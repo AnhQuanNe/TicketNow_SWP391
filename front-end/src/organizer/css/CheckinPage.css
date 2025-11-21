@@ -1,8 +1,14 @@
+/* ============================
+   CONTAINER CHUNG
+============================ */
 .checkin-container {
   padding: 20px;
   color: white;
 }
 
+/* ============================
+   TIÊU ĐỀ
+============================ */
 .checkin-title {
   text-align: center;
   font-size: 30px;
@@ -10,35 +16,65 @@
   font-weight: bold;
 }
 
-.qr-section, .manual-section, .history-section {
+/* ============================
+   CARD: QR + HISTORY
+============================ */
+.qr-section,
+.history-section {
   margin-bottom: 30px;
-  background: #1a1a1a;
+  background: #1b1b1b;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
+
+  /* FIX CAMERA LỆCH / CROP / SPLIT */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+/* ============================
+   CAMERA WRAPPER
+============================ */
 .qr-reader {
-  width: 100%;
-  margin-top: 10px;
+  width: 350px;
+  height: 350px; /* GIỮ TỈ LỆ VUÔNG CHUẨN */
+  background: #000;
+  margin: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
 }
 
-.manual-section input {
-  width: 70%;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  margin-right: 10px;
+/* ============================
+   SUPER CRITICAL FIX  
+   TRÁNH UI BỊ CROP / LỆCH / SPLIT
+============================ */
+#qr-reader__scan-region {
+  width: 100% !important;
+  height: 100% !important; /* QUAN TRỌNG NHẤT */
+  overflow: hidden !important;
 }
 
-.manual-section button {
-  padding: 10px 15px;
-  background: #ff6600;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+/* ============================
+   VIDEO STREAM
+============================ */
+#qr-reader video {
+  width: 100% !important;
+  height: 100% !important;
+
+  /* ĐỂ VIDEO KHÔNG BỊ KÉO DÀI, KHÔNG SPLIT */
+  object-fit: cover !important;
+
+  /* TẮT MIRROR */
+  transform: scaleX(1) !important;
+
+  /* CAMERA SÁNG HƠN */
+  filter: brightness(1.2) contrast(1.2);
 }
 
+/* ============================
+   KẾT QUẢ CHECK-IN
+============================ */
 .checkin-result {
   padding: 15px;
   font-size: 18px;
@@ -55,12 +91,16 @@
   background: #cc0000;
 }
 
+/* ============================
+   LỊCH SỬ CHECK-IN
+============================ */
 .history-section table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.history-section th, .history-section td {
+.history-section th,
+.history-section td {
   padding: 10px;
   border-bottom: 1px solid #444;
 }

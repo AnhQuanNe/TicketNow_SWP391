@@ -217,6 +217,10 @@ export default function UserManagement() {
         </button>
       </div>
 
+      <div className="total-users">
+        Tổng số người dùng: <strong>{filteredUsers.length}</strong>
+      </div>
+
       {filteredUsers.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">😕</div>

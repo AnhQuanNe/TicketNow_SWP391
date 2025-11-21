@@ -83,3 +83,131 @@
   background: #e8f6ff;
   border: 1px solid #c9eaff;
 }
+
+/* FIELD ERROR */
+.field-error {
+  margin-top: -12px;
+  margin-bottom: 14px;
+  color: #d32f2f;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* RULES CONFIRM BLOCK */
+.rules-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  background: #fff8f0;
+  border: 1px solid #ffd9b3;
+  border-radius: 12px;
+  margin: 4px 0 18px;
+  position: relative;
+}
+
+.rules-confirm:hover {
+  background: #fff4e6;
+}
+
+.rules-confirm input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #ff7b00;
+  margin-top: 2px;
+}
+
+.rules-text {
+  flex: 1;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #302e2b;
+  font-weight: 500;
+}
+
+.rules-link {
+  color: #ff0077;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 14.5px;
+}
+.rules-link:hover { color:#d80063; }
+
+.rules-badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: linear-gradient(90deg,#ff7b00,#ff9800);
+  color: #fff;
+  padding: 2px 10px;
+  font-size: 11px;
+  border-radius: 10px;
+  letter-spacing: .5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
+
+/* REQUIRED STAR */
+.required-star { color:#d32f2f; margin-left:4px; font-weight:700; }
+
+/* ERROR MESSAGE (form-level) */
+.error-message {
+  text-align:center;
+  margin-top:20px;
+  padding:12px;
+  border-radius:8px;
+font-size:15px;
+  color:#d32f2f;
+  background:#ffecec;
+  border:1px solid #ffb3b3;
+  font-weight:600;
+}
+
+/* Highlight invalid fields */
+.input-error {
+  border-color:#d32f2f !important;
+  background:#fff5f5 !important;
+}
+
+/* RULES MODAL */
+.rules-modal-overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:60px 30px 40px;
+  z-index:2000;
+}
+.rules-modal {
+  width:100%;
+  max-width:760px;
+  background:#fff;
+  border-radius:16px;
+  padding:34px 38px 28px;
+  box-shadow:0 12px 32px rgba(0,0,0,0.25);
+  position:relative;
+  /* Removed vertical scroll and height constraint per request */
+  border:1px solid #ffe0c2;
+}
+.rules-close {
+  position:absolute;
+  top:10px;
+  right:14px;
+  background:#ff7b00;
+  color:#fff;
+  border:none;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:18px;
+  font-weight:600;
+  box-shadow:0 3px 8px rgba(0,0,0,.2);
+}
+.rules-close:hover { background:#e26d00; }

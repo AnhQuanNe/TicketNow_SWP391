@@ -18,12 +18,12 @@ function EventList({ events, favorites, toggleFavorite }) {
 
           {/* 📍 Location */}
           <p className="text-sm mt-1" style={{ color: "#ffdd57", fontWeight: 500 }}>
-            📍 {ev.locationId || "Chưa có địa điểm"}
+             {ev.locationId || "Chưa có địa điểm"}
           </p>
 
           {/* 📅 Date */}
           <p className="text-sm mt-1" style={{ color: "#ddd" }}>
-            📅 {ev.date ? new Date(ev.date).toLocaleDateString("vi-VN") : "Chưa có ngày"}
+             {ev.date ? new Date(ev.date).toLocaleDateString("vi-VN") : "Chưa có ngày"}
           </p>
 
           {/* View Detail */}

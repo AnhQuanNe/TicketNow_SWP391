@@ -1,5 +1,6 @@
 // front-end/src/organizer/EventRequest.js
 import React, { useState, useRef } from "react";
+import OrganizerRules from "./OrganizerRule.js";
 import "../css/EventRequest.css";
 import { createEventRequest } from "../../api/organizerApi"; // Import hàm API
 // import { useNavigate } from "react-router-dom";
@@ -23,7 +24,11 @@ export default function EventRequestForm() {
   });
 
   const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState({});
+  const [agreed, setAgreed] = useState(false);
   const fileInputRef = useRef(null); // Thêm ref cho input file
+  const [showRules, setShowRules] = useState(false);
   const [categories, setCategories] = useState([]);
   
   // load categories to populate select
@@ -50,25 +55,44 @@ export default function EventRequestForm() {
   // 🟢 CHỈ SỬA LẠI FORM DATA GỬI ĐI CHO ĐÚNG KEY
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+    setMessage("");
+    setErrors({});
 
-      // Lấy ngày hiện tại
-  const currentDate = new Date();
-  const eventDate = new Date(formData.eventDate);
+    // REQUIRED FIELDS VALIDATION
+    const requiredFields = [
+      'eventName','eventDate','categoryId','startTime','eventLocation','ticketCount','studentPrice','regularPrice','description'
+    ];
+    const newErrors = {};
+    requiredFields.forEach(f => { if (!String(formData[f]||'').trim()) newErrors[f] = 'required'; });
 
-  // Kiểm tra nếu ngày sự kiện trước ngày hiện tại
-  if (eventDate <= currentDate) {
-    setMessage("⚠️ Ngày sự kiện không thể trước ngày hiện tại.");
-    return;
-  }
+    // Date must be future
+    if (formData.eventDate) {
+      const currentDate = new Date();
+      const eventDateObj = new Date(formData.eventDate);
+      if (eventDateObj <= currentDate) {
+        newErrors.eventDate = 'pastDate';
+      }
+    }
+
+    if (!agreed) {
+      newErrors.agreed = 'notAgreed';
+    }
+
+    if (Object.keys(newErrors).length) {
+      setErrors(newErrors);
+      setErrorMessage('⚠️ Vui lòng nhập đủ các trường bắt buộc và xác nhận đã đọc quy định.');
+      return;
+    }
 
     const token = localStorage.getItem("token");
     if (!token) {
-      setMessage("⚠️ Bạn cần đăng nhập trước khi tạo sự kiện.");
+      setErrorMessage("⚠️ Bạn cần đăng nhập trước khi tạo sự kiện.");
       return;
     }
 
     try {
-      const data = new FormData();
+const data = new FormData();
       data.append("eventName", formData.eventName);
       data.append("eventDate", formData.eventDate);
       data.append("categoryId", formData.categoryId);
@@ -89,7 +113,7 @@ export default function EventRequestForm() {
         data.append("coverImage", formData.coverImage);
       }
 const res = await createEventRequest(token, data);
-      setMessage(res.message || "🎉 Gửi yêu cầu sự kiện thành công!");
+      setMessage(res.message || "Gửi yêu cầu sự kiện thành công!");
 
       // Ẩn thông báo sau 3 giây
 setTimeout(() => {
@@ -106,7 +130,10 @@ setTimeout(() => {
         regularPrice: "",
         description: "",
         coverImage: null,  // Reset lại ảnh sau khi gửi form
+        categoryId: "",
+        startTime: ""
       });
+      setAgreed(false);
 
             // 🟢 RESET Ô ẢNH (input file)
       if (fileInputRef.current) {
@@ -132,33 +159,36 @@ setTimeout(() => {
         encType="multipart/form-data"
       >
         <label>
-          Tên Sự Kiện:
+          Tên Sự Kiện<span className="required-star">*</span>
           <input
             type="text"
             name="eventName"
             value={formData.eventName}
             onChange={handleChange}
+            className={errors.eventName ? 'input-error' : ''}
             required
           />
         </label>
 
         <label>
-          Ngày Diễn Ra:
+          Ngày Diễn Ra<span className="required-star">*</span>
           <input
             type="date"
             name="eventDate"
             value={formData.eventDate}
             onChange={handleChange}
+            className={errors.eventDate ? 'input-error' : ''}
             required
           />
         </label>
 
         <label>
-          Thể loại (Category):
+          Thể loại (Category)<span className="required-star">*</span>
           <select
             name="categoryId"
-            value={formData.categoryId}
+value={formData.categoryId}
             onChange={handleChange}
+            className={errors.categoryId ? 'input-error' : ''}
             required
           >
             <option value="" disabled>
@@ -176,87 +206,133 @@ setTimeout(() => {
         </label>
 
         <label>
-          Thời gian bắt đầu:
+          Thời gian bắt đầu<span className="required-star">*</span>
           <input
             type="time"
             name="startTime"
             value={formData.startTime}
             onChange={handleChange}
-          />
-        </label>
-
-        <label>
-          Địa Điểm:
-          <input
-            type="text"
-            name="eventLocation"
-            value={formData.eventLocation}
-            onChange={handleChange}
+            className={errors.startTime ? 'input-error' : ''}
             required
           />
         </label>
 
         <label>
-          Số Lượng Vé:
+          Địa Điểm<span className="required-star">*</span>
+          <input
+            type="text"
+            name="eventLocation"
+            value={formData.eventLocation}
+            onChange={handleChange}
+            className={errors.eventLocation ? 'input-error' : ''}
+            required
+          />
+        </label>
+
+        <label>
+          Số Lượng Vé<span className="required-star">*</span>
           <input
             type="number"
             name="ticketCount"
-value={formData.ticketCount}
+            value={formData.ticketCount}
             onChange={handleChange}
+            className={errors.ticketCount ? 'input-error' : ''}
             required
           />
         </label>
 
         {/* 🟢 THÊM 2 INPUT GIÁ VÉ MỚI */}
         <label>
-          Giá Vé Học Sinh (VND):
+          Giá Vé Học Sinh (VND)<span className="required-star">*</span>
           <input
             type="number"
             name="studentPrice"
             value={formData.studentPrice}
             onChange={handleChange}
+            className={errors.studentPrice ? 'input-error' : ''}
             required
           />
         </label>
 
         <label>
-          Giá Vé Người Thường (VND):
+          Giá Vé Người Thường (VND)<span className="required-star">*</span>
           <input
             type="number"
             name="regularPrice"
             value={formData.regularPrice}
             onChange={handleChange}
+            className={errors.regularPrice ? 'input-error' : ''}
             required
           />
         </label>
 
         <label>
-          Mô Tả Sự Kiện:
+          Mô Tả Sự Kiện<span className="required-star">*</span>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             rows="4"
             placeholder="Mô tả ngắn gọn về sự kiện..."
+            className={errors.description ? 'input-error' : ''}
+            required
           />
         </label>
 
         <label>
-          Ảnh Bìa:
+          Ảnh Bìa
           <input
             type="file"
             name="coverImage"
             accept="image/*"
-            onChange={handleChange}
+onChange={handleChange}
           />
         </label>
+
+        <div className="rules-confirm">
+          <span className="rules-badge">QUY ĐỊNH</span>
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className={errors.agreed ? 'input-error' : ''}
+          />
+          <div className="rules-text">
+            Tôi xác nhận đã đọc và đồng ý với <button type="button" className="rules-link" onClick={() => setShowRules(true)}>Quy định Ban Tổ Chức</button> của nền tảng.
+          </div>
+        </div>
 
         <button type="submit" className="submit-btn">
           Gửi Yêu Cầu
         </button>
       </form>
 
-      {message && <p className="success-message">{message}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      {message && !errorMessage && <p className="success-message">{message}</p>}
+
+      {showRules && (
+        <div className="rules-modal-overlay" onClick={() => setShowRules(false)}>
+          <div className="rules-modal" onClick={(e) => e.stopPropagation()}>
+            <OrganizerRules />
+            <div style={{display:'flex',justifyContent:'flex-end',marginTop:12,gap:8}}>
+              <button
+                type="button"
+                onClick={() => { setShowRules(false); setAgreed(true); }}
+                style={{
+                  background:'#ff7b00',color:'#fff',border:'none',padding:'10px 18px',borderRadius:8,cursor:'pointer',fontWeight:600
+                }}
+              >Tôi đã đọc & đồng ý</button>
+              <button
+                type="button"
+                onClick={() => setShowRules(false)}
+                style={{
+                  background:'#eee',color:'#333',border:'1px solid #ccc',padding:'10px 18px',borderRadius:8,cursor:'pointer',fontWeight:500
+                }}
+              >Đóng</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
