@@ -34,6 +34,7 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 import userRoutes from "./routes/userRoutes.js"; 
 
 import adminRoutes from "./routes/adminRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 
 // 🟢 Cấu hình dotenv để đọc .env
@@ -147,6 +148,7 @@ app.get("/api/categories", async (req, res) => {
 app.use('/api/events', eventRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use("/api/ai", aiRoutes);
 
 
 // 🟢 API: Lấy toàn bộ events (có filter categoryId)

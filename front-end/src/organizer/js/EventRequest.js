@@ -17,8 +17,6 @@ export default function EventRequestForm() {
     studentPrice: "",
     regularPrice: "",
     categoryId: "",
-    startTime: "",
-    endTime: "",
     description: "",
     coverImage: null,
   });
@@ -30,7 +28,8 @@ export default function EventRequestForm() {
   const fileInputRef = useRef(null); // Thêm ref cho input file
   const [showRules, setShowRules] = useState(false);
   const [categories, setCategories] = useState([]);
-  
+  const [uploading, setUploading] = useState(false);
+
   // load categories to populate select
   React.useEffect(() => {
     fetch("http://localhost:5000/api/categories")
@@ -52,6 +51,39 @@ export default function EventRequestForm() {
     });
   };
 
+  const handleUploadImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "ticketnow_upload");
+    data.append("cloud_name", "duh7umnxa");
+    setUploading(true);
+    try {
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/duh7umnxa/image/upload",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
+
+      const result = await res.json();
+
+      // cập nhật formData.coverImage thành URL cloudinary
+      setFormData((prev) => ({
+        ...prev,
+        coverImage: result.secure_url,
+      }));
+      setUploading(false);
+
+      console.log("Uploaded -> ", result.secure_url);
+
+    } catch (err) {
+      console.error("Upload error:", err);
+    }
+  };
   // 🟢 CHỈ SỬA LẠI FORM DATA GỬI ĐI CHO ĐÚNG KEY
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,10 +93,10 @@ export default function EventRequestForm() {
 
     // REQUIRED FIELDS VALIDATION
     const requiredFields = [
-      'eventName','eventDate','categoryId','startTime','eventLocation','ticketCount','studentPrice','regularPrice','description'
+'eventName', 'eventDate', 'categoryId', 'eventLocation', 'ticketCount', 'studentPrice', 'regularPrice', 'description'
     ];
     const newErrors = {};
-    requiredFields.forEach(f => { if (!String(formData[f]||'').trim()) newErrors[f] = 'required'; });
+    requiredFields.forEach(f => { if (!String(formData[f] || '').trim()) newErrors[f] = 'required'; });
 
     // Date must be future
     if (formData.eventDate) {
@@ -92,33 +124,26 @@ export default function EventRequestForm() {
     }
 
     try {
-const data = new FormData();
-      data.append("eventName", formData.eventName);
-      data.append("eventDate", formData.eventDate);
-      data.append("categoryId", formData.categoryId);
-      data.append("startTime", formData.startTime);
-      data.append("endTime", formData.endTime);
-      data.append("eventLocation", formData.eventLocation);
-      data.append("ticketCount", formData.ticketCount);
+      const payload = {
+        eventName: formData.eventName,
+        eventDate: formData.eventDate,
+        categoryId: formData.categoryId,
+        eventLocation: formData.eventLocation,
+        ticketCount: formData.ticketCount,
+        studentPrice: formData.studentPrice,
+        regularPrice: formData.regularPrice,
+        description: formData.description,
+        coverImage: formData.coverImage,  // URL từ Cloudinary
+      };
 
-      // ❌ XOÁ: ticketPrice cũ
-      // data.append("ticketPrice", formData.ticketPrice);
-
-      // 🟢 THÊM 2 DÒNG NÀY CHO BACKEND NHẬN ĐÚNG KEY
-      data.append("studentPrice", formData.studentPrice);
-      data.append("regularPrice", formData.regularPrice);
-
-      data.append("description", formData.description);
-      if (formData.coverImage) {
-        data.append("coverImage", formData.coverImage);
-      }
-const res = await createEventRequest(token, data);
+      console.log("Payload gửi lên backend:", payload);
+      const res = await createEventRequest(token, payload);
       setMessage(res.message || "Gửi yêu cầu sự kiện thành công!");
 
       // Ẩn thông báo sau 3 giây
-setTimeout(() => {
-  setMessage("");  // Xóa thông báo
-}, 3000);
+      setTimeout(() => {
+        setMessage("");  // Xóa thông báo
+      }, 3000);
 
       // 🟢 RESET LẠI FORM — nhớ reset thêm 2 field mới
       setFormData({
@@ -131,11 +156,10 @@ setTimeout(() => {
         description: "",
         coverImage: null,  // Reset lại ảnh sau khi gửi form
         categoryId: "",
-        startTime: ""
       });
       setAgreed(false);
 
-            // 🟢 RESET Ô ẢNH (input file)
+      // 🟢 RESET Ô ẢNH (input file)
       if (fileInputRef.current) {
         fileInputRef.current.value = null; // Đặt lại giá trị của input file thành null
       }
@@ -165,7 +189,7 @@ setTimeout(() => {
             name="eventName"
             value={formData.eventName}
             onChange={handleChange}
-            className={errors.eventName ? 'input-error' : ''}
+className={errors.eventName ? 'input-error' : ''}
             required
           />
         </label>
@@ -173,7 +197,7 @@ setTimeout(() => {
         <label>
           Ngày Diễn Ra<span className="required-star">*</span>
           <input
-            type="date"
+            type="datetime-local"
             name="eventDate"
             value={formData.eventDate}
             onChange={handleChange}
@@ -186,7 +210,7 @@ setTimeout(() => {
           Thể loại (Category)<span className="required-star">*</span>
           <select
             name="categoryId"
-value={formData.categoryId}
+            value={formData.categoryId}
             onChange={handleChange}
             className={errors.categoryId ? 'input-error' : ''}
             required
@@ -203,18 +227,6 @@ value={formData.categoryId}
               );
             })}
           </select>
-        </label>
-
-        <label>
-          Thời gian bắt đầu<span className="required-star">*</span>
-          <input
-            type="time"
-            name="startTime"
-            value={formData.startTime}
-            onChange={handleChange}
-            className={errors.startTime ? 'input-error' : ''}
-            required
-          />
         </label>
 
         <label>
@@ -274,7 +286,7 @@ value={formData.categoryId}
             onChange={handleChange}
             rows="4"
             placeholder="Mô tả ngắn gọn về sự kiện..."
-            className={errors.description ? 'input-error' : ''}
+className={errors.description ? 'input-error' : ''}
             required
           />
         </label>
@@ -283,9 +295,10 @@ value={formData.categoryId}
           Ảnh Bìa
           <input
             type="file"
-            name="coverImage"
+            //name="coverImage"
             accept="image/*"
-onChange={handleChange}
+            onChange={handleUploadImage}
+            ref={fileInputRef}
           />
         </label>
 
@@ -314,19 +327,19 @@ onChange={handleChange}
         <div className="rules-modal-overlay" onClick={() => setShowRules(false)}>
           <div className="rules-modal" onClick={(e) => e.stopPropagation()}>
             <OrganizerRules />
-            <div style={{display:'flex',justifyContent:'flex-end',marginTop:12,gap:8}}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12, gap: 8 }}>
               <button
                 type="button"
                 onClick={() => { setShowRules(false); setAgreed(true); }}
                 style={{
-                  background:'#ff7b00',color:'#fff',border:'none',padding:'10px 18px',borderRadius:8,cursor:'pointer',fontWeight:600
+                  background: '#ff7b00', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 8, cursor: 'pointer', fontWeight: 600
                 }}
               >Tôi đã đọc & đồng ý</button>
               <button
                 type="button"
                 onClick={() => setShowRules(false)}
                 style={{
-                  background:'#eee',color:'#333',border:'1px solid #ccc',padding:'10px 18px',borderRadius:8,cursor:'pointer',fontWeight:500
+                  background: '#eee', color: '#333', border: '1px solid #ccc', padding: '10px 18px', borderRadius: 8, cursor: 'pointer', fontWeight: 500
                 }}
               >Đóng</button>
             </div>

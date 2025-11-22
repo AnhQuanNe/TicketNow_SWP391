@@ -8,7 +8,8 @@ import {
   adminGetEventDetail,
   adminUpdateEvent,
   adminDeleteEvent,
-  adminReports
+  adminReports,
+  adminEventReport,
 } from "../controllers/adminController.js";
 
 import { protect, verifyAdmin } from "../middleware/authMiddleware.js";
@@ -34,6 +35,10 @@ router.put("/events/:id", protect, verifyAdmin, adminUpdateEvent);
 router.delete("/events/:id", protect, verifyAdmin, adminDeleteEvent);
 
 router.get("/reports", protect, verifyAdmin, adminReports);
+
+router.get("/events/:id/report", adminEventReport);
+
+
 
 
 export default router;

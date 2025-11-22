@@ -40,8 +40,29 @@ function SelectTicket() {
   }, [id]);
 
   const handleQuantityChange = (type, value) => {
-    setQuantities((prev) => ({ ...prev, [type]: Math.max(0, (prev[type] || 0) + value) }));
+    setQuantities((prev) => {
+      const newQuantity = Math.max(0, (prev[type] || 0) + value);
+
+      // 👉 Ràng buộc 1: Nếu là vé student và user có studentId → chỉ tối đa 1 vé
+      const isStudent = type.toLowerCase() === "student";
+      if (isStudent && user?.studentId && newQuantity > 1) {
+        Swal.fire("⚠️", "Bạn chỉ được mua tối đa 1 vé Student!", "warning");
+        return prev;
+      }
+
+      // 👉 Ràng buộc 2: Tổng số vé <= 5
+      const totalCurrent = Object.values(prev).reduce((a, b) => a + b, 0);
+      const totalAfter = totalCurrent + value;
+
+      if (totalAfter > 5) {
+        Swal.fire("⚠️", "Bạn chỉ được mua tối đa 5 vé cho sự kiện này!", "warning");
+        return prev;
+      }
+
+      return { ...prev, [type]: newQuantity };
+    });
   };
+
 
   const handlePayment = () => {
     const selectedTickets = tickets
@@ -72,7 +93,7 @@ function SelectTicket() {
     );
 
     localStorage.setItem("eventTitle", event.title);
-  localStorage.setItem("lastPaidEventId", event._id);
+    localStorage.setItem("lastPaidEventId", event._id);
     // Save purchased event info for notifications
     try {
       const arr = JSON.parse(localStorage.getItem("purchasedEvents") || "[]");
@@ -81,19 +102,19 @@ function SelectTicket() {
         arr.push({ _id: event._id, title: event.title, date: event.date });
         localStorage.setItem("purchasedEvents", JSON.stringify(arr));
       }
-    } catch {}
+    } catch { }
     navigate("/payment");
   };
 
   if (loading) return <p>⏳ Đang tải dữ liệu...</p>;
   if (!event) return <p>❌ Không tìm thấy sự kiện.</p>;
-const total = tickets.reduce((sum, t) => {
+  const total = tickets.reduce((sum, t) => {
     const key = t.ticketType || t.type || "";
     return sum + (quantities[key] || 0) * t.price;
   }, 0);
 
   return (
-     <div
+    <div
       style={{
         backgroundColor: "#FFF4E6",
         minHeight: "100vh",
@@ -132,7 +153,7 @@ const total = tickets.reduce((sum, t) => {
             style={{ width: "100%", height: "340px", objectFit: "cover" }}
           />
           <div style={{ padding: "25px" }}>
-            <h2 style={{ color: "#FFA500", marginBottom: "10px"  }}>
+            <h2 style={{ color: "#FFA500", marginBottom: "10px" }}>
               {event.title}
             </h2>
             <p style={{ opacity: 0.9, marginBottom: "10px" }}>
@@ -165,7 +186,7 @@ const total = tickets.reduce((sum, t) => {
             🎫 Chọn loại vé
           </h3>
 
-            {tickets.length === 0 ? (
+          {tickets.length === 0 ? (
             <p>Không có loại vé nào cho sự kiện này.</p>
           ) : (
             tickets.map((ticket, index) => {
@@ -184,7 +205,7 @@ const total = tickets.reduce((sum, t) => {
                     opacity: isStudentTicket ? 0.5 : 1,
                   }}
                 >
-<div>
+                  <div>
                     <b style={{ fontSize: "17px", color: "#FFA500" }}>
                       {typeLabel}
                     </b>
@@ -240,12 +261,12 @@ const total = tickets.reduce((sum, t) => {
             onClick={handlePayment}
             style={payBtnStyle}
             onMouseOver={(e) =>
-              (e.target.style.background =
-                "linear-gradient(90deg, #FF9F00 0%, #FFB84D 100%)")
+            (e.target.style.background =
+              "linear-gradient(90deg, #FF9F00 0%, #FFB84D 100%)")
             }
             onMouseOut={(e) =>
-              (e.target.style.background =
-                "linear-gradient(90deg, #FF7F50 0%, #FFA500 100%)")
+            (e.target.style.background =
+              "linear-gradient(90deg, #FF7F50 0%, #FFA500 100%)")
             }
           >
             Thanh toán ngay

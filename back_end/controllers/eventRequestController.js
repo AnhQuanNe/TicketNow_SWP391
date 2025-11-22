@@ -7,6 +7,8 @@ import Organizer from '../model/Organizer.js';
 import Category from '../model/Category.js';
 import fs from "fs";
 import path from "path";
+// 🔔 Thêm import hàm tạo thông báo
+import { createNotification } from "./notificationController.js";
 
 // ================= CREATE EVENT REQUEST =================
 export const createEventRequest = async (req, res) => {
@@ -21,6 +23,7 @@ export const createEventRequest = async (req, res) => {
       categoryId: rawCategoryId,
       startTime,
       description,
+      coverImage, // 🟢 LẤY TRỰC TIẾP TỪ FRONTEND
     } = req.body;
 
     // Kiểm tra user
@@ -29,20 +32,21 @@ export const createEventRequest = async (req, res) => {
     }
 
     const organizerId = req.user.id;
-    let coverImage = null;
+    // 🌟 FIX ở đây — lấy coverImage từ req.body
+    let finalCoverImage = coverImage || null;
 
     // 🔍 Debug xem multer có nhận file không
     console.log("📦 Dữ liệu form nhận được:", req.body);
     console.log("🖼️ File upload:", req.file);
 
     // Nếu có file upload
-    if (req.file) {
-      const uploadDir = path.join(process.cwd(), "uploads");
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir);
-      }
-      coverImage = `/uploads/${req.file.filename}`;
-    }
+    // if (req.file) {
+    //   const uploadDir = path.join(process.cwd(), "uploads");
+    //   if (!fs.existsSync(uploadDir)) {
+    //     fs.mkdirSync(uploadDir);
+    //   }
+    //   coverImage = `/uploads/${req.file.filename}`;
+    // }
 
     // Chuẩn hoá categoryId: phải là _id (string) tồn tại trong Categories
     let categoryId = rawCategoryId || null;
@@ -69,7 +73,7 @@ export const createEventRequest = async (req, res) => {
       categoryId: categoryId || null,
       startTime: startTime || null,
       description,
-      coverImage,
+      coverImage: finalCoverImage,
       organizerId,
     });
 
@@ -87,19 +91,18 @@ export const createEventRequest = async (req, res) => {
     });
   }
 };
-
 // ================= GET ALL EVENT REQUESTS =================
 export const getAllEventRequests = async (req, res) => {
-  try {
+try {
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Không tìm thấy user." });
     }
 
     let events;
-// Nếu là admin => lấy tất cả sự kiện pending
+    // Nếu là admin => lấy tất cả sự kiện pending
     if (req.user.roleName === "admin") {
       events = await EventRequest.find({ status: "pending" }).sort({ createdAt: -1 });
-    } 
+    }
     // Nếu là organizer => chỉ lấy sự kiện của chính organizer đó
     else {
       events = await EventRequest.find({
@@ -155,11 +158,11 @@ export const updateEventStatus = async (req, res) => {
         locationId: eventRequest.locationId || eventRequest.eventLocation || null,
         date: eventRequest.eventDate,  // Ngày tổ chức từ EventRequest
         ticketsAvailable: eventRequest.ticketCount,  // Số lượng vé từ EventRequest
-        ticketTotal: eventRequest.ticketCount, // Tổng số vé ban đầu (không giảm khi bán)
-        imageUrl: eventRequest.coverImage,  // Hình ảnh sự kiện từ EventRequest
+ticketTotal: eventRequest.ticketCount, // Tổng số vé ban đầu (không giảm khi bán)
+imageUrl: eventRequest.coverImage,  // Hình ảnh sự kiện từ EventRequest
         createdAt: Date.now(),  // Thời gian tạo mới sự kiện
       });
-// Kiểm tra xem đối tượng mới có phải là instance của Mongoose không
+      // Kiểm tra xem đối tượng mới có phải là instance của Mongoose không
       console.log(newEvent instanceof Event);  // Phải trả về true
 
       // Lưu sự kiện vào collection 'Event'
@@ -210,11 +213,11 @@ export const updateEventStatus = async (req, res) => {
             } else {
               // Nếu đã tồn tại thì cập nhật một số trường & thêm event vào danh sách nếu chưa có
               const needsPush = !org.events?.some(eid => eid.toString() === newEvent._id.toString());
-              if (needsPush) org.events.push(newEvent._id);
-              org.name = org.name || user.name || org.name;
+if (needsPush) org.events.push(newEvent._id);
+org.name = org.name || user.name || org.name;
               org.contactEmail = org.contactEmail || user.email;
               org.phone = org.phone || user.phone;
-org.locationId = org.locationId || eventRequest.locationId;
+              org.locationId = org.locationId || eventRequest.locationId;
               await org.save();
               console.log('🔁 Đã cập nhật Organizer tồn tại cho user:', user._id.toString());
             }
@@ -235,10 +238,40 @@ org.locationId = org.locationId || eventRequest.locationId;
       } catch (e) {
         console.error('❌ Lỗi khi tạo/cập nhật Organizer:', e);
       }
+
+      // Gửi thông báo cho organizer sau khi duyệt thành công
+      try {
+        const io = req.app.get('io');
+        const agenda = req.app.get('agenda');
+        await createNotification({
+          userId: eventRequest.organizerId,
+          eventId: newEvent?._id,
+          title: `Sự kiện ${eventRequest.eventName} đã được duyệt`,
+          message: `Sự kiện ${eventRequest.eventName} đã được duyệt thành công. Hãy kiểm tra trang quản lý của bạn!`
+        }, io, agenda);
+        console.log('Đã gửi thông báo duyệt sự kiện cho organizer:', eventRequest.organizerId?.toString());
+      } catch (e) {
+        console.error('Lỗi khi gửi thông báo duyệt sự kiện:', e);
+      }
+
     } else if (status === 'rejected') {
       eventRequest.status = 'rejected';
       await eventRequest.save();  // Lưu sự kiện sau khi từ chối
       console.log("Sự kiện đã bị từ chối");
+      // Gửi thông báo từ chối cho organizer
+      try {
+        const io = req.app.get('io');
+        const agenda = req.app.get('agenda');
+        await createNotification({
+          userId: eventRequest.organizerId,
+          eventId: eventRequest._id, // dùng id của request (không phải Event vì chưa tạo)
+          title: `Sự kiện ${eventRequest.eventName} bị từ chối`,
+          message: `Yêu cầu tạo sự kiện '${eventRequest.eventName}' duyệt không thành công. Vui lòng xem lại thông tin hoặc liên hệ hỗ trợ.`
+        }, io, agenda);
+        console.log('Đã gửi thông báo từ chối sự kiện cho organizer:', eventRequest.organizerId?.toString());
+} catch (e) {
+        console.error('Lỗi khi gửi thông báo từ chối sự kiện:', e);
+      }
     }
 
     res.status(200).json({ message: "Cập nhật trạng thái sự kiện thành công!" });

@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@payos/node": "^2.0.3",
     "agenda": "^5.0.0",
     "axios": "^1.13.2",

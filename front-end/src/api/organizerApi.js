@@ -39,15 +39,15 @@ export const updateOrganizerProfile = async (token, data) => {
 // =============================
 // Tạo sự kiện mới cho Organizer
 // =============================
-export const createEventRequest = async (token, formData) => {
+export const createEventRequest = async (token, body) => {
   try {
-    const res = await axios.post(`${EVENT_REQUEST_API_URL}`, formData, {
+    const res = await axios.post(`${EVENT_REQUEST_API_URL}`, body, {
       headers: {
         "Authorization": `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
       },
     });
-    return res.data; // Trả về phản hồi từ server (ví dụ: thông báo thành công)
+    return res.data;
   } catch (error) {
     console.error("Lỗi khi tạo sự kiện:", error);
     throw error;

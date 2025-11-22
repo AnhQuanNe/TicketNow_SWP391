@@ -1,0 +1,179 @@
+/* =============== CHAT BUTTON =============== */
+.chat-button {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #0084ff;
+  color: white;
+  border: none;
+  font-size: 26px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+  cursor: pointer;
+  transition: 0.25s;
+  z-index: 9999;
+}
+.chat-button:hover { transform: scale(1.1); }
+
+/* =============== OVERLAY (chống chữ sau lòi vào) =============== */
+.chat-widget-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.15);
+  z-index: 9998;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from {opacity:0;} to{opacity:1;} }
+
+/* =============== CHAT BOX =============== */
+.chat-box {
+  position: fixed;
+  bottom: 95px;
+  right: 25px;
+  width: 360px;
+  height: 520px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeInUp 0.3s ease;
+  z-index: 10000;
+}
+@keyframes fadeInUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* HEADER */
+.chat-header {
+  background: #0084ff;
+  color: white;
+  padding: 14px 16px;
+  font-weight: bold;
+  font-size: 17px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* BODY */
+.chat-body {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+  background: #f0f2f5;
+  scroll-behavior: smooth;
+}
+.chat-body::-webkit-scrollbar { width: 8px; }
+.chat-body::-webkit-scrollbar-thumb {
+  background: #cfcfcf;
+  border-radius: 8px;
+}
+
+/* MESSAGE ROW */
+.message-row {
+  display: flex;
+  margin-bottom: 14px;
+  align-items: flex-end;
+}
+.message-row.user { justify-content: flex-end; }
+.message-row.bot { justify-content: flex-start; }
+
+/* AVATAR */
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 8px;
+}
+
+/* BUBBLE STYLE GIỐNG MESSENGER */
+.bubble {
+  max-width: 72%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.4;
+  white-space: pre-line;
+  animation: slideIn 0.2s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bubble.user {
+  background: #0084ff;
+  color: white;
+  border-bottom-right-radius: 6px;
+}
+.bubble.bot {
+  background: white;
+  border: 1px solid #ddd;
+  border-bottom-left-radius: 6px;
+}
+
+/* FOOTER */
+.chat-footer {
+  display: flex;
+  padding: 10px;
+  background: white;
+  border-top: 1px solid #eee;
+}
+.chat-footer input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 15px;
+}
+.chat-footer button {
+  margin-left: 8px;
+  background: #0084ff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.chat-footer button:hover { background: #006fe0; }
+/* Hiệu ứng attention */
+.chat-button-attention {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+/* Tạo hiệu ứng glow + phóng to */
+@keyframes pulseGlow {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(0, 153, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 25px rgba(0, 153, 255, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(0, 153, 255, 0.3);
+  }
+}
+.chat-button:hover::after {
+  content: "Hỏi thăm bot chat !!!!";
+  position: absolute;
+  right: 60px;
+  bottom: 10px;
+  background: #007bff;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}

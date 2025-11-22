@@ -11,6 +11,9 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [banReason, setBanReason] = useState("");
   const [searchTerm, setSearchTerm] = useState(""); // 🔍 Thêm state tìm kiếm
+  const [sortOrder, setSortOrder] = useState("asc"); // asc = A→Z, desc = Z→A
+  const [sortField, setSortField] = useState("name");
+  const [showBanned, setShowBanned] = useState(false);
 
   // 🟢 Lấy danh sách user
   useEffect(() => {
@@ -40,12 +43,16 @@ export default function UserManagement() {
         console.log("📦 /api/users:", usersData);
         console.log("📦 /api/roles:", rolesData);
 
-        if (Array.isArray(usersData)) setUsers(usersData); else setUsers([]);
-        if (Array.isArray(rolesData)) setRoles(rolesData); else setRoles([]);
+        if (Array.isArray(usersData)) setUsers(usersData);
+        else setUsers([]);
+        if (Array.isArray(rolesData)) setRoles(rolesData);
+        else setRoles([]);
 
         // Tạo map roleId -> name
         const map = {};
-        (rolesData || []).forEach(r => { map[r._id] = r.name; });
+        (rolesData || []).forEach((r) => {
+          map[r._id] = r.name;
+        });
         setRoleMap(map);
       } catch (err) {
         console.error("❌ Lỗi fetch API:", err);
@@ -79,13 +86,13 @@ export default function UserManagement() {
 
   // 🗑️ Xóa tài khoản
   const handleDelete = async (user) => {
-    const token =
+const token =
       localStorage.getItem("token") || localStorage.getItem("adminToken");
 
     if (window.confirm(`Bạn có chắc muốn xóa ${user.name}?`)) {
       try {
         const res = await fetch(
-`http://localhost:5000/api/admin/users/${user._id}`,
+          `http://localhost:5000/api/admin/users/${user._id}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
@@ -177,28 +184,46 @@ export default function UserManagement() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
   // 🔍 Lọc người dùng theo tên hoặc email
   const filteredUsers = users
-    .filter((u) => (roleMap[u.roleId] || u.role) !== "admin" ? true : true) // giữ tất cả; nếu muốn ẩn admin đổi về !== 'admin'
+    // nếu showBanned = true → chỉ lấy user bị khóa
+    .filter((u) => (showBanned ? u.isBanned === true : true))
+    // luôn giữ admin hoặc loại admin nếu bạn muốn
+    .filter((u) => ((roleMap[u.roleId] || u.role) !== "admin" ? true : true))
+    // tìm kiếm
     .filter((u) => {
-      const keyword = searchTerm.toLowerCase().trim();
+const keyword = searchTerm.toLowerCase().trim();
       return (
         u.name?.toLowerCase().includes(keyword) ||
         u.email?.toLowerCase().includes(keyword)
       );
     });
 
+  // 🔽🔼 Sắp xếp theo tên hoặc ngày tạo
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (sortField === "name") {
+      const nameA = (a.name || "").toLowerCase();
+      const nameB = (b.name || "").toLowerCase();
+
+      return sortOrder === "asc"
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
+    }
+
+    // 🕒 Sắp xếp theo ngày tạo
+    if (sortField === "date") {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+
+      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    }
+
+    return 0;
+  });
+
   return (
     <div className="user-manager">
-<div className="user-header">
+      <div className="user-header">
         <h2 className="user-title">Danh sách người dùng</h2>
 
         {/* 🔍 Ô tìm kiếm ở giữa */}
@@ -214,6 +239,12 @@ export default function UserManagement() {
 
         <button className="export-btn" onClick={exportToExcel}>
           📥 Xuất Excel
+        </button>
+        <button
+          className="filter-btn"
+          onClick={() => setShowBanned(!showBanned)}
+        >
+          {showBanned ? "👥 Xem tất cả" : "🔒 Xem người bị khóa"}
         </button>
       </div>
 
@@ -233,17 +264,40 @@ export default function UserManagement() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Tên</th>
+                <th
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setSortField("name");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
+                >
+                  Tên {sortOrder === "asc" ? "▲" : "▼"}
+                </th>
+
                 <th>Email</th>
                 <th>Số điện thoại</th>
                 <th>Vai trò</th>
-                <th>Ngày tạo</th>
+                <th
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setSortField("date");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
+                >
+                  Ngày tạo{" "}
+                  {sortField === "date"
+                    ? sortOrder === "asc"
+? "▲"
+                      : "▼"
+                    : "▲"}
+                </th>
+
                 <th>Xóa</th>
                 <th>Khóa</th>
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((u) => (
+              {sortedUsers.map((u) => (
                 <tr key={u._id}>
                   <td className="user-id">{u._id.slice(-8)}</td>
                   <td>
@@ -252,7 +306,11 @@ export default function UserManagement() {
                   <td>{u.email}</td>
                   <td>{u.phone || "—"}</td>
                   <td>
-                    <span className={`role-badge role-${roleMap[u.roleId] || u.role || "user"}`}>
+                    <span
+                      className={`role-badge role-${
+                        roleMap[u.roleId] || u.role || "user"
+                      }`}
+                    >
                       {roleMap[u.roleId] || u.role || "user"}
                     </span>
                   </td>
@@ -290,7 +348,7 @@ export default function UserManagement() {
           <div className="modal-box">
             <h3>🔒 Khóa tài khoản</h3>
             <p>
-Bạn có chắc muốn khóa tài khoản của{" "}
+              Bạn có chắc muốn khóa tài khoản của{" "}
               <strong>{selectedUser?.name}</strong>?
             </p>
             <textarea

@@ -41,6 +41,7 @@ import Notification from "./admin/js/Notification";
 import AdminRoute from "./admin/js/AdminRoute";
 import EventManager from "./admin/js/EventManager";
 import VerifyEmail from "./user/js/VerifyEmail";
+import ChatWidget from "./user/js/ChatWidget";
 
 // 🧩 Tách phần logic ra component riêng
 function AppContent() {
@@ -127,6 +128,7 @@ function App() {
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <Router>
         <AppContent />
+        <ChatWidget />
       </Router>
     </GoogleOAuthProvider>
   );
