@@ -7,13 +7,12 @@ import * as XLSX from "xlsx";
 import {
   adminFetchEvents,
   adminUpdateEvent,
-  adminDeleteEvent,
+  adminSoftDeleteEvent,
 } from "../api/eventAdminApi";
 
 export default function EventManager() {
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +27,7 @@ export default function EventManager() {
   const loadEvents = async () => {
     setLoading(true);
     const data = await adminFetchEvents();
-    setEvents(data.events || []);
+    setEvents(data.events || []); // Hiển thị TẤT CẢ sự kiện
     setLoading(false);
   };
 
@@ -46,17 +45,52 @@ export default function EventManager() {
   // ============================
   // DELETE EVENT
   // ============================
-
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn chắc chắn muốn xóa sự kiện này?")) return;
 
-    const res = await adminDeleteEvent(id);
+    try {
+      const res = await adminSoftDeleteEvent(id);
 
-    if (res.success) {
-      alert("Xóa thành công!");
-      loadEvents();
-    } else {
-      alert("Xóa thất bại!");
+      if (res.success) {
+        alert("🗑️ Sự kiện đã được xóa!");
+        loadEvents(); // Reload để cập nhật trạng thái
+      } else {
+        alert("❌ " + (res.message || "Xóa thất bại!"));
+      }
+    } catch (err) {
+      console.error(err);
+      const errorMsg = err.response?.data?.message || "Lỗi khi xóa sự kiện!";
+      alert("❌ " + errorMsg);
+    }
+  };
+
+  // ============================
+  // RESTORE EVENT (UNDO)
+  // ============================
+  const handleRestore = async (id) => {
+    if (!window.confirm("Khôi phục sự kiện này?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/events/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+        body: JSON.stringify({ status: "active" }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert(" Khôi phục thành công!");
+        loadEvents();
+      } else {
+        alert("❌ " + (data.message || "Khôi phục thất bại!"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("❌ Lỗi khi khôi phục!");
     }
   };
 
@@ -70,8 +104,7 @@ export default function EventManager() {
       dateOnly: ev.date?.substring(0, 10),
       timeOnly: ev.date?.substring(11, 16),
     });
-
-    setShowModal(true);
+setShowModal(true);
   };
 
   const handleSave = async () => {
@@ -117,6 +150,7 @@ export default function EventManager() {
         "Địa điểm": e.locationId || "—",
         "Ngày diễn ra": new Date(e.date).toLocaleDateString("vi-VN"),
         "Vé còn lại": e.ticketsAvailable,
+        "Trạng thái": e.status === "deleted" ? "Đã xóa" : "Hoạt động",
         "Ngày tạo": new Date(e.createdAt).toLocaleDateString("vi-VN"),
       }))
     );
@@ -134,7 +168,7 @@ export default function EventManager() {
     <div className="event-manager">
       {/* HEADER */}
       <div className="event-header">
-        <h2>🎫 Quản lý Sự kiện</h2>
+        <h2> Quản lý Sự kiện</h2>
 
         <input
           type="text"
@@ -145,7 +179,7 @@ export default function EventManager() {
         />
 
         <button className="export-btn" onClick={exportToExcel}>
-          📥 Xuất Excel
+           Xuất Excel
         </button>
       </div>
 
@@ -166,8 +200,9 @@ export default function EventManager() {
               <th>Thời gian</th>
               <th>Địa điểm</th>
               <th>Vé còn lại</th>
+              <th>Trạng thái</th>
               <th>Chỉnh sửa</th>
-              <th>Xóa</th>
+              <th>Hành động</th>
             </tr>
           </thead>
 
@@ -177,7 +212,7 @@ export default function EventManager() {
                 <td>{idx + 1}</td>
 
                 <td>
-                  <img
+<img
                     src={ev.imageUrl || "https://via.placeholder.com/80x50"}
                     alt={ev.title}
                     className="event-img"
@@ -194,23 +229,49 @@ export default function EventManager() {
                 <td>{new Date(ev.date).toLocaleDateString()}</td>
 
                 <td>{ev.date ? ev.date.substring(11, 16) : "—"}</td>
+
                 <td>{ev.locationId || "—"}</td>
 
                 <td>{ev.ticketsAvailable ?? "—"}</td>
 
+                {/* TRẠNG THÁI - Đổi màu theo status */}
                 <td>
-                  <button className="edit-btn" onClick={() => handleEdit(ev)}>
+                  {ev.status === "deleted" ? (
+                    <span className="status-badge deleted">Đã xóa</span>
+                  ) : (
+                    <span className="status-badge active">Hoạt động</span>
+                  )}
+                </td>
+
+                {/* CHỈNH SỬA */}
+                <td>
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleEdit(ev)}
+                    disabled={ev.status === "deleted"}
+                  >
                     ✏️
                   </button>
                 </td>
 
+                {/* HÀNH ĐỘNG - XÓA hoặc KHÔI PHỤC */}
                 <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(ev._id)}
-                  >
-                    🗑️
-                  </button>
+                  {ev.status === "deleted" ? (
+                    <button
+                      className="restore-btn"
+                      onClick={() => handleRestore(ev._id)}
+                      title="Khôi phục sự kiện"
+                    >
+                       Undo
+                    </button>
+                  ) : (
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(ev._id)}
+                    >
+                      🗑️
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -218,15 +279,12 @@ export default function EventManager() {
         </table>
       )}
 
-      {/* ============================
-          MODAL EDIT
-      ============================ */}
+      {/* MODAL EDIT */}
       {showModal && selectedEvent && (
         <div className="modal-overlay">
           <div className="modal-content event-edit-modal">
             <h3>Chỉnh sửa sự kiện</h3>
 
-            {/* Title */}
             <label>Tiêu đề</label>
             <input
               type="text"
@@ -236,7 +294,6 @@ export default function EventManager() {
               }
             />
 
-            {/* Description */}
             <label>Mô tả</label>
             <textarea
               value={selectedEvent.description}
@@ -248,17 +305,15 @@ export default function EventManager() {
               }
             />
 
-            {/* Date */}
             <label>Ngày diễn ra</label>
             <input
               type="date"
               value={selectedEvent.dateOnly}
-              onChange={(e) =>
+onChange={(e) =>
                 setSelectedEvent({ ...selectedEvent, dateOnly: e.target.value })
               }
             />
 
-            {/* Start time */}
             <label>Giờ bắt đầu</label>
             <input
               type="time"
@@ -268,7 +323,6 @@ export default function EventManager() {
               }
             />
 
-            {/* Category */}
             <label>Danh mục</label>
             <select
               value={selectedEvent.categoryId}
@@ -287,7 +341,6 @@ export default function EventManager() {
               ))}
             </select>
 
-            {/* Location */}
             <label>Địa điểm</label>
             <input
               type="text"
@@ -300,7 +353,6 @@ export default function EventManager() {
               }
             />
 
-            {/* Banner URL */}
             <label>Link ảnh banner</label>
             <input
               type="text"
@@ -310,7 +362,6 @@ export default function EventManager() {
               }
             />
 
-            {/* ACTIONS */}
             <div className="modal-actions">
               <button className="save-btn" onClick={handleSave}>
                 💾 Lưu

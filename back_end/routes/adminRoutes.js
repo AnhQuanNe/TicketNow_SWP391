@@ -7,7 +7,7 @@ import {
   adminGetAllEvents,
   adminGetEventDetail,
   adminUpdateEvent,
-  adminDeleteEvent,
+  adminSoftDeleteEvent,
   adminReports,
   adminEventReport,
 } from "../controllers/adminController.js";
@@ -32,13 +32,9 @@ router.put("/users/:id/ban", protect, verifyAdmin, adminBanUser);
 router.get("/events", protect, verifyAdmin, adminGetAllEvents);
 router.get("/events/:id", protect, verifyAdmin, adminGetEventDetail);
 router.put("/events/:id", protect, verifyAdmin, adminUpdateEvent);
-router.delete("/events/:id", protect, verifyAdmin, adminDeleteEvent);
+router.delete("/events/:id", protect, verifyAdmin, adminSoftDeleteEvent);
 
 router.get("/reports", protect, verifyAdmin, adminReports);
-
 router.get("/events/:id/report", adminEventReport);
-
-
-
 
 export default router;

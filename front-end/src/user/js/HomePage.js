@@ -158,7 +158,7 @@ function HomePage({ searchTerm }) {
         let filtered = [];
 
         if (sec.name === "Thịnh hành") {
-          filtered = events;
+          filtered = events.filter(ev => ev.status === "active");
         } else if (sec.name === "Dành cho bạn") {
           // ✅ Đổi lại cách lọc theo object yêu thích (favorites là array of objects)
           filtered = events.filter((ev) =>
@@ -167,7 +167,7 @@ function HomePage({ searchTerm }) {
         } else {
           // ✅ FIX: categoryId trong MongoDB là string, không phải object
           filtered = events.filter(
-            (ev) => ev.categoryId && ev.categoryId === sec.id
+            (ev) => ev.status === "active" && ev.categoryId && ev.categoryId === sec.id
           );
 
         }

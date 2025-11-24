@@ -32,10 +32,26 @@ export const adminUpdateEvent = async (id, data) => {
 };
 
 // Xóa sự kiện
-export const adminDeleteEvent = async (id) => {
+// ✅ Soft delete event (đánh dấu status = "deleted")
+export const adminSoftDeleteEvent = async (id) => {
   const res = await fetch(`${BASE_URL}/events/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${getToken()}` },
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  return res.json();
+};
+
+// ✅ Khôi phục event (restore: status = "active")
+export const adminRestoreEvent = async (id) => {
+  const res = await fetch(`${BASE_URL}/events/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ status: "active" }),
   });
   return res.json();
 };

@@ -17,6 +17,12 @@ const eventSchema = new mongoose.Schema({
   ticketsAvailable: { type: Number, default: 0 },
   ticketTotal:{type: Number, default: 0},
   imageUrl: { type: String },
+    // ⭐ Thêm field này để soft delete hoạt động
+  status: {
+    type: String,
+    enum: ["active", "deleted"],
+    default: "active",
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

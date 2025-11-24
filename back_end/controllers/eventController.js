@@ -10,7 +10,7 @@ export const getEvents = async (req, res) => {
   try {
     const { q, category, sort, location, startDate, endDate, organizerId } = req.query;
 
-    let query = {};
+    let query = {status: "active",};
 
     // Tìm theo từ khóa
     if (q) {
@@ -226,6 +226,7 @@ export const getFeaturedEvents = async (req, res) => {
     const events = await Event.find({
       imageUrl: { $exists: true, $ne: "" },
       date: { $gte: new Date() },
+      status: "active",  // ⭐ THÊM FILTER NÀY LUÔN CHO AN TOÀN
     })
       .sort({ date: 1 })
       .limit(5);

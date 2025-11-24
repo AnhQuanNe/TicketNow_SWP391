@@ -16,16 +16,28 @@ export const getOrganizerProfile = async (req, res) => {
       .populate("userId", "name email");
 
     if (!organizer) {
-      console.log("⚠️ Không tìm thấy organizer cho userId:", req.user._id);
       return res.status(200).json({ message: "not_found" });
     }
 
-    res.status(200).json(organizer);
+    // 🟢 Convert dữ liệu MongoDB → đúng schema của UI
+    const responseData = {
+      organizationName: organizer.name || "",
+      description: organizer.description || "",
+      contactPhone: organizer.phone || "",
+      address: organizer.address || "",
+      socialLinks: organizer.socialLinks || { facebook: "", website: "" },
+      contactEmail: organizer.contactEmail || "",
+      _id: organizer._id,
+    };
+
+    return res.status(200).json(responseData);
+
   } catch (err) {
     console.error("❌ Lỗi getOrganizerProfile:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 // 🟢 Thống kê / báo cáo cho 1 organizer (dashboard tổng quan)
 export const getOrganizerReports = async (req, res) => {
   try {
@@ -138,18 +150,33 @@ export const updateOrganizerProfile = async (req, res) => {
   try {
     const userObjectId = new mongoose.Types.ObjectId(req.user._id);
 
+    const updateData = {
+      name: req.body.organizationName,
+      description: req.body.description,
+      phone: req.body.contactPhone,
+      address: req.body.address,
+      socialLinks: req.body.socialLinks,
+    };
+
     const organizer = await Organizer.findOneAndUpdate(
       { userId: userObjectId },
-      req.body,
+      updateData,
       { new: true }
     );
 
     if (!organizer)
-return res.status(404).json({ message: "Organizer not found to update" });
+      return res.status(404).json({ message: "Organizer not found to update" });
 
-    res.status(200).json(organizer);
+    return res.status(200).json({
+      organizationName: organizer.name,
+      description: organizer.description,
+      contactPhone: organizer.phone,
+      address: organizer.address,
+      socialLinks: organizer.socialLinks,
+    });
   } catch (err) {
     console.error("❌ Lỗi updateOrganizerProfile:", err);
     res.status(500).json({ error: err.message });
   }
 };
+

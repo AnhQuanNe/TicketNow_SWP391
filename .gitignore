@@ -30,3 +30,9 @@ yarn-error.log*
 /front-end/node_modules
 /front-end/node_modules/.cache
 /front-end/build/
+
+# env files
+.env
+/back_end/.env
+/front-end/.env
+

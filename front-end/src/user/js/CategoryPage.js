@@ -41,6 +41,9 @@ function CategoryPage() {
 
         // 🔥 FIX CHÍNH: Hỗ trợ string hoặc object khi populate
         const filtered = data.filter((ev) => {
+          // ❗ Chặn event đã bị xóa
+          if (ev.status !== "active") return false;
+
           if (!ev.categoryId) return false;
 
           if (typeof ev.categoryId === "string") {
@@ -53,6 +56,7 @@ function CategoryPage() {
 
           return false;
         });
+
 
         setEvents(filtered);
       })

@@ -181,6 +181,7 @@ export const adminUpdateEvent = async (req, res) => {
       "imageUrl",
       "ticketsAvailable", // thêm
       "ticketTotal", // thêm (nếu có)
+      "status", // ✅ THÊM FIELD NÀY để cho phép restore
     ];
 
     const updateData = {};
@@ -190,7 +191,8 @@ export const adminUpdateEvent = async (req, res) => {
         updateData[field] = req.body[field];
       }
     });
-const updated = await Event.findByIdAndUpdate(id, updateData, {
+
+    const updated = await Event.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
@@ -220,30 +222,30 @@ const updated = await Event.findByIdAndUpdate(id, updateData, {
 // =======================================================
 // 🟥 4) Xóa sự kiện + tất cả booking + review liên quan
 // =======================================================
-export const adminDeleteEvent = async (req, res) => {
+export const adminSoftDeleteEvent = async (req, res) => {
+  console.log("🔴 adminSoftDeleteEvent CALLED! ID:", req.params.id);
+  
   try {
-    const id = req.params.id;
-
-    // Xóa booking trước
-    await Booking.deleteMany({ eventId: id });
-
-    // Xóa review
-    await Review.deleteMany({ eventId: id });
-
-    // Xóa event
-    const deleted = await Event.findByIdAndDelete(id);
-
-    if (!deleted)
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy sự kiện để xóa." });
-
+    const { id } = req.params;
+    
+    const updated = await Event.findByIdAndUpdate(
+      id,
+      { status: "deleted" },
+      { new: true }
+    );
+    
+    console.log("🟢 Updated result:", updated);
+    
+    if (!updated)
+      return res.status(404).json({ message: "Không tìm thấy sự kiện" });
+      
     res.json({
       success: true,
-      message: "Đã xóa sự kiện + booking + review liên quan!",
+      message: "Sự kiện đã bị xóa (soft delete).",
+      event: updated,
     });
   } catch (err) {
-    console.error("❌ adminDeleteEvent Error:", err);
+    console.error("❌ Soft delete error:", err);
     res.status(500).json({ message: "Không thể xóa sự kiện." });
   }
 };
