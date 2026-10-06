@@ -1,25 +1,23 @@
 import React, { useState, useEffect } from "react";
 import "../../App.css";
 import "../css/Banner.css";
+import { getEvents } from "../../api/eventApi";
 
 function Banner({ bannerIndex, nextBanner, prevBanner, selectBanner }) {
   const [events, setEvents] = useState([]);
 
-  // 🟢 Gọi API featured để lấy 3–5 sự kiện cho banner
   useEffect(() => {
-    fetch("http://localhost:5000/api/events/featured")
-      .then((res) => res.json())
-      .then((data) => setEvents(data))
-      .catch((err) => console.error("Lỗi fetch:", err));
-  }, []);
+    const loadEvents = async () => {
+      try {
+        const data = await getEvents();
+        setEvents(data);
+      } catch (err) {
+        console.error("Lỗi fetch:", err);
+      }
+    };
 
-  // 🟢 Nếu chưa có API featured, dùng tạm /search
-  // useEffect(() => {
-  //   fetch("http://localhost:5000/api/events/search")
-  //     .then((res) => res.json())
-  //     .then((data) => setEvents(data.slice(0, 5))) // lấy 5 sự kiện đầu tiên
-  //     .catch((err) => console.error("Lỗi fetch:", err));
-  // }, []);
+    loadEvents();
+  }, []);
 
   if (events.length === 0) {
     return <div className="no-banner">Không có sự kiện</div>;

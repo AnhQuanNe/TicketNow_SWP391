@@ -3,7 +3,7 @@ import Banner from "./Banner";
 import EventSection from "./EventSection";
 //import Favourites from "./Favourites";
 import EventFilterBar from "./EventFilterBar";
-import { API_BASE_URL } from "../../config";
+import { getEvents } from "../../api/eventApi";
 import "../css/Banner.css"
 
 // 🏠 HOMEPAGE (2 BANNER, KHÔNG CATEGORY)
@@ -21,13 +21,18 @@ function HomePage({ searchTerm }) {
 
   // 🟢 FETCH EVENTS từ backend
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/events`)
-      .then((res) => res.json())
-      .then((data) => {
+    const loadEvents = async () => {
+      try {
+        const data = await getEvents();
+
         setEvents(data);
         setFilteredEvents(data);
-      })
-      .catch((err) => console.error(err));
+      } catch (err) {
+        console.error("Lỗi khi fetch events:", err);
+      }
+    };
+
+    loadEvents();
   }, []);
 
   // 🟢 KHÔI PHỤC YÊU THÍCH từ localStorage khi load trang

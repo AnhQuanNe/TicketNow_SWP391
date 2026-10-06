@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "../css/Review.css";
+import {
+    getReviewsByEvent,
+    createReview,
+} from "../../api/reviewApi";
 
 let socketSingleton = null;
 
@@ -31,33 +35,59 @@ const Review = ({ eventId, token, currentUser }) => {
     Kiểu chuẩn phân trang: bao bọc trong object có data và totalPages. */
     const fetchPage = async (p) => {
         if (!eventId) return;
+
         try {
-            const res = await fetch(`http://localhost:5000/api/reviews/event/${eventId}?page=${p}&limit=${limit}`);
-            const json = await res.json();
+            const json = await getReviewsByEvent(eventId, p, limit);
+
             if (Array.isArray(json)) {
-                // legacy array response (no pagination/stats)
+                // legacy array response
                 setReviews(json);
                 setTotalPages(1);
+
                 const cnt = json.length || 0;
                 setTotalCount(cnt);
-                const sum = json.reduce((acc, r) => acc + (r.rating || 0), 0);
-                setAvgAll(cnt ? Math.round((sum / cnt) * 10) / 10 : 0);
+
+                const sum = json.reduce(
+                    (acc, r) => acc + (r.rating || 0),
+                    0
+                );
+
+                setAvgAll(
+                    cnt ? Math.round((sum / cnt) * 10) / 10 : 0
+                );
             } else {
-                const dataArr = Array.isArray(json.data) ? json.data : [];
+                const dataArr = Array.isArray(json.data)
+                    ? json.data
+                    : [];
+
                 setReviews(dataArr);
                 setTotalPages(json.totalPages || 1);
-                const total = typeof json.total === 'number' ? json.total : dataArr.length;
+
+                const total =
+                    typeof json.total === "number"
+                        ? json.total
+                        : dataArr.length;
+
                 setTotalCount(total);
-                // Ưu tiên avgRating từ server; nếu không có thì thử tính từ sumRating/total
-                if (typeof json.avgRating === 'number') {
-                    setAvgAll(Math.round(json.avgRating * 10) / 10);
-                } else if (typeof json.sumRating === 'number' && total > 0) {
-                    setAvgAll(Math.round((json.sumRating / total) * 10) / 10);
+
+                if (typeof json.avgRating === "number") {
+                    setAvgAll(
+                        Math.round(json.avgRating * 10) / 10
+                    );
+                } else if (
+                    typeof json.sumRating === "number" &&
+                    total > 0
+                ) {
+                    setAvgAll(
+                        Math.round((json.sumRating / total) * 10) / 10
+                    );
                 } else {
                     setAvgAll(0);
                 }
             }
-        } catch { }
+        } catch (err) {
+            console.error("Lỗi khi lấy reviews:", err);
+        }
     };
 
     useEffect(() => {
@@ -96,19 +126,19 @@ const Review = ({ eventId, token, currentUser }) => {
 
     const submit = async (e) => {
         e?.preventDefault();
-        if (!canPost) return alert("Vui lòng đăng nhập để đánh giá");
+
+        if (!canPost) {
+            return alert("Vui lòng đăng nhập để đánh giá");
+        }
+
         try {
-            const res = await fetch(`http://localhost:5000/api/reviews/event/${eventId}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ rating, comment }),
+            await createReview(eventId, token, {
+                rating,
+                comment,
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data?.message || "Lỗi gửi review");
+
             setComment("");
+
             setTimeout(() => fetchPage(1), 0);
         } catch (err) {
             alert(err.message);

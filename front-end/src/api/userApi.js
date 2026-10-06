@@ -1,6 +1,7 @@
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 
-const API_URL = "http://localhost:5000/api/users"; // ⚠️ đổi port nếu backend khác
+const API_URL = `${API_BASE_URL}/api/users`;
 
 // 🔹 Lấy thông tin người dùng
 export const getUserById = async (userId, token) => {
@@ -34,13 +35,19 @@ export const toggleFavoriteEvent = async (userId, eventId, token) => {
   return axios.post(
     `${API_URL}/favorites/toggle`,
     { userId, eventId },
-    { headers: { Authorization: `Bearer ${token}` } }
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
 };
 
 // 🧡 Lấy danh sách sự kiện yêu thích
 export const getFavoriteEvents = async (userId, token) => {
   return axios.get(`${API_URL}/${userId}/favorites`, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 };

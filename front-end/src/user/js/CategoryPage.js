@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import EventSection from "./EventSection";
-import { API_BASE_URL } from "../../config";
+import { getEvents } from "../../api/eventApi";
 
 function CategoryPage() {
   const params = useParams();
@@ -35,9 +35,9 @@ function CategoryPage() {
       return;
     }
 
-    fetch(`${API_BASE_URL}/api/events`)
-      .then((res) => res.json())
-      .then((data) => {
+    const loadEvents = async () => {
+      try {
+        const data = await getEvents();
 
         // 🔥 FIX CHÍNH: Hỗ trợ string hoặc object khi populate
         const filtered = data.filter((ev) => {
@@ -57,33 +57,41 @@ function CategoryPage() {
           return false;
         });
 
-
         setEvents(filtered);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Lỗi khi fetch events:", err);
         setEvents([]);
-      });
+      }
+    };
+
+    loadEvents();
   }, [categoryInfo]);
 
   // favorites
   useEffect(() => {
     if (!userId) return;
+
     const storedFavs =
       JSON.parse(localStorage.getItem(`favorites_${userId}`)) || [];
+
     setFavorites(storedFavs);
   }, [userId]);
 
   const toggleFavorite = (event) => {
     setFavorites((prev) => {
       const exists = prev.find((f) => f._id === event._id);
-      let updated = exists
+
+      const updated = exists
         ? prev.filter((f) => f._id !== event._id)
         : [...prev, event];
 
       if (userId) {
-        localStorage.setItem(`favorites_${userId}`, JSON.stringify(updated));
+        localStorage.setItem(
+          `favorites_${userId}`,
+          JSON.stringify(updated)
+        );
       }
+
       return updated;
     });
   };
@@ -91,14 +99,18 @@ function CategoryPage() {
   if (!incomingKey || !categoryInfo) {
     return (
       <div className="container mx-auto py-8">
-        <h2 className="text-xl font-bold">Danh mục không hợp lệ.</h2>
+        <h2 className="text-xl font-bold">
+          Danh mục không hợp lệ.
+        </h2>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto py-8">
-      <h2 className="text-2xl font-bold mb-6">{categoryInfo.name}</h2>
+      <h2 className="text-2xl font-bold mb-6">
+        {categoryInfo.name}
+      </h2>
 
       {events.length > 0 ? (
         <EventSection
@@ -108,9 +120,12 @@ function CategoryPage() {
           toggleFavorite={toggleFavorite}
         />
       ) : (
-        <p>Không có sự kiện {categoryInfo.name.toLowerCase()} nào.</p>
+        <p>
+          Không có sự kiện {categoryInfo.name.toLowerCase()} nào.
+        </p>
       )}
     </div>
   );
 }
+
 export default CategoryPage;

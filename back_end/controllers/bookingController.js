@@ -50,7 +50,7 @@ export const createBookingAfterPayment = async (req, res) => {
           verifyToken,
         });
 
-        const qrUrl = `http://10.12.80.56:5000/api/bookings/check?token=${verifyToken}&eventId=${eventObj.toString()}`;
+        const qrUrl = `http://10.12.80.51:5000/api/bookings/check?token=${verifyToken}&eventId=${eventObj.toString()}`;
         booking.qrCode = await QRCode.toDataURL(qrUrl);
 
         await booking.save();

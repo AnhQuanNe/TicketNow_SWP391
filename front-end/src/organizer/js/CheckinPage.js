@@ -6,7 +6,7 @@ function CheckinPage() {
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
 
-  const API_URL = "http://10.12.80.56:5000/api/bookings/checkin";
+  const API_URL = "http://10.12.80.51:5000/api/bookings/checkin";
 
   const handleCheckin = async (rawText) => {
     try {

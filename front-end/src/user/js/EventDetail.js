@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Review from "./Review";
 import Swal from "sweetalert2";
+import { getEventById } from "../../api/eventApi";
 
 function EventDetail() {
   const { id } = useParams();
@@ -9,18 +10,22 @@ function EventDetail() {
   const [event, setEvent] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/events/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Không tìm thấy sự kiện");
-        return res.json();
-      })
-      .then((data) => {
+    const loadEvent = async () => {
+      try {
+        const data = await getEventById(id);
+
         setEvent({
           ...data,
-          imageURL: data.imageUrl || "https://via.placeholder.com/900x400?text=No+Image",
+          imageURL:
+            data.imageUrl ||
+            "https://via.placeholder.com/900x400?text=No+Image",
         });
-      })
-      .catch((err) => console.error(err));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadEvent();
   }, [id]);
 
   if (!event)
@@ -149,7 +154,7 @@ function EventDetail() {
         <div style={styles.bannerOverlay}>
           <h1 style={styles.title}>{event.title}</h1>
           <p style={styles.subtitle}>
-             {new Date(event.date).toLocaleDateString()} - {" "}
+            {new Date(event.date).toLocaleDateString()} - {" "}
             {new Date(event.date).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
