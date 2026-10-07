@@ -4,7 +4,6 @@ import { fetchAdminReports, fetchEventReport } from "../api/reportApi";
 import { adminFetchEvents } from "../api/eventAdminApi";
 import "../css/Reports.css";
 
-// ⭐ THÊM MỚI — xuất PDF
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -19,11 +18,12 @@ import {
   Tooltip,
   Legend,
   Title,
+  Filler,
 } from "chart.js";
 
 import { Pie, Bar, Line } from "react-chartjs-2";
+import { FaFilePdf, FaCalendarAlt, FaArrowLeft, FaChartBar, FaTicketAlt, FaStar, FaMoneyBillWave } from "react-icons/fa";
 
-// Register ChartJS
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -33,30 +33,25 @@ ChartJS.register(
   LineElement,
   Tooltip,
   Legend,
-  Title
+  Title,
+  Filler
 );
 
 export default function Reports() {
   const [report, setReport] = useState(null);
-
   const [showEventList, setShowEventList] = useState(false);
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventReport, setEventReport] = useState(null);
 
-  // ===============================
-  // 📌 Load Report Tổng
-  // ===============================
+  // Load Report Tổng
   useEffect(() => {
     fetchAdminReports().then((data) => {
-      console.log("📊 ADMIN REPORT:", data);
       setReport(data);
     });
   }, []);
 
-  // ===============================
-  // 📌 Load danh sách sự kiện khi bật chế độ xem sự kiện
-  // ===============================
+  // Load danh sách sự kiện khi bật chế độ xem sự kiện
   useEffect(() => {
     if (showEventList) {
       adminFetchEvents().then((data) => {
@@ -65,16 +60,14 @@ export default function Reports() {
     }
   }, [showEventList]);
 
-  // ===============================
-  // 📌 Load Report theo sự kiện
-  // ===============================
+  // Load Report theo sự kiện
   const loadEventReport = async (eventId) => {
     const data = await fetchEventReport(eventId);
     setSelectedEvent(eventId);
     setEventReport(data);
   };
 
-  // ⭐ THÊM MỚI — FUNCTION XUẤT PDF
+  // Function xuất PDF
   const exportPDF = async () => {
     const input = document.getElementById("report-content");
     if (!input) return alert("Không tìm thấy nội dung để xuất PDF");
@@ -99,44 +92,36 @@ export default function Reports() {
     );
   };
 
-  if (!report) return <p>⏳ Đang tải báo cáo...</p>;
+  if (!report) {
+    return (
+      <div className="report-page-container">
+        <div style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>
+          <p>⏳ Đang tổng hợp dữ liệu báo cáo hệ thống...</p>
+        </div>
+      </div>
+    );
+  }
 
   const pie = report?.pieCounts || { student: 0, guest: 0, remaining: 0 };
-  const student = pie.student;
-  const guest = pie.guest;
-  const remaining = pie.remaining;
+  const student = pie.student || 0;
+  const guest = pie.guest || 0;
+  const remaining = pie.remaining || 0;
 
   const ratings = report?.ratingDistribution || [];
   const revenue = report?.revenueByMonth || [];
 
   return (
-    // ⭐ BỌC TOÀN BỘ NỘI DUNG REPORT
-<div id="report-content" style={{ padding: "20px" }}>
-      {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 25,
-        }}
-      >
-        <h2 className="fw-bold">📊 Báo cáo & Thống kê</h2>
+    <div className="report-page-container" id="report-content">
+      {/* Header & Toolbar */}
+      <div className="report-toolbar">
+        <div className="report-toolbar-title">
+          <FaChartBar style={{ color: "#ff7a18" }} />
+          <span>Báo Cáo & Thống Kê Toàn Hệ Thống</span>
+        </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          {/* ⭐ THÊM NÚT XUẤT PDF */}
-          <button
-            onClick={exportPDF}
-            style={{
-              padding: "10px 18px",
-              background: "#10b981",
-              color: "white",
-              border: "none",
-              borderRadius: 8,
-              fontWeight: 600,
-            }}
-          >
-            📄 Xuất PDF
+        <div className="report-btn-group">
+          <button onClick={exportPDF} className="btn-pdf">
+            <FaFilePdf /> Xuất PDF
           </button>
 
           <button
@@ -145,59 +130,38 @@ export default function Reports() {
               setSelectedEvent(null);
               setEventReport(null);
             }}
-            style={{
-              padding: "10px 18px",
-              background: showEventList ? "#ff7a18" : "#4f86ff",
-              color: "white",
-              border: "none",
-              borderRadius: 8,
-              fontWeight: 600,
-            }}
+            className={`btn-switch-mode ${showEventList ? "" : "mode-event"}`}
           >
-            {showEventList
-              ? "⬅️ Quay về báo cáo tổng"
-              : "📅 Báo cáo theo sự kiện"}
+            {showEventList ? (
+              <>
+                <FaArrowLeft /> Báo cáo tổng
+              </>
+            ) : (
+              <>
+                <FaCalendarAlt /> Báo cáo theo sự kiện
+              </>
+            )}
           </button>
         </div>
       </div>
 
-      {/* =============================
-          DANH SÁCH SỰ KIỆN
-      ============================== */}
+      {/* DANH SÁCH SỰ KIỆN */}
       {showEventList && !selectedEvent && (
         <div style={{ marginBottom: 30 }}>
-          <h3 className="fw-bold mb-3">📅 Danh sách sự kiện</h3>
+          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: "#0f172a" }}>
+            📅 Chọn sự kiện để xem báo cáo chi tiết:
+          </h3>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: "16px",
-            }}
-          >
+          <div className="event-selection-grid">
             {events.map((ev) => (
               <div
                 key={ev._id}
                 onClick={() => loadEventReport(ev._id)}
-                style={{
-                  padding: "20px",
-                  background: "white",
-                  borderRadius: 12,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  borderLeft: "6px solid #4f86ff",
-                  cursor: "pointer",
-                  transition: "0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "translateY(-4px)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "translateY(0)")
-                }
+                className="event-select-card"
               >
-                <h4 style={{ marginBottom: 6 }}>{ev.title}</h4>
-                <p style={{ color: "#777" }}>
-                  📅 {new Date(ev.date).toLocaleDateString("vi-VN")}
+                <h4>{ev.title}</h4>
+                <p>
+                  <FaCalendarAlt /> {new Date(ev.date).toLocaleDateString("vi-VN")}
                 </p>
               </div>
             ))}
@@ -205,111 +169,122 @@ export default function Reports() {
         </div>
       )}
 
-      {/* =============================
-          BÁO CÁO CHI TIẾT SỰ KIỆN
-============================== */}
+      {/* BÁO CÁO CHI TIẾT SỰ KIỆN */}
       {selectedEvent && eventReport && (
         <div style={{ marginBottom: 40 }}>
-          <h3 className="fw-bold mb-4">
-            📈 Báo cáo sự kiện: {eventReport.title}
-          </h3>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a" }}>
+              📈 Báo cáo sự kiện: {eventReport.title}
+            </h3>
+            <button
+              onClick={() => {
+                setSelectedEvent(null);
+                setEventReport(null);
+              }}
+              style={{
+                padding: "8px 14px",
+                background: "#f1f5f9",
+                color: "#334155",
+                borderRadius: 10,
+                fontWeight: 600,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              ⬅️ Chọn sự kiện khác
+            </button>
+          </div>
 
           {/* SUMMARY CARDS */}
-          <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
+          <div className="summary-container">
             <SummaryCard
-              title="Tổng đơn"
-              value={eventReport.totalOrders}
-              color="#4f86ff"
+              title="Tổng đơn hàng"
+              value={eventReport.totalOrders || 0}
+              color="#3b82f6"
             />
             <SummaryCard
               title="Vé đã bán"
-              value={
-                eventReport.pieCounts.student + eventReport.pieCounts.guest
-              }
+              value={(eventReport.pieCounts.student || 0) + (eventReport.pieCounts.guest || 0)}
               color="#10b981"
             />
             <SummaryCard
-              title="Doanh thu"
-              value={eventReport.totalRevenue.toLocaleString("vi-VN") + " đ"}
+              title="Doanh thu sự kiện"
+              value={(eventReport.totalRevenue || 0).toLocaleString("vi-VN") + " đ"}
               color="#ff7a18"
             />
           </div>
 
-          {/* PIE CHART */}
-          <div className="chart-box" style={{ marginBottom: 30 }}>
-            <h4 className="fw-bold">🎟️ Tỷ lệ loại vé</h4>
-            <Pie
-              data={{
-                labels: [
-                  `Student (${eventReport.pieCounts.student})`,
-                  `Guest (${eventReport.pieCounts.guest})`,
-                  `Remaining (${eventReport.pieCounts.remaining})`,
-                ],
-                datasets: [
-                  {
-                    data: [
-                      eventReport.pieCounts.student,
-                      eventReport.pieCounts.guest,
-                      eventReport.pieCounts.remaining,
-                    ],
-                    backgroundColor: ["#4f86ff", "#ff7a18", "#bfbfbf"],
-                  },
-                ],
-              }}
-            />
-          </div>
+          {/* CHARTS */}
+          <div className="charts-dual-grid">
+            <div className="chart-box">
+              <div className="chart-box-header">
+                <h4><FaTicketAlt style={{ color: "#3b82f6" }} /> Tỷ lệ loại vé</h4>
+                <div className="chart-box-subtitle">Cơ cấu số vé phát hành</div>
+              </div>
+              <Pie
+                data={{
+                  labels: [
+                    `Sinh viên (${eventReport.pieCounts.student})`,
+                    `Khách mời (${eventReport.pieCounts.guest})`,
+                    `Còn lại (${eventReport.pieCounts.remaining})`,
+                  ],
+                  datasets: [
+                    {
+                      data: [
+                        eventReport.pieCounts.student,
+                        eventReport.pieCounts.guest,
+                        eventReport.pieCounts.remaining,
+                      ],
+                      backgroundColor: ["#3b82f6", "#ff7a18", "#cbd5e1"],
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { position: "bottom" } },
+                }}
+              />
+            </div>
 
-          {/* RATING CHART */}
-          <div className="chart-box" style={{ marginBottom: 30 }}>
-            <h4 className="fw-bold">⭐ Phân loại đánh giá</h4>
-            <Bar
-              data={{
-                labels: eventReport.ratingDistribution.map(
-                  (r) => `${r.rating} sao`
-                ),
-                datasets: [
-                  {
-                    label: "Số lượng",
-                    data: eventReport.ratingDistribution.map((r) => r.count),
-                    backgroundColor: "#10b981",
-                  },
-                ],
-              }}
-            />
+            <div className="chart-box">
+              <div className="chart-box-header">
+                <h4><FaStar style={{ color: "#eab308" }} /> Phân loại đánh giá</h4>
+                <div className="chart-box-subtitle">Mức độ hài lòng của người tham gia</div>
+              </div>
+              <Bar
+                data={{
+                  labels: eventReport.ratingDistribution.map((r) => `${r.rating} ⭐`),
+                  datasets: [
+                    {
+                      label: "Số lượt đánh giá",
+                      data: eventReport.ratingDistribution.map((r) => r.count),
+                      backgroundColor: "#10b981",
+                      borderRadius: 6,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                }}
+              />
+            </div>
           </div>
-
-          <button
-            onClick={() => {
-              setSelectedEvent(null);
-              setEventReport(null);
-            }}
-            style={{
-              marginTop: 15,
-              padding: "10px 18px",
-              background: "#ff7a18",
-              color: "white",
-              border: "none",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
-          >
-            ⬅️ Quay lại danh sách sự kiện
-          </button>
         </div>
       )}
 
-      {/* =============================
-BÁO CÁO TỔNG
-      ============================== */}
+      {/* BÁO CÁO TỔNG QUAN */}
       {!showEventList && (
         <>
           {/* SUMMARY CARDS */}
-          <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
+          <div className="summary-container">
             <SummaryCard
               title="Tổng sự kiện"
               value={report.totalEvents || 0}
-              color="#4f86ff"
+              color="#3b82f6"
             />
             <SummaryCard
               title="Tổng đơn đặt"
@@ -317,69 +292,129 @@ BÁO CÁO TỔNG
               color="#10b981"
             />
             <SummaryCard
+              title="Doanh thu vé"
+              value={(report.ticketRevenue || 0).toLocaleString("vi-VN") + " đ"}
+              color="#0284c7"
+            />
+            <SummaryCard
+              title="Doanh thu quảng bá"
+              value={(report.promotionRevenue || 0).toLocaleString("vi-VN") + " đ"}
+              color="#059669"
+            />
+            <SummaryCard
               title="Tổng doanh thu"
-              value={report.totalRevenue.toLocaleString("vi-VN") + " đ"}
+              value={(report.totalRevenue || 0).toLocaleString("vi-VN") + " đ"}
               color="#ff7a18"
             />
           </div>
 
-          {/* PIE */}
-          <div className="chart-box" style={{ marginBottom: 30 }}>
-            <h4 className="fw-bold">🎟️ Tỷ lệ loại vé</h4>
-            <Pie
-              data={{
-                labels: [
-                  `Student (${student})`,
-                  `Guest (${guest})`,
-                  `Remaining (${remaining})`,
-                ],
-                datasets: [
-                  {
-                    data: [student, guest, remaining],
-                    backgroundColor: ["#4f86ff", "#ff7a18", "#bfbfbf"],
-                  },
-                ],
-              }}
-            />
+          {/* DUAL CHARTS */}
+          <div className="charts-dual-grid">
+            <div className="chart-box">
+              <div className="chart-box-header">
+                <h4><FaTicketAlt style={{ color: "#3b82f6" }} /> Tỷ lệ cơ cấu vé</h4>
+                <div className="chart-box-subtitle">Phân bố trên toàn bộ các sự kiện</div>
+              </div>
+              <div style={{ height: 260 }}>
+                <Pie
+                  data={{
+                    labels: [
+                      `Sinh viên (${student})`,
+                      `Khách mời (${guest})`,
+                      `Còn lại (${remaining})`,
+                    ],
+                    datasets: [
+                      {
+                        data: [student, guest, remaining],
+                        backgroundColor: ["#3b82f6", "#ff7a18", "#cbd5e1"],
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: "bottom" } },
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="chart-box">
+              <div className="chart-box-header">
+                <h4><FaStar style={{ color: "#eab308" }} /> Phân loại đánh giá</h4>
+                <div className="chart-box-subtitle">Thống kê xếp hạng sao từ khán giả</div>
+              </div>
+              <div style={{ height: 260 }}>
+                <Bar
+                  data={{
+                    labels: ratings.map((r) => `${r.rating} ⭐`),
+                    datasets: [
+                      {
+                        label: "Số lượng đánh giá",
+                        data: ratings.map((r) => r.count),
+                        backgroundColor: "#10b981",
+                        borderRadius: 6,
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
-          {/* RATING */}
-          <div className="chart-box" style={{ marginBottom: 30 }}>
-            <h4 className="fw-bold">⭐ Phân loại đánh giá</h4>
-
-            <Bar
-              data={{
-                labels: ratings.map((r) => `${r.rating} sao`),
-                datasets: [
-                  {
-                    label: "Số lượng",
-                    data: ratings.map((r) => r.count),
-                    backgroundColor: "#10b981",
-                  },
-                ],
-              }}
-            />
-          </div>
-
-          {/* REVENUE */}
+          {/* MONTHLY REVENUE CHART */}
           <div className="chart-box">
-            <h4 className="fw-bold">📈 Doanh thu theo tháng</h4>
-
-            <Line
-              data={{
-                labels: revenue.map((m) => m.monthLabel),
-                datasets: [
-                  {
-                    label: "Doanh thu (VND)",
-                    data: revenue.map((m) => m.total),
-                    borderColor: "#4f86ff",
-                    backgroundColor: "rgba(79,134,255,0.25)",
-                    fill: true,
-                    tension: 0.3,
+            <div className="chart-box-header">
+              <h4><FaMoneyBillWave style={{ color: "#ff7a18" }} /> Tăng trưởng doanh thu theo tháng</h4>
+              <div className="chart-box-subtitle">Dòng tiền bán vé và quảng bá thực thu</div>
+            </div>
+            <div style={{ height: 320 }}>
+              <Line
+                data={{
+                  labels: revenue.map((m) => m.monthLabel),
+                  datasets: [
+                    {
+                      label: "Doanh thu (VND)",
+                      data: revenue.map((m) => m.total),
+                      borderColor: "#ff7a18",
+                      backgroundColor: "rgba(255, 122, 24, 0.12)",
+                      fill: true,
+                      tension: 0.35,
+                      borderWidth: 3,
+                      pointBackgroundColor: "#ff7a18",
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                      callbacks: {
+                        label: (ctx) => ` Doanh thu: ${Number(ctx.raw).toLocaleString("vi-VN")} đ`,
+                      },
+                    },
                   },
-                ],
-              }}
-            />
+                  scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                      beginAtZero: true,
+                      grid: { color: "#f1f5f9" },
+                      ticks: {
+                        callback: (val) => `${(val / 1000000).toFixed(1)}M đ`,
+                      },
+                    },
+                  },
+                }}
+              />
+            </div>
           </div>
         </>
       )}
@@ -387,23 +422,12 @@ BÁO CÁO TỔNG
   );
 }
 
-/* ==========================================
-   SUMMARY CARD
-========================================== */
 function SummaryCard({ title, value, color }) {
   return (
-    <div
-      style={{
-        flex: 1,
-        padding: 20,
-        borderRadius: 12,
-        background: "#fff",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-        borderLeft: `6px solid ${color}`,
-      }}
-    >
-<h4 style={{ marginBottom: 10, color: "#7d7d7d" }}>{title}</h4>
-      <h2 style={{ color, fontWeight: "bold" }}>{value}</h2>
+    <div className="summary-card" style={{ "--color": color }}>
+      <div className="summary-top-bar" style={{ background: color }}></div>
+      <div className="summary-title">{title}</div>
+      <div className="summary-value" style={{ color }}>{value}</div>
     </div>
   );
 }

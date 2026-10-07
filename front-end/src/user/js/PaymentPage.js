@@ -69,9 +69,26 @@ function Payment() {
   }, [token]); // 🟢 [ĐÃ SỬA] — thêm token vào dependency để ESLint không cảnh báo
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>💳 Đang xử lý thanh toán...</h2>
-      {loading && <p>⏳ Đang tạo link thanh toán, vui lòng chờ...</p>}
+    <div style={{
+      textAlign: "center",
+      minHeight: "100vh",
+      background: "#0b0d13",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "#e2e8f0",
+    }}>
+      <div style={{
+        background: "#141824",
+        padding: "40px 48px",
+        borderRadius: "20px",
+        border: "1px solid rgba(255,255,255,0.07)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+      }}>
+        <h2 style={{ color: "#ffffff", marginBottom: "12px" }}>💳 Đang xử lý thanh toán...</h2>
+        {loading && <p style={{ color: "#00E599" }}>⏳ Đang tạo link thanh toán, vui lòng chờ...</p>}
+      </div>
     </div>
   );
 }

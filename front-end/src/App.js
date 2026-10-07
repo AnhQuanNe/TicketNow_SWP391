@@ -1,13 +1,12 @@
 import React, { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
 import "./user/css/Banner.css";
 import "./user/css/EventSection.css";
 import "./user/css/Favourites.css";
 import "./user/css/Footer.css";
 import "./user/css/Header.css";
 import "./user/css/MyNavbar.css";
-import "./App.css";
-
-import "bootstrap/dist/css/bootstrap.min.css";
 import {
   BrowserRouter as Router,
   Routes,
@@ -40,6 +39,7 @@ import Reports from "./admin/js/Reports";
 import Notification from "./admin/js/Notification";
 import AdminRoute from "./admin/js/AdminRoute";
 import EventManager from "./admin/js/EventManager";
+import PromotionManager from "./admin/js/PromotionManager";
 import VerifyEmail from "./user/js/VerifyEmail";
 import ChatWidget from "./user/js/ChatWidget";
 
@@ -111,6 +111,7 @@ function AppContent() {
           <Route path="users" element={<UserManagement />} />{" "}
           {/* /admin/users */}
           <Route path="events" element={<EventManager />} /> {/* /admin/events */}
+          <Route path="promotions" element={<PromotionManager />} /> {/* /admin/promotions */}
           <Route path="reports" element={<Reports />} /> {/* /admin/reports */}
           <Route path="notifications" element={<Notification />} />{" "}
           {/* /admin/notifications */}

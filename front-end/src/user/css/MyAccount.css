@@ -1,25 +1,47 @@
+/* ========================================================
+   👤 MyAccount.css - Emerald Obsidian Dark Theme
+   ======================================================== */
+
 .account-page {
   max-width: 600px;
-  margin: 60px auto;
-  background: #fff;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  font-family: "Segoe UI", sans-serif;
+  margin: 48px auto;
+  background: #141824;
+  padding: 36px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.account-page::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(0, 229, 153, 0.06) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .account-page h2 {
   text-align: center;
-  margin-bottom: 24px;
-  color: #ff8c42;
-  font-weight: 700;
+  margin-bottom: 28px;
+  font-weight: 800;
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, #00E599 20%, #67e8f9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ==== Avatar Section ==== */
 .avatar-section {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .avatar-wrapper {
@@ -33,8 +55,8 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #ff8c42;
-  box-shadow: 0 4px 10px rgba(255, 140, 66, 0.3);
+  border: 3px solid rgba(0, 229, 153, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 229, 153, 0.2);
 }
 
 /* 📸 Icon upload */
@@ -42,8 +64,8 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  background: #ff8c42;
-  color: white;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #0b0d13;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -53,12 +75,12 @@
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 229, 153, 0.3);
 }
 
 .upload-icon:hover {
-  background: #ff7a1f;
-  transform: scale(1.1);
+  transform: scale(1.12);
+  box-shadow: 0 4px 14px rgba(0, 229, 153, 0.45);
 }
 
 /* ==== Form Fields ==== */
@@ -66,63 +88,85 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 12px;
+  gap: 14px;
 }
 
 .info-fields label {
   font-weight: 600;
-  color: #444;
+  color: #cbd5e1;
+  font-size: 0.92rem;
 }
 
-.info-fields input {
+.info-fields input,
+.info-fields select {
   width: 100%;
   padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fafafa;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
   font-size: 0.95rem;
-  transition: border-color 0.2s;
+  font-family: inherit;
+  transition: all 0.25s ease;
 }
 
-.info-fields input:focus {
+.info-fields input:focus,
+.info-fields select:focus {
   outline: none;
-  border-color: #ff8c42;
-  background: #fff;
+  border-color: #00E599;
+  background: rgba(0, 229, 153, 0.04);
+  box-shadow: 0 0 12px rgba(0, 229, 153, 0.15);
 }
 
 .info-fields input[disabled] {
-  background: #f3f3f3;
-  color: #888;
+  background: rgba(255, 255, 255, 0.02);
+  color: #4a5568;
   cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.04);
 }
 
 /* ==== Save Button ==== */
 .save-btn {
-  background: #ff8c42;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
   border: none;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 10px;
-  margin-top: 12px;
+  color: #0b0d13;
+  padding: 12px 20px;
+  border-radius: 12px;
+  margin-top: 16px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
   transition: all 0.3s ease;
+  box-shadow: 0 3px 12px rgba(0, 229, 153, 0.25);
+  width: 100%;
 }
 
 .save-btn:hover {
-  background: #ff7a1f;
   transform: translateY(-2px);
+  box-shadow: 0 5px 18px rgba(0, 229, 153, 0.4);
+  filter: brightness(1.08);
 }
 
 /* ==== Status Message ==== */
 .status-msg {
-  margin-top: 8px;
+  margin-top: 12px;
   text-align: center;
   font-size: 0.9rem;
-  color: #2e7d32;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
+/* ✅ Thành công */
+.status-msg.success {
+  color: #00E599;
+}
+
+/* ❌ Lỗi */
+.status-msg.error {
+  color: #ef4444;
+}
+
+/* ==== Gender Options ==== */
 .gender-options {
   display: flex;
   gap: 20px;
@@ -135,23 +179,34 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  font-size: 0.92rem;
+  color: #94a3b8;
+}
+
+.gender-options input[type="radio"] {
+  accent-color: #00E599;
+}
+
+/* ==== DatePicker Override ==== */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
   font-size: 0.95rem;
+  font-family: inherit;
 }
 
-.status-msg {
-  margin-top: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  text-align: center;
-  transition: color 0.3s ease;
-}
-
-/* ✅ Thành công */
-.status-msg.success {
-  color: #28a745; /* xanh lá */
-}
-
-/* ❌ Lỗi */
-.status-msg.error {
-  color: #dc3545; /* đỏ */
+/* Responsive */
+@media (max-width: 640px) {
+  .account-page {
+    margin: 24px 16px;
+    padding: 24px;
+  }
 }

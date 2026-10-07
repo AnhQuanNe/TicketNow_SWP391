@@ -1,107 +1,123 @@
+/* ==========================================================================
+   ADMIN SIDEBAR - MODERN SLEEK NAVIGATION
+   ========================================================================== */
+
 .sidebar {
-  width: 230px;
+  width: 260px;
   height: 100vh;
-  background: #fff;
+  background: #ffffff;
   position: fixed;
   left: 0;
   top: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 30px 0;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
-  z-index: 100;
-  transition: all 0.3s ease;
+  padding: 24px 16px;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 2px 0 16px rgba(15, 23, 42, 0.04);
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 🧡 Logo */
+/* 🧡 Logo Header */
 .sidebar-logo {
-  padding: 0 28px 32px;
+  padding: 8px 12px 24px 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid #f3f3f3;
+  gap: 12px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .logo-img {
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
 }
 
 .logo-text {
   font-size: 20px;
-  font-weight: 700;
-  color: #2c3e50;
-  background: linear-gradient(90deg, #ff8c42, #ff6b35);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ff7a18 0%, #ff4d00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* 🧭 Menu */
+/* 🧭 Menu Navigation */
 .sidebar-menu {
   flex: 1;
-  padding: 0 20px;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
-  margin-bottom: 8px;
+  gap: 14px;
+  padding: 12px 16px;
   border-radius: 12px;
-  color: #7f8c8d;
-  font-size: 15px;
-  font-weight: 500;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
 
 .menu-item:hover {
-  background: #fff5eb;
-  color: #ff6b35;
+  background: #fff7ed;
+  color: #ea580c;
   transform: translateX(3px);
 }
 
 .menu-item.active {
-  background: linear-gradient(90deg, #ff8c42, #ff6b35);
-  color: white;
-  box-shadow: 0 2px 8px rgba(255, 108, 32, 0.2);
+  background: linear-gradient(135deg, #ff7a18 0%, #ea580c 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(255, 122, 24, 0.28);
+  font-weight: 700;
+}
+
+.menu-item.active:hover {
+  transform: none;
+  color: #ffffff;
 }
 
 .menu-item-icon {
-  font-size: 18px;
-  width: 20px;
-  text-align: center;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
 }
 
-/* 🧾 Footer */
+/* 🧾 Footer & Logout */
 .sidebar-footer {
-  padding: 20px 30px 0;
-  border-top: 1px solid #f2f2f2;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .logout-btn {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
-  color: #ff6b35;
-  font-size: 15px;
-  font-weight: 500;
-  background: transparent;
+  padding: 12px 16px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 600;
+  background: #fef2f2;
   border-radius: 12px;
-  border: none;
+  border: 1px solid #fee2e2;
   width: 100%;
   text-align: left;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .logout-btn:hover {
-  background: #fff5eb;
-  color: #ff8c42;
-  transform: translateX(3px);
+  background: #fee2e2;
+  color: #dc2626;
+  transform: translateY(-1px);
 }

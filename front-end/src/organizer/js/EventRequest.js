@@ -194,89 +194,99 @@ className={errors.eventName ? 'input-error' : ''}
           />
         </label>
 
-        <label>
-          Ngày Diễn Ra<span className="required-star">*</span>
-          <input
-            type="datetime-local"
-            name="eventDate"
-            value={formData.eventDate}
-            onChange={handleChange}
-            className={errors.eventDate ? 'input-error' : ''}
-            required
-          />
-        </label>
+        <div className="form-row-2">
+          <label>
+            Ngày Diễn Ra<span className="required-star">*</span>
+            <input
+              type="datetime-local"
+              name="eventDate"
+              value={formData.eventDate}
+              onChange={handleChange}
+              className={errors.eventDate ? 'input-error' : ''}
+              required
+            />
+          </label>
 
-        <label>
-          Thể loại (Category)<span className="required-star">*</span>
-          <select
-            name="categoryId"
-            value={formData.categoryId}
-            onChange={handleChange}
-            className={errors.categoryId ? 'input-error' : ''}
-            required
-          >
-            <option value="" disabled>
-              -- Chọn thể loại --
-            </option>
-            {categories.map((c) => {
-              const id = c._id; // _id trong collection Categories (ví dụ: cat_music)
-              return (
-                <option key={id} value={id}>
-                  {c.name}
-                </option>
-              );
-            })}
-          </select>
-        </label>
+          <label>
+            Thể loại (Category)<span className="required-star">*</span>
+            <select
+              name="categoryId"
+              value={formData.categoryId}
+              onChange={handleChange}
+              className={errors.categoryId ? 'input-error' : ''}
+              required
+            >
+              <option value="" disabled>
+                -- Chọn thể loại --
+              </option>
+              {categories.map((c) => {
+                const id = c._id;
+                return (
+                  <option key={id} value={id}>
+                    {c.name}
+                  </option>
+                );
+              })}
+            </select>
+          </label>
+        </div>
 
-        <label>
-          Địa Điểm<span className="required-star">*</span>
-          <input
-            type="text"
-            name="eventLocation"
-            value={formData.eventLocation}
-            onChange={handleChange}
-            className={errors.eventLocation ? 'input-error' : ''}
-            required
-          />
-        </label>
+        <div className="form-row-2">
+          <label>
+            Địa Điểm<span className="required-star">*</span>
+            <input
+              type="text"
+              name="eventLocation"
+              placeholder="VD: Sân vận động Mỹ Đình, Hà Nội"
+              value={formData.eventLocation}
+              onChange={handleChange}
+              className={errors.eventLocation ? 'input-error' : ''}
+              required
+            />
+          </label>
 
-        <label>
-          Số Lượng Vé<span className="required-star">*</span>
-          <input
-            type="number"
-            name="ticketCount"
-            value={formData.ticketCount}
-            onChange={handleChange}
-            className={errors.ticketCount ? 'input-error' : ''}
-            required
-          />
-        </label>
+          <label>
+            Số Lượng Vé<span className="required-star">*</span>
+            <input
+              type="number"
+              name="ticketCount"
+              placeholder="VD: 500"
+              value={formData.ticketCount}
+              onChange={handleChange}
+              className={errors.ticketCount ? 'input-error' : ''}
+              required
+            />
+          </label>
+        </div>
 
-        {/* 🟢 THÊM 2 INPUT GIÁ VÉ MỚI */}
-        <label>
-          Giá Vé Học Sinh (VND)<span className="required-star">*</span>
-          <input
-            type="number"
-            name="studentPrice"
-            value={formData.studentPrice}
-            onChange={handleChange}
-            className={errors.studentPrice ? 'input-error' : ''}
-            required
-          />
-        </label>
+        {/* 🟢 2 INPUT GIÁ VÉ */}
+        <div className="form-row-2">
+          <label>
+            Giá Vé Học Sinh (VND)<span className="required-star">*</span>
+            <input
+              type="number"
+              name="studentPrice"
+              placeholder="VD: 150000"
+              value={formData.studentPrice}
+              onChange={handleChange}
+              className={errors.studentPrice ? 'input-error' : ''}
+              required
+            />
+          </label>
 
-        <label>
-          Giá Vé Người Thường (VND)<span className="required-star">*</span>
-          <input
-            type="number"
-            name="regularPrice"
-            value={formData.regularPrice}
-            onChange={handleChange}
-            className={errors.regularPrice ? 'input-error' : ''}
-            required
-          />
-        </label>
+          <label>
+            Giá Vé Người Thường (VND)<span className="required-star">*</span>
+            <input
+              type="number"
+              name="regularPrice"
+              placeholder="VD: 300000"
+              value={formData.regularPrice}
+              onChange={handleChange}
+              className={errors.regularPrice ? 'input-error' : ''}
+              required
+            />
+          </label>
+        </div>
 
         <label>
           Mô Tả Sự Kiện<span className="required-star">*</span>
@@ -292,14 +302,37 @@ className={errors.description ? 'input-error' : ''}
         </label>
 
         <label>
-          Ảnh Bìa
+          Ảnh Bìa Sự Kiện
           <input
             type="file"
-            //name="coverImage"
             accept="image/*"
             onChange={handleUploadImage}
             ref={fileInputRef}
           />
+          {uploading && (
+            <p style={{ color: '#00E599', fontSize: '0.85rem', marginTop: 4 }}>
+              ⏳ Đang tải ảnh lên Cloudinary...
+            </p>
+          )}
+          {formData.coverImage && (
+            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <img
+                src={formData.coverImage}
+                alt="Ảnh bìa xem trước"
+                style={{
+                  width: 90,
+                  height: 56,
+                  objectFit: 'cover',
+                  borderRadius: 8,
+                  border: '1.5px solid #00E599',
+                  boxShadow: '0 4px 12px rgba(0, 229, 153, 0.25)'
+                }}
+              />
+              <span style={{ fontSize: '0.85rem', color: '#34d399', fontWeight: 600 }}>
+                ✓ Đã tải ảnh bìa lên thành công
+              </span>
+            </div>
+          )}
         </label>
 
         <div className="rules-confirm">
@@ -327,19 +360,32 @@ className={errors.description ? 'input-error' : ''}
         <div className="rules-modal-overlay" onClick={() => setShowRules(false)}>
           <div className="rules-modal" onClick={(e) => e.stopPropagation()}>
             <OrganizerRules />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12, gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16, gap: 10 }}>
               <button
                 type="button"
                 onClick={() => { setShowRules(false); setAgreed(true); }}
                 style={{
-                  background: '#ff7b00', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 8, cursor: 'pointer', fontWeight: 600
+                  background: 'linear-gradient(135deg, #00E599 0%, #00B4D8 100%)',
+                  color: '#080a0f',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  boxShadow: '0 4px 14px rgba(0, 229, 153, 0.35)'
                 }}
               >Tôi đã đọc & đồng ý</button>
               <button
                 type="button"
                 onClick={() => setShowRules(false)}
                 style={{
-                  background: '#eee', color: '#333', border: '1px solid #ccc', padding: '10px 18px', borderRadius: 8, cursor: 'pointer', fontWeight: 500
+                  background: '#1e2433',
+                  color: '#94a3b8',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  padding: '10px 20px',
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                  fontWeight: 600
                 }}
               >Đóng</button>
             </div>

@@ -1,95 +1,109 @@
+/* ==========================================================================
+   ADMIN STATS CARD - MODERN METRICS
+   ========================================================================== */
+
 .stats-card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    gap: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  border: 1px solid #e2e8f0;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .stats-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+  border-color: #cbd5e1;
 }
 
 .stats-icon {
-    width: 70px;
-    height: 70px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    color: white;
-    flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: white;
+  flex-shrink: 0;
 }
 
 .stats-icon.sales {
-    background: linear-gradient(135deg, #4ECDC4 0%, #44B8B0 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
 }
 
 .stats-icon.customers {
-    background: linear-gradient(135deg, #45B7D1 0%, #3AA0C0 100%);
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  box-shadow: 0 6px 18px rgba(56, 189, 248, 0.3);
 }
 
 .stats-icon.revenue {
-    background: linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%);
+  background: linear-gradient(135deg, #ff7a18 0%, #ea580c 100%);
+  box-shadow: 0 6px 18px rgba(255, 122, 24, 0.3);
 }
 
 .stats-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .stats-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
 .stats-label {
-    font-size: 15px;
-    color: #7f8c8d;
-    font-weight: 500;
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 600;
 }
 
 .stats-period {
-    font-size: 12px;
-    color: #bdc3c7;
+  font-size: 12px;
+  color: #94a3b8;
+  background: #f8fafc;
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
 .stats-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 8px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+  line-height: 1.2;
 }
 
 .stats-change {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .stats-change.positive {
-    color: #27ae60;
+  color: #16a34a;
 }
 
 .stats-change.negative {
-    color: #e74c3c;
+  color: #dc2626;
 }
 
 .change-icon {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .change-text {
-    color: #95a5a6;
-    font-weight: 400;
+  color: #94a3b8;
+  font-weight: 500;
 }

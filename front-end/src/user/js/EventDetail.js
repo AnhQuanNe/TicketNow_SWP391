@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Review from "./Review";
 import Swal from "sweetalert2";
 import { getEventById } from "../../api/eventApi";
+import "../../user/css/EventDetail.css";
 
 function EventDetail() {
   const { id } = useParams();
@@ -30,10 +31,11 @@ function EventDetail() {
 
   if (!event)
     return (
-      <div style={{ textAlign: "center", color: "#ff4da6", marginTop: 50 }}>
-        ❌ Không tìm thấy sự kiện.
+      <div style={{ textAlign: "center", color: "#00E599", marginTop: 50, background: "#0b0d13", minHeight: "100vh", paddingTop: 100 }}>
+        ⏳ Đang tải sự kiện...
       </div>
     );
+
   const handleBuyTicket = () => {
     const loggedIn = localStorage.getItem("user");
 
@@ -43,6 +45,9 @@ function EventDetail() {
         title: "Bạn chưa đăng nhập",
         text: "Vui lòng đăng nhập để mua vé!",
         confirmButtonText: "OK",
+        background: "#141824",
+        color: "#e2e8f0",
+        confirmButtonColor: "#00E599",
       });
       return;
     }
@@ -50,211 +55,89 @@ function EventDetail() {
     navigate(`/select-ticket/${event._id}`);
   };
 
-
-
-  const styles = {
-    page: {
-      backgroundColor: "#FFF4E6",
-      color: "#333",
-      fontFamily: "Poppins, sans-serif",
-      minHeight: "100vh",
-      paddingBottom: "60px",
-    },
-    banner: {
-      position: "relative",
-      width: "100%",
-      height: "420px",
-      overflow: "hidden",
-      borderBottom: "4px solid #FFA500",
-    },
-    bannerImg: {
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-      filter: "brightness(80%)",
-    },
-    bannerOverlay: {
-      position: "absolute",
-      bottom: "30px",
-      left: "60px",
-      color: "#fff",
-      textShadow: "0 2px 6px rgba(0, 0, 0, 0.4)",
-    },
-    title: {
-      fontSize: "2.6rem",
-      marginBottom: "10px",
-      color: "#fff",
-      fontWeight: 700,
-    },
-    subtitle: {
-      fontSize: "1.1rem",
-      opacity: 0.95,
-    },
-    content: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "flex-start",
-      gap: "40px",
-      margin: "60px auto",
-      width: "80%",
-      flexWrap: "wrap",
-    },
-    description: {
-      flex: 1.5,
-      background: "#fff",
-      padding: "25px 30px",
-      borderRadius: "16px",
-      boxShadow: "0 0 12px rgba(255, 77, 166, 0.2)",
-      minWidth: "300px",
-    },
-    descTitle: {
-      color: "#FF8C00",
-      marginBottom: "15px",
-      fontWeight: "600",
-    },
-    infoBox: {
-      flex: 1,
-      background: "#fff",
-      borderRadius: "16px",
-      padding: "25px 30px",
-      boxShadow: "0 0 15px rgba(255, 165, 0, 0.25)",
-      border: "1px solid #FFD700",
-      minWidth: "280px",
-    },
-    infoText: {
-      marginBottom: "12px",
-      fontSize: "1.05rem",
-      color: "#444",
-    },
-    btn: {
-      width: "100%",
-      marginTop: "20px",
-      padding: "14px 0",
-      background: "linear-gradient(90deg, #FF7F50, #FFA500)",
-      color: "#fff",
-      fontWeight: 600,
-      fontSize: "1.1rem",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      transition: "0.3s",
-      boxShadow: "0 4px 12px rgba(255, 165, 0, 0.3)",
-    },
-  };
+  const isExpired = new Date(event.date) < new Date();
+  const isSoldOut = (event.ticketsAvailable || 0) <= 0;
+  const canBuy = !isExpired && !isSoldOut;
+  const dynamicLabel = isSoldOut
+    ? "🚫 Hết vé"
+    : isExpired
+      ? "⏰ Đã kết thúc"
+      : "🎫 Mua vé ngay";
 
   return (
-    <div style={styles.page}>
+    <div className="ed-page">
       {/* Banner */}
-      <div style={styles.banner}>
+      <div className="ed-banner">
         <img
           src={event.imageURL || "https://via.placeholder.com/900x400?text=No+Image"}
           alt={event.title}
-          style={styles.bannerImg}
+          className="ed-banner-img"
         />
-        <div style={styles.bannerOverlay}>
-          <h1 style={styles.title}>{event.title}</h1>
-          <p style={styles.subtitle}>
-            {new Date(event.date).toLocaleDateString()} - {" "}
+        <div className="ed-banner-overlay">
+          <h1 className="ed-title">{event.title}</h1>
+          <p className="ed-subtitle">
+            <span className="ed-accent">📅</span>
+            {new Date(event.date).toLocaleDateString("vi-VN")} -{" "}
             {new Date(event.date).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             })}
+            <span style={{ margin: "0 8px", opacity: 0.4 }}>|</span>
+            <span className="ed-accent">📍</span>
+            {event.locationId}
           </p>
-          <p style={styles.subtitle}> {event.locationId}</p>
         </div>
       </div>
 
       {/* Nội dung chi tiết */}
-      <div style={styles.content}>
-        <div style={styles.description}>
-          <h2 style={styles.descTitle}> Giới thiệu sự kiện</h2>
-          <p style={{ whiteSpace: "pre-line", lineHeight: "1.6" }}>
+      <div className="ed-content">
+        <div className="ed-description">
+          <h2 className="ed-desc-title">Giới thiệu sự kiện</h2>
+          <p style={{ whiteSpace: "pre-line" }}>
             {event.description.replace(/\*\*/g, "")}
           </p>
-
         </div>
 
-        <div style={styles.infoBox}>
-          <p style={styles.infoText}>
-            <b> Vé còn lại:</b> {event.ticketsAvailable}
+        <div className="ed-info">
+          <p className="ed-info-text">
+            <span className="info-icon">🎟️</span>
+            <b>Vé còn lại:</b>
+            <span style={{ color: "#00E599", fontWeight: 700 }}>{event.ticketsAvailable}</span>
           </p>
-          <p style={styles.infoText}>
-            <b> Địa điểm:</b> {event.locationId}
+          <p className="ed-info-text">
+            <span className="info-icon">📍</span>
+            <b>Địa điểm:</b> {event.locationId}
           </p>
-          <p style={styles.infoText}>
-            <b> Thời gian:</b> {new Date(event.date).toLocaleString()}
+          <p className="ed-info-text">
+            <span className="info-icon">🕐</span>
+            <b>Thời gian:</b> {new Date(event.date).toLocaleString("vi-VN")}
           </p>
 
-          {(() => {
-            const isExpired = new Date(event.date) < new Date();
-            const isSoldOut = (event.ticketsAvailable || 0) <= 0;
-            const canBuy = !isExpired && !isSoldOut;
-            const dynamicLabel = isSoldOut
-              ? "Hết vé"
-              : isExpired
-                ? "Đã kết thúc"
-                : " Mua vé ngay";
-
-            return (
-              <button
-                disabled={!canBuy}
-                style={{
-                  ...styles.btn,
-                  ...(canBuy
-                    ? {}
-                    : {
-
-                      background: "#ccc",
-                      boxShadow: "none",
-                      cursor: "not-allowed",
-                    }),
-
-                }}
-                onMouseEnter={
-                  canBuy
-                    ? (e) =>
-
-                    (e.target.style.background =
-                      "linear-gradient(90deg, #FF9F00, #FFB84D)")
-
-                    : undefined
-                }
-                onMouseLeave={
-                  canBuy
-                    ? (e) =>
-
-                    (e.target.style.background =
-                      "linear-gradient(90deg, #FF7F50, #FFA500)")
-
-                    : undefined
-                }
-                onClick={canBuy ? handleBuyTicket : undefined}
-                title={
-                  isSoldOut
-                    ? "Sự kiện đã hết vé"
-                    : isExpired
-
-                      ? "Sự kiện đã kết thúc"
-                      : "Mua vé cho sự kiện này"
-
-                }
-              >
-                {dynamicLabel}
-              </button>
-            );
-          })()}
-
-
-
+          <button
+            className="ed-btn"
+            disabled={!canBuy}
+            onClick={canBuy ? handleBuyTicket : undefined}
+            title={
+              isSoldOut
+                ? "Sự kiện đã hết vé"
+                : isExpired
+                  ? "Sự kiện đã kết thúc"
+                  : "Mua vé cho sự kiện này"
+            }
+          >
+            {dynamicLabel}
+          </button>
         </div>
       </div>
 
       {/* ⭐ Reviews full-width panel below */}
-      <Review
-        eventId={event._id}
-        token={localStorage.getItem("token")}
-        currentUser={JSON.parse(localStorage.getItem("user") || "null")}
-      />
+      <div className="ed-review-panel">
+        <Review
+          eventId={event._id}
+          token={localStorage.getItem("token")}
+          currentUser={JSON.parse(localStorage.getItem("user") || "null")}
+        />
+      </div>
     </div>
   );
 }

@@ -1,135 +1,178 @@
-/* --- Card vé --- */
-.ticket-card {
-  background-color: #e1f5fe; /* Màu xanh pastel */
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid #b3e5fc;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: 20px; /* Tách các card vé ra */
+/* ========================================================
+   🎟️ MyTicket.css - Emerald Obsidian Dark Theme
+   ======================================================== */
+
+/* --- Page Wrapper --- */
+.my-tickets-page {
+  min-height: 100vh;
+  background-color: #0b0d13;
+  padding: 48px 40px 80px;
+  color: #e2e8f0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* --- Hiệu ứng hover với gradient cầu vồng nhạt --- */
-.ticket-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(135deg, #ff9b9b, #ffcc99, #ffff99, #b3ff99, #99ffff, #99b3ff, #ff99ff);
-  background-size: 400% 400%;
-  animation: rainbow 3s ease infinite;
+.my-tickets-page h1 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 36px;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #00E599 20%, #67e8f9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* --- Hiệu ứng gradient cầu vồng nhạt */
-@keyframes rainbow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* --- Grid layout cho các card vé --- */
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Mỗi dòng có 2 card */
-  gap: 20px; /* Khoảng cách giữa các card */
-  max-width: 1200px;
-  margin: 0 auto; /* Căn giữa */
-}
-
-/* --- Trạng thái vé --- */
-.status-tag {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-top: 10px;
-}
-
-.status-success {
-  background-color: #81c784; /* Màu xanh lá pastel */
-  color: #388e3c;
-}
-
-.status-pending {
-  background-color: #ffeb3b; /* Màu vàng pastel */
-  color: #f57f17;
-}
-
-.status-cancelled {
-  background-color: #ef9a9a; /* Màu đỏ pastel */
-  color: #c62828;
-}
-/* --- Các tab --- */
+/* --- Tabs --- */
 .tab-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px; /* Khoảng cách giữa các tab */
-  margin-bottom: 40px;
+  gap: 12px;
+  margin-bottom: 36px;
 }
 
 .tab-button {
-  padding: 12px 24px;
-  border-radius: 9999px;
-  background: #ff7b00; /* Màu cam */
-  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
   text-align: center;
   transition: all 0.3s ease;
-  color: white;
-  border: none; /* Bỏ bo viền đen */
+  font-family: inherit;
 }
 
-.tab-button:hover,
+.tab-button:hover {
+  background: rgba(0, 229, 153, 0.08);
+  border-color: rgba(0, 229, 153, 0.3);
+  color: #00E599;
+}
+
 .tab-button.active {
-  background: #ff9e3d; /* Sáng cam khi hover hoặc active */
-}
-/* --- Thêm font chữ đẹp và bóng đổ cho "Vé của tôi" --- */
-h1 {
-  font-family: 'Poppins', sans-serif; /* Thay đổi font chữ cho hiện đại */
-  font-size: 36px;
-  font-weight: bold;
-  color: #333; /* Màu chữ tối */
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* Bóng đổ nhẹ để làm nổi bật */
-  margin-bottom: 20px;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #0b0d13;
+  border-color: transparent;
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(0, 229, 153, 0.3);
 }
 
-/* --- Nền trang mềm mại hơn --- */
-body {
-  background: linear-gradient(135deg, #f3f4f6, #ffffff); /* Gradient nền mềm mại */
-  background-size: 400% 400%;
-  animation: gradientAnimation 10s ease infinite;
-  color: #333;
+/* --- Grid Layout --- */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-/* Hiệu ứng Gradient nền */
-@keyframes gradientAnimation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* --- Tạo bóng đổ cho các card vé --- */
+/* --- Card vé --- */
 .ticket-card {
-  background-color: #e1f5fe; /* Màu xanh pastel */
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15); /* Bóng đổ đậm hơn */
-  border: 1px solid #b3e5fc;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: 20px;
+  background: #141824;
+  border-radius: 16px;
+  padding: 24px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.ticket-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(0, 229, 153, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 0;
 }
 
 .ticket-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2); /* Bóng đổ mạnh hơn khi hover */
+  transform: translateY(-4px);
+  border-color: rgba(0, 229, 153, 0.3);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(0, 229, 153, 0.1);
 }
+
+.ticket-card:hover::before {
+  opacity: 1;
+}
+
+.ticket-card h3 {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.35;
+}
+
+.ticket-card p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.ticket-card .ticket-price {
+  color: #00E599;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.ticket-card .ticket-time {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 14px;
+}
+
+/* --- Status Tags --- */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 12px;
+  letter-spacing: 0.3px;
+}
+
+.status-success {
+  background: rgba(0, 229, 153, 0.12);
+  color: #00E599;
+  border: 1px solid rgba(0, 229, 153, 0.25);
+}
+
+.status-pending {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.status-cancelled {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* --- QR Popup Overlay --- */
 .qr-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -137,29 +180,95 @@ body {
 }
 
 .qr-box {
-  background: white;
-  padding: 25px;
-  border-radius: 14px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  background: #141824;
+  padding: 32px 36px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 229, 153, 0.1);
   text-align: center;
   animation: fadeIn 0.3s ease;
+  max-width: 380px;
+  width: 90%;
+}
+
+.qr-box h2 {
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.qr-box img {
+  border-radius: 14px;
+  border: 2px solid rgba(0, 229, 153, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.qr-box .qr-ticket-type {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-top: 16px;
 }
 
 .close-btn {
-  background: #ff4d4d;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  margin-top: 12px;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #0b0d13;
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 18px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 12px rgba(0, 229, 153, 0.25);
 }
 
 .close-btn:hover {
-  background: #ff3333;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(0, 229, 153, 0.4);
+  filter: brightness(1.08);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
+  from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
 }
 
+/* --- Empty State --- */
+.empty-tickets {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+  font-size: 1rem;
+  grid-column: 1 / -1;
+}
 
+.empty-tickets .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+
+  .my-tickets-page {
+    padding: 32px 20px 60px;
+  }
+}
+
+@media (max-width: 600px) {
+  .tab-container {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tab-button {
+    padding: 8px 16px;
+    font-size: 0.82rem;
+  }
+}

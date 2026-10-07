@@ -6,6 +6,7 @@ import Event from "../model/Event.js";
 import Booking from "../model/Booking.js";
 import Review from "../model/Review.js";
 import Category from "../model/Category.js";
+import Promotion from "../model/Promotion.js";
 
 /* =========================================================
    🟢 ADMIN – LẤY DANH SÁCH NGƯỜI DÙNG
@@ -269,13 +270,27 @@ export const adminReports = async (req, res) => {
     });
 
     // ================================
-    // 3) Tổng doanh thu
+    // 3) Tổng doanh thu vé & quảng bá
     // ================================
     const revenueData = await Booking.aggregate([
       { $match: { status: { $ne: "cancelled" } } },
       { $group: { _id: null, total: { $sum: "$totalPrice" } } },
     ]);
-    const totalRevenue = revenueData[0]?.total || 0;
+    const ticketRevenue = revenueData[0]?.total || 0;
+
+    const promoRevenueData = await Promotion.aggregate([
+      {
+        $match: {
+          $or: [
+            { paymentStatus: "PAID" },
+            { status: { $in: ["ACTIVE", "EXPIRED"] } },
+          ],
+        },
+      },
+      { $group: { _id: null, total: { $sum: "$price" } } },
+    ]);
+    const promotionRevenue = promoRevenueData[0]?.total || 0;
+    const totalRevenue = ticketRevenue + promotionRevenue;
 
     // ================================
     // 4) Rating Distribution (1-5 sao)
@@ -363,6 +378,8 @@ export const adminReports = async (req, res) => {
       totalEvents,
       totalOrders,
       totalRevenue,
+      ticketRevenue,
+      promotionRevenue,
       ratingDistribution: ratingData,
       pieCounts: {
         student,

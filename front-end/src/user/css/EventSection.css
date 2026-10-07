@@ -1,306 +1,556 @@
-/* Event Section Container */
+/* ========================================================
+   🎟️ EventSection.css - Compact Emerald Obsidian Theme
+   ======================================================== */
+
 .event-section {
-  margin: 80px 0;
-  padding: 0 40px;
+  max-width: 1240px;
+  margin: 32px auto;
+  padding: 0 24px;
   position: relative;
 }
 
-/* Section Header với Pastel Pink */
-.section-header h2,
-.event-section h2 {
-  font-size: 1.5rem;
-  color: black;
-  margin-bottom: 40px;
-  padding-left: 30px;
-  position: relative;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-/* Decorative Line */
-.section-header h2::before,
-.event-section h2::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 50px;
-  background: linear-gradient(180deg, #ff8c42, #ffa726, #ffb347);
-  border-radius: 3px;
-  box-shadow: 0 0 15px rgba(255, 140, 66, 0.4);
-  animation: lineGlow 2s ease-in-out infinite;
-}
-
-/* Underline Effect */
-.section-header h2::after,
-.event-section h2::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 30px;
-  width: 200px;
-  height: 3px;
-  background: linear-gradient(180deg, #ff8c42, #ffa726, #ffb347);
-  box-shadow: 0 0 10px rgba(255, 140, 66, 0.5);
-}
-
-/* Scroll Row */
-.scroll-row {
+/* ========================================================
+   🏷️ Section Header & Navigation
+   ======================================================== */
+.section-header-row {
   display: flex;
-  gap: 30px;
-  overflow-x: auto;
-  padding: 30px 0;
-  scroll-behavior: smooth;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-heading {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.section-heading-icon {
+  font-size: 1.2rem;
+}
+
+/* Tabs: "Cuối tuần này" / "Tháng này" */
+.section-tabs-bar {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.section-tab-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0 8px;
   position: relative;
+  transition: all 0.25s ease;
+  font-family: inherit;
 }
 
-/* Custom Scrollbar với Pink Theme */
-.scroll-row::-webkit-scrollbar {
-  height: 10px;
+.section-tab-btn:hover {
+  color: #ffffff;
 }
 
-.scroll-row::-webkit-scrollbar-track {
-  background: rgba(255, 250, 245, 0.3);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 140, 66, 0.2);
+.section-tab-btn.active {
+  color: #ffffff;
 }
 
-.scroll-row::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, #ff8c42, #ffa726, #ffb347);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255, 140, 66, 0.4);
-}
-
-.scroll-row::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(90deg, #ffb347, #ffa726, #ff8c42);
-  box-shadow: 0 0 20px rgba(255, 140, 66, 0.6);
-}
-
-/* Event Card - Pastel Pink Design */
-.suggest-card {
-  min-width: 340px;
-  background: #ffffff;
-  border: 2px solid rgba(255, 140, 66, 0.3);
-  border-radius: 20px;
-  overflow: hidden;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  box-shadow: 0 8px 25px rgba(255, 140, 66, 0.15);
-}
-
-/* Glowing Border Animation */
-.suggest-card::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: rgba(255, 140, 66, 0.3);
-  border-radius: 20px;
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.5s ease;
-  animation: borderRotate 3s linear infinite;
-  background-size: 300% 300%;
-}
-
-@keyframes borderRotate {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.suggest-card:hover::before {
-  opacity: 1;
-}
-
-.suggest-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 40px rgba(224, 163, 255, 0.3);
-  border-color: rgba(224, 163, 255, 0.5);
-}
-
-/* Image Container with Overlay */
-.suggest-card .image-container {
-  position: relative;
-  overflow: hidden;
-  height: 220px;
-}
-
-/* ========== 🖼 FIX: ẢNH KHÔNG BỊ PHÓNG QUÁ LỚN HOẶC MÉO ========== */
-.suggest-card img {
-  width: 100%;
-  height: 230px; /* bạn có thể chỉnh: 200px / 250px tuỳ thiết kế */
-  object-fit: cover; /* Giữ tỷ lệ ảnh đẹp */
-  border-radius: 12px; /* Bo góc nhẹ nếu muốn mềm mại hơn */
-  transition: transform 0.6s ease;
-  filter: brightness(0.95);
-}
-
-
-.suggest-card:hover img {
-  transform: scale(1.1);
-  filter: brightness(1);
-}
-
-/* Soft Overlay */
-.suggest-card .image-container::after {
+.section-tab-btn.active::after {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60%;
-  background: linear-gradient(to top, 
-    rgba(255, 255, 255, 0.95) 0%, 
-    rgba(255, 255, 255, 0.5) 40%,
-    transparent 100%
-  );
-  z-index: 2;
+  height: 2.5px;
+  background: #00E599;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 229, 153, 0.6);
 }
 
-/* Card Content */
-.suggest-card h4 {
-  padding: 25px 25px 10px;
-  color: #333333;
-  font-size: 1.4rem;
-  margin: 0;
-  font-weight: 700;
+/* Nút "Xem thêm >" */
+.section-see-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.section-see-more:hover {
+  color: #00E599;
+  transform: translateX(3px);
+}
+
+/* ========================================================
+   🌟 1️⃣ SỰ KIỆN ĐẶC BIỆT (Portrait Poster Cards 3:4) - Compact
+   ======================================================== */
+.portrait-scroll-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 4px 2px 14px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+
+.portrait-scroll-row::-webkit-scrollbar {
+  height: 5px;
+}
+
+.portrait-scroll-row::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.portrait-scroll-row::-webkit-scrollbar-thumb {
+  background: #1e2433;
+  border-radius: 4px;
+}
+
+.portrait-card {
+  flex: 0 0 160px;
+  min-width: 150px;
+  max-width: 175px;
   position: relative;
-  z-index: 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #141824;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.suggest-card p {
-  padding: 0 25px;
-  color: #f862ad;
-  font-size: 0.95rem;
-  margin: 0 0 20px 0;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.portrait-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(0, 229, 153, 0.4);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 229, 153, 0.2);
 }
 
-/* View Detail Button - Pastel Pink Style */
-.suggest-card .btn {
-  margin: 0 25px 25px;
-  padding: 14px 32px;
-  background: linear-gradient(135deg, #e0a3ff, #ffb3d9);
-  border: 2px solid rgba(224, 163, 255, 0.3);
-  border-radius: 25px;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-block;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.portrait-img-wrap {
+  width: 100%;
+  aspect-ratio: 2 / 3;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(224, 163, 255, 0.2);
+  background: #0f131d;
 }
 
-.suggest-card .btn::before {
-  content: '';
+.portrait-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.portrait-card:hover .portrait-img-wrap img {
+  transform: scale(1.08);
+}
+
+.portrait-overlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
-}
-
-.suggest-card .btn:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.suggest-card .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(224, 163, 255, 0.4);
-  background: linear-gradient(135deg, #ffb3d9, #ffc4e1);
-  border-color: rgba(224, 163, 255, 0.5);
-}
-.fav-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(224, 163, 255, 0.3);
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 24px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  inset: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  box-shadow: 0 4px 15px rgba(224, 163, 255, 0.2);
-  color: #e0a3ff;
-}
-
-.fav-btn::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, #e0a3ff, #ffb3d9);
-  border-radius: 50%;
-  opacity: 0;
-  z-index: -1;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px;
+  background: linear-gradient(to top, rgba(11, 13, 19, 0.95) 15%, rgba(11, 13, 19, 0.25) 60%, transparent 100%);
+  opacity: 0.95;
   transition: opacity 0.3s ease;
 }
 
-.fav-btn:hover::before {
-  opacity: 1;
-}
-
-.fav-btn:hover {
-  transform: scale(1.15);
-  box-shadow: 0 6px 20px rgba(224, 163, 255, 0.3);
+.portrait-title {
   color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.fav-btn.active {
-  background: linear-gradient(135deg, #ffb3d9, #ffc4e1);
-  border-color: rgba(255, 179, 217, 0.5);
-  animation: heartBeat 0.5s ease;
-  box-shadow: 0 0 25px rgba(255, 179, 217, 0.5);
+.portrait-date {
+  color: #00E599;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* ========================================================
+   🔥 2️⃣ SỰ KIỆN XU HƯỚNG (Trending With Numbers 1,2,3,4) - Compact
+   ======================================================== */
+.trending-scroll-row {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 6px 2px 16px;
+  scroll-behavior: smooth;
+}
+
+.trending-card {
+  flex: 0 0 270px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* Số thứ tự lớn phong cách Neon Emerald */
+.trending-rank-number {
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 1;
+  font-style: italic;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-right: -18px;
+  z-index: 2;
+  user-select: none;
+  background: linear-gradient(180deg, #00E599 15%, #004d33 95%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(0, 229, 153, 0.35));
+}
+
+.trending-content-card {
+  flex: 1;
+  background: #141824;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.trending-card:hover .trending-content-card {
+  transform: translateY(-5px);
+  border-color: rgba(0, 229, 153, 0.4);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 229, 153, 0.15);
+}
+
+.trending-img-wrap {
+  width: 100%;
+  height: 125px;
+  overflow: hidden;
+  background: #0f131d;
+}
+
+.trending-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.trending-card:hover .trending-img-wrap img {
+  transform: scale(1.06);
+}
+
+.trending-info {
+  padding: 10px 12px 12px;
+}
+
+.trending-title {
   color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.25;
+  min-height: 32px;
+  transition: color 0.2s ease;
 }
 
-@media (max-width: 480px) {
+.trending-title:hover {
+  color: #00E599;
+}
+
+.trending-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trending-price {
+  color: #00E599;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.trending-date {
+  color: #94a3b8;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ========================================================
+   🎴 3️⃣ LƯỚI SỰ KIỆN TIÊU CHUẨN (Standard 4-Column Grid) - Compact
+   ======================================================== */
+.standard-event-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.standard-event-card {
+  background: #141824;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+}
+
+.standard-event-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0, 229, 153, 0.35);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 0 16px rgba(0, 229, 153, 0.15);
+}
+
+.card-thumb-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  background: #0f131d;
+}
+
+.card-thumb-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.standard-event-card:hover .card-thumb-wrap img {
+  transform: scale(1.06);
+}
+
+.card-body-content {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.event-card-title {
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 36px;
+  transition: color 0.2s ease;
+}
+
+.event-card-title:hover {
+  color: #00E599;
+}
+
+.event-card-price {
+  color: #00E599;
+  font-size: 0.88rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+}
+
+.event-card-date {
+  color: #94a3b8;
+  font-size: 0.76rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.event-card-date .date-icon {
+  color: #64748b;
+}
+
+.event-card-location {
+  color: #64748b;
+  font-size: 0.73rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-card-location .loc-icon {
+  flex-shrink: 0;
+}
+
+/* ========================================================
+   ❤️ Nút Yêu thích (Favorite Button) - Compact
+   ======================================================== */
+.card-fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(11, 13, 19, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  z-index: 5;
+}
+
+.card-fav-btn:hover {
+  background: rgba(11, 13, 19, 0.88);
+  transform: scale(1.12);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.card-fav-btn.active {
+  background: rgba(255, 77, 109, 0.2);
+  border-color: #ff4d6d;
+}
+
+/* ========================================================
+   🎟️ Dải Banner Quảng Cáo Trong Luồng (Promo Banners) - Compact
+   ======================================================== */
+.promo-banner-strip {
+  max-width: 1240px;
+  margin: 28px auto;
+  padding: 0 24px;
+}
+
+.promo-banner-card {
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0d1a2d 0%, #0a2e22 50%, #0b131f 100%);
+  border: 1px solid rgba(0, 229, 153, 0.25);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.promo-banner-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 30%;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(0, 229, 153, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.promo-content h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.promo-content h3 span {
+  color: #00E599;
+}
+
+.promo-content p {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.promo-btn {
+  padding: 8px 22px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #0b0d13;
+  font-weight: 700;
+  font-size: 0.84rem;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 12px rgba(0, 229, 153, 0.3);
+  white-space: nowrap;
+}
+
+.promo-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(0, 229, 153, 0.5);
+  filter: brightness(1.1);
+}
+
+.no-events-text {
+  color: #64748b;
+  font-size: 0.88rem;
+  padding: 16px 0;
+}
+
+/* ========================================================
+   📱 Responsive Breakpoints
+   ======================================================== */
+@media (max-width: 1200px) {
+  .standard-event-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
   .event-section {
-    padding: 25px 15px;
+    padding: 0 16px;
+    margin: 24px auto;
   }
-  
-  .event-section h2 {
-    font-size: 20px;
+  .standard-event-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  .suggest-card {
-    min-width: 200px;
+  .promo-banner-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+    padding: 18px;
   }
-  
-  .suggest-card img {
-    height: 140px;
+}
+
+@media (max-width: 580px) {
+  .standard-event-grid {
+    grid-template-columns: 1fr;
+  }
+  .section-tab-btn {
+    font-size: 1.05rem;
+  }
+  .section-heading {
+    font-size: 1.15rem;
   }
 }

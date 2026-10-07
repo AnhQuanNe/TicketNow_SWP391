@@ -1,3 +1,7 @@
+/* ==========================================================================
+   ADMIN DASHBOARD - MODERN OVERVIEW
+   ========================================================================== */
+
 .dashboard {
   width: 100%;
 }
@@ -6,7 +10,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .charts-section {
@@ -17,10 +21,11 @@
 
 .revenue-section,
 .visitors-section {
-  background: white;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 20px;
   padding: 28px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
 .section-header {
@@ -31,22 +36,24 @@
 }
 
 .section-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.3px;
 }
 
 .chart-legend {
   display: flex;
-  gap: 24px;
+  gap: 20px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: #7f8c8d;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
 }
 
 .legend-dot {
@@ -56,18 +63,18 @@
 }
 
 .legend-dot.google {
-  background: #4ECDC4;
+  background: #10b981;
 }
 
 .legend-dot.facebook {
-  background: #FF8C42;
+  background: #ff7a18;
 }
 
 .visitors-chart {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 24px;
 }
 
 .donut-chart {
@@ -85,7 +92,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .visitor-item:last-child {
@@ -99,35 +106,35 @@
 }
 
 .visitor-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }
 
 .visitor-name {
   font-size: 14px;
-  color: #2c3e50;
-  font-weight: 500;
+  color: #334155;
+  font-weight: 600;
 }
 
 .visitor-percentage {
-  font-size: 15px;
-  font-weight: 600;
-  color: #2c3e50;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 @media (max-width: 1200px) {
   .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .charts-section {
-      grid-template-columns: 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
   .stats-grid {
-      grid-template-columns: 1fr;
+    grid-template-columns: 1fr;
   }
 }

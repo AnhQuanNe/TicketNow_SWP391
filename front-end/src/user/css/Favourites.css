@@ -1,22 +1,26 @@
+/* ========================================================
+   💚 Favourites.css - Emerald Obsidian Dark Theme
+   ======================================================== */
+
 /* Favorites Section Container */
 .favorites-section {
-  margin: 60px 0;
-  padding: 40px 40px 20px;
+  margin: 40px auto;
+  max-width: 1240px;
+  padding: 20px 24px;
   position: relative;
-  background: white;
-  backdrop-filter: blur(10px);
+  background: transparent;
 }
 
-/* Section Header với Pastel Pink */
+/* Section Header */
 .favorites-section .section-header h2 {
-  font-size: 1.5rem;
-  color: #ff8c42;
-  margin-bottom: 40px;
-  padding-left: 30px;
+  font-size: 1.3rem;
+  color: #ffffff;
+  margin-bottom: 24px;
   position: relative;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* Decorative Line */
@@ -26,284 +30,174 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 6px;
-  height: 50px;
-  background: linear-gradient(180deg, #ff8c42, #ffa726, #ffb347);
+  width: 4px;
+  height: 40px;
+  background: linear-gradient(180deg, #00E599, #00B4D8);
   border-radius: 3px;
-  box-shadow: 0 0 15px rgba(255, 140, 66, 0.4);
-  animation: lineGlow 2s ease-in-out infinite;
-}
-
-@keyframes lineGlow {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 15px rgba(255, 140, 66, 0.4);
-  }
-  50% {
-    opacity: 0.7;
-    box-shadow: 0 0 25px rgba(255, 140, 66, 0.6);
-  }
-}
-
-/* Underline Effect */
-.favorites-section .section-header h2::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 30px;
-  width: 200px;
-  height: 3px;
-  background: linear-gradient(90deg, #ff8c42, transparent);
-  box-shadow: 0 0 10px rgba(255, 140, 66, 0.5);
+  box-shadow: 0 0 12px rgba(0, 229, 153, 0.35);
 }
 
 /* Scroll Row */
 .favorites-section .scroll-row {
   display: flex;
-  gap: 30px;
+  gap: 20px;
   overflow-x: auto;
-  padding: 30px 0;
+  padding: 8px 2px 16px;
   scroll-behavior: smooth;
-  position: relative;
+  scrollbar-width: thin;
 }
 
-/* Custom Scrollbar với Pink Theme */
 .favorites-section .scroll-row::-webkit-scrollbar {
-  height: 10px;
+  height: 5px;
 }
 
 .favorites-section .scroll-row::-webkit-scrollbar-track {
-  background: rgba(255, 245, 247, 0.3);
-  border-radius: 10px;
-  border: 1px solid rgba(224, 163, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
 }
 
 .favorites-section .scroll-row::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, #ff8c42, #ffa726, #ffb347);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255, 140, 66, 0.4);
+  background: #1e2433;
+  border-radius: 4px;
 }
 
-.favorites-section .scroll-row::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(90deg, #ff8c42, #ffa726, #ffb347);
-  box-shadow: 0 0 20px rgba(255, 140, 66, 0.6);
-}
-
-/* Event Card - Pastel Pink Design */
+/* Event Card - Dark Theme */
 .favorites-section .suggest-card {
-  min-width: 340px;
-  background: #ffffff;
-  border: 1px solid rgba(224, 163, 255, 0.3);
-  border-radius: 20px;
-  overflow: visible;
-  transition: all 0.3s ease;
+  min-width: 280px;
+  max-width: 300px;
+  background: #141824;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
-  box-shadow: 0 8px 25px rgba(255, 140, 66, 0.15);
-}
-
-/* Glowing Border Animation */
-.favorites-section .suggest-card::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, 
-    #ff8c42, 
-    #ffa726, 
-    #ffb347, 
-    #ff8c42
-  );
-  border-radius: 22px;
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.3s ease;
-  animation: borderRotate 3s linear infinite;
-  background-size: 300% 300%;
-}
-
-@keyframes borderRotate {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.favorites-section .suggest-card:hover::before {
-  opacity: 1;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 .favorites-section .suggest-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(250, 140, 66, 0.3);
-  border-color: rgba(250, 140, 66, 0.5);
+  border-color: rgba(0, 229, 153, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 16px rgba(0, 229, 153, 0.15);
 }
 
 /* Image Styling */
 .favorites-section .suggest-card img {
   width: 100%;
-  height: 220px;
+  height: 180px;
   object-fit: cover;
   transition: transform 0.6s ease;
-  filter: brightness(0.95);
-  border-radius: 20px 20px 0 0;
+  display: block;
 }
 
 .favorites-section .suggest-card:hover img {
-  transform: scale(1.05);
-  filter: brightness(1);
+  transform: scale(1.06);
 }
 
 /* Card Content */
 .favorites-section .suggest-card h4 {
-  padding: 25px 25px 10px;
-  color: #333333;
-  font-size: 1.4rem;
+  padding: 14px 16px 6px;
+  color: #ffffff;
+  font-size: 1rem;
   margin: 0;
   font-weight: 700;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
+.favorites-section .suggest-card > div > p,
 .favorites-section .suggest-card p {
-  padding: 0 25px 25px;
-  color: #1a1a1a;
-  font-size: 0.95rem;
+  padding: 0 16px 4px;
+  color: #94a3b8;
+  font-size: 0.85rem;
   margin: 0;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-/* Favorite Button - Pastel Pink Style */
+.favorites-section .suggest-card .text-gray-500 {
+  color: #64748b !important;
+  padding: 2px 16px;
+  font-size: 0.82rem;
+}
+
+/* Favorite Button */
 .favorites-section .fav-btn {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 140, 66, 0.3);
-  width: 50px;
-  height: 50px;
+  top: 10px;
+  right: 10px;
+  background: rgba(11, 13, 19, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 24px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  font-size: 16px;
+  transition: all 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  box-shadow: 0 4px 15px rgba(250, 140, 66, 0.2);
-}
-
-.favorites-section .fav-btn::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, #ff8c42 , #ffa726);
-  border-radius: 50%;
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.3s ease;
-}
-
-.favorites-section .fav-btn:hover::before {
-  opacity: 1;
 }
 
 .favorites-section .fav-btn:hover {
-  transform: scale(1.15);
-  box-shadow: 0 6px 20px rgba(224, 140, 66, 0.3);
+  transform: scale(1.12);
+  background: rgba(11, 13, 19, 0.88);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .favorites-section .fav-btn.active {
-  background: rgba(255, 167, 38, 0.95);
-  border-color: rgba(255, 167, 38, 0.5);
+  background: rgba(255, 77, 109, 0.2);
+  border-color: #ff4d6d;
   animation: heartBeat 0.5s ease;
-  box-shadow: 0 0 25px rgba(255, 167, 38, 0.5);
 }
 
 @keyframes heartBeat {
-  0%, 100% {
-    transform: scale(1);
-  }
-  25% {
-    transform: scale(1.3);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  75% {
-    transform: scale(1.25);
-  }
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.25); }
+  50% { transform: scale(1.1); }
+  75% { transform: scale(1.2); }
 }
 
-/* Responsive Design */
+/* View Detail Button */
+.favorites-section .btn-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 16px 16px;
+  padding: 7px 18px;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #0b0d13;
+  border: none;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 12px rgba(0, 229, 153, 0.25);
+  text-decoration: none;
+}
+
+.favorites-section .btn-info:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(0, 229, 153, 0.4);
+  filter: brightness(1.08);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .favorites-section {
-    padding: 20px 20px 20px;
-    margin: 40px 0;
-  }
-
-  .favorites-section .section-header h2 {
-    font-size: 1.3rem;
-    padding-left: 20px;
+    padding: 16px;
+    margin: 24px auto;
   }
 
   .favorites-section .suggest-card {
-    min-width: 280px;
-  }
-
-  .favorites-section .scroll-row {
-    gap: 20px;
-    padding: 20px 0;
+    min-width: 240px;
   }
 
   .favorites-section .suggest-card img {
-    height: 180px;
-  }
-
-  .favorites-section .suggest-card h4 {
-    font-size: 1.2rem;
-    padding: 20px 20px 10px;
-  }
-
-  .favorites-section .suggest-card p {
-    padding: 0 20px 20px;
-    font-size: 0.85rem;
-  }
-
-  .favorites-section .fav-btn {
-    width: 45px;
-    height: 45px;
-    font-size: 20px;
-    top: 15px;
-    right: 15px;
+    height: 150px;
   }
 }
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .favorites-section {
-      padding: 30px 20px;
-    }
-    
-    .favorites-section .section-header h2 {
-      font-size: 22px;
-    }
-    
-    .favorites-section .suggest-card {
-      min-width: 220px;
-    }
-    
-    .favorites-section .suggest-card img {
-      height: 160px;
-    }
-  }

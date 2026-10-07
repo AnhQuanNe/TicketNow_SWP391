@@ -31,10 +31,12 @@ import roleRoutes from "./routes/roleRoutes.js";
 //import booking
 import bookingRoutes from "./routes/bookingRoutes.js";
 
-import userRoutes from "./routes/userRoutes.js"; 
+import userRoutes from "./routes/userRoutes.js";
 
 import adminRoutes from "./routes/adminRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import promotionRoutes from "./routes/promotionRoutes.js";
+import { seedPromotionPlans } from "./scripts/seedPromotionPlans.js";
 
 
 // 🟢 Cấu hình dotenv để đọc .env
@@ -80,55 +82,99 @@ mongoose
     // Ensure default roles exist
     try {
       const rolesToEnsure = ["admin", "organizer", "user"];
-      const Role = (await import('./model/Role.js')).default;
+      const Role = (await import("./model/Role.js")).default;
+
       for (const name of rolesToEnsure) {
         const exists = await Role.findOne({ name }).lean();
+
         if (!exists) {
-await Role.create({ name });
+          await Role.create({ name });
           console.log(`🔰 Đã tạo role mặc định: ${name}`);
         }
       }
     } catch (e) {
-      console.warn('⚠️ Không thể tạo roles mặc định:', e.message || e);
+      console.error("❌ Không thể tạo role mặc định:", e);
+    }
+
+    // Seed default promotion plans
+    try {
+      await seedPromotionPlans();
+    } catch (e) {
+      console.warn(
+        "⚠️ Không thể seed PromotionPlans:",
+        e.message || e
+      );
     }
 
     // Initialize Agenda after Mongo connection
     try {
       const agenda = new Agenda({
         mongo: mongoose.connection.db,
-        db: { collection: 'agendaJobs' },
+        db: { collection: "agendaJobs" },
       });
 
       // Define jobs
       defineNotificationJobs(agenda, io);
 
       await agenda.start();
-      console.log('✅ Agenda started');
+      console.log("✅ Agenda started");
 
       // Expose agenda on app so controllers/routes can use it
-      app.set('agenda', agenda);
+      app.set("agenda", agenda);
 
       // Startup rescue: schedule any existing future notifications that lack jobId
       try {
-        const pending = await Notification.find({ scheduledFor: { $gt: new Date() }, sentAt: null, $or: [ { jobId: { $exists: false } }, { jobId: null } ] });
+        const pending = await Notification.find({
+          scheduledFor: { $gt: new Date() },
+          sentAt: null,
+          $or: [
+            { jobId: { $exists: false } },
+            { jobId: null },
+          ],
+        });
+
         for (const p of pending) {
           try {
-            const job = await agenda.schedule(p.scheduledFor, 'send-notification', { notificationId: p._id.toString() });
+            const job = await agenda.schedule(
+              p.scheduledFor,
+              "send-notification",
+              {
+                notificationId: p._id.toString(),
+              }
+            );
+
             p.jobId = job.attrs._id?.toString?.() || null;
             await p.save();
-            console.log('Rescheduled pending notification into Agenda', { notificationId: p._id.toString(), jobId: p.jobId });
+
+            console.log(
+              "Rescheduled pending notification into Agenda",
+              {
+                notificationId: p._id.toString(),
+                jobId: p.jobId,
+              }
+            );
           } catch (e) {
-            console.error('Failed to schedule pending notification', p._id.toString(), e);
+            console.error(
+              "Failed to schedule pending notification",
+              p._id.toString(),
+              e
+            );
           }
         }
       } catch (e) {
-        console.error('Error while rescuing pending notifications', e);
+        console.error(
+          "Error while rescuing pending notifications",
+          e
+        );
       }
     } catch (e) {
-      console.error('Failed to initialize Agenda', e);
+      console.error("Failed to initialize Agenda", e);
     }
   })
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .catch((err) =>
+    console.error("❌ MongoDB connection error:", err)
+  );
+
 
 
 
@@ -189,6 +235,7 @@ app.use("/api/roles", roleRoutes);
 // 🟢 API: Dành cho Organizer (Dashboard, Profile, Event,...)
 app.use("/api/organizer", organizerRoutes);
 app.use("/api/event-requests", eventRequestRoutes); // Đường dẫn xử lý tạo sự kiện
+app.use("/api/promotions", promotionRoutes); // 💰 Business & Monetization Routes
 
 // � Socket.IO basic events
 io.on("connection", (socket) => {

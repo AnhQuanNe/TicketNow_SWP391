@@ -12,9 +12,13 @@ import Reports from "./Reports";
 import OrganizerEventDetail from "./OrganizerEventDetail";
 import "../css/organizer.css";
 import CheckinPage from "./CheckinPage";
-function OrganizerLayout() {
+import PromotionPage from "./PromotionPage";
 
-  const [activePage, setActivePage] = useState("rules");
+function OrganizerLayout() {
+  const queryParams = new URLSearchParams(window.location.search);
+  const initialTab = queryParams.get("tab") || (queryParams.get("payment") ? "promotions" : "rules");
+
+  const [activePage, setActivePage] = useState(initialTab);
   // id của event đang được xem chi tiết
   const [selectedEventId, setSelectedEventId] = useState(null);
 
@@ -28,10 +32,12 @@ function OrganizerLayout() {
         return <Reports />;
       case "create-event":
         return <EventRequestForm />;
+      case "promotions":
+        return <PromotionPage />;
       case "profile":
         return <Profile />;
-        case "checkin":
-        return <CheckinPage />;   // ⭐ THÊM DÒNG NÀY
+      case "checkin":
+        return <CheckinPage />;
       
       case "rules":
       default:

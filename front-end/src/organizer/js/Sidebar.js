@@ -10,6 +10,7 @@ import {
   FaUsers,
   FaBell,
   FaChartLine,
+  FaBullhorn,
 } from "react-icons/fa";
 import "../css/Sidebar.css";
 import { useNavigate } from "react-router-dom";
@@ -76,10 +77,15 @@ function Sidebar({ setActivePage, activePage }) {
           <FaCalendarAlt /> Tạo sự kiện
         </li>
 
+        {/* 💰 BUSINESS / MONETIZATION: Quảng bá sự kiện */}
+        <li onClick={() => onSelect("promotions")} className={activePage === "promotions" ? "active" : ""}>
+          <FaBullhorn /> Quảng bá sự kiện
+        </li>
+
         {/* ⭐ NEW: Check-in */}
-    <li onClick={() => onSelect("checkin")} className={activePage === "checkin" ? "active" : ""}>
-        <FaTicketAlt /> Check-in
-    </li>
+        <li onClick={() => onSelect("checkin")} className={activePage === "checkin" ? "active" : ""}>
+          <FaTicketAlt /> Check-in
+        </li>
 
         <li onClick={() => onSelect("profile")} className={activePage === "profile" ? "active" : ""}>
           <FaUser /> Hồ sơ

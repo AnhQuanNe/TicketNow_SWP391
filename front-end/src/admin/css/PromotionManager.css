@@ -1,0 +1,463 @@
+/* ========================================================
+   💎 PromotionManager.css - Admin Dark Theme
+   ======================================================== */
+
+.admin-promo-container {
+  padding: 24px;
+  color: #e2e8f0;
+}
+
+.admin-promo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.admin-promo-header h2 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.admin-promo-header h2 svg {
+  color: #00E599;
+}
+
+.admin-promo-header p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.admin-promo-nav {
+  display: flex;
+  gap: 8px;
+  background: #111520;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-tab-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.admin-tab-btn.active {
+  background: linear-gradient(135deg, rgba(0, 229, 153, 0.2), rgba(0, 180, 216, 0.15));
+  color: #00E599;
+  border: 1px solid rgba(0, 229, 153, 0.3);
+}
+
+/* Stats Cards */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: linear-gradient(145deg, #131824 0%, #0d111a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.stat-card.revenue {
+  border-color: rgba(0, 229, 153, 0.3);
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.stat-card.revenue .stat-icon {
+  background: rgba(0, 229, 153, 0.15);
+  color: #00E599;
+}
+
+.stat-card.active .stat-icon {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.stat-card.pending .stat-icon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.stat-card.expired .stat-icon {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  display: block;
+}
+
+.stat-card h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 4px 0 0 0;
+}
+
+/* Admin Card */
+.admin-card {
+  background: linear-gradient(160deg, #131824 0%, #0d111a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.admin-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+/* Table */
+.admin-promo-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.admin-promo-table th {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.admin-promo-table td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.badge-type {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.badge-type.banner { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+.badge-type.top { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+.badge-type.featured { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.badge-type.recommended { background: rgba(0, 229, 153, 0.2); color: #00E599; }
+
+.status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.status-pill.ACTIVE { background: rgba(0, 229, 153, 0.15); color: #00E599; }
+.status-pill.PENDING_PAYMENT { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.status-pill.EXPIRED { background: rgba(100, 116, 139, 0.15); color: #94a3b8; }
+.status-pill.REJECTED { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+.price-bold {
+  font-weight: 800;
+  color: #00E599;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-action {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-action.activate {
+  background: #00E599;
+  color: #080a0f;
+}
+
+.btn-action.expire {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.btn-action.reject {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+/* Plans Layout */
+.plans-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .plans-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-input,
+.admin-select,
+.admin-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: #090c12;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  outline: none;
+  margin-top: 6px;
+}
+
+.admin-input:focus,
+.admin-select:focus,
+.admin-textarea:focus {
+  border-color: #00E599;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-save-plan {
+  flex: 1;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #080a0f;
+  border: none;
+  font-weight: 800;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-cancel-edit {
+  background: #334155;
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* Plans Grid */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.admin-plan-card {
+  background: #090c12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.plan-card-head strong {
+  color: #00E599;
+  font-size: 1.05rem;
+}
+
+.admin-plan-card h4 {
+  font-size: 1.05rem;
+  color: #fff;
+  margin: 0 0 4px 0;
+}
+
+.plan-dur {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0 0 10px 0;
+}
+
+.plan-desc {
+  font-size: 0.82rem;
+  color: #64748b;
+  flex: 1;
+  margin-bottom: 14px;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.btn-icon {
+  flex: 1;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-icon.edit { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+.btn-icon.delete { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+/* Stats Details */
+.stats-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .stats-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.type-distribution-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.type-dist-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dist-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dist-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00E599, #00B4D8);
+  border-radius: 4px;
+}
+
+.dist-count {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.top-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.top-event-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #090c12;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rank-num {
+  font-weight: 800;
+  color: #00E599;
+  font-size: 1.1rem;
+}
+
+.ev-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.ev-info {
+  flex: 1;
+}
+
+.ev-info strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.ev-info span {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.ev-spent {
+  font-weight: 800;
+  color: #00E599;
+  font-size: 1rem;
+}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../../user/css/Favourites.css";
 
 function FavoritesPage() {
   const [favorites, setFavorites] = useState([]);
@@ -49,7 +50,16 @@ function FavoritesPage() {
   // 🟩 BƯỚC 4: Hiển thị thông báo nếu chưa đăng nhập
   if (!userId) {
     return (
-      <div className="text-center mt-20 text-gray-600 text-xl">
+      <div style={{
+        textAlign: "center",
+        minHeight: "100vh",
+        background: "#0b0d13",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#64748b",
+        fontSize: "1.1rem",
+      }}>
         Bạn cần đăng nhập để xem sự kiện yêu thích 💌
       </div>
     );
@@ -57,67 +67,70 @@ function FavoritesPage() {
 
   if (favorites.length === 0) {
     return (
-      <div className="text-center mt-20 text-gray-600 text-xl">
-        Bạn chưa tim sự kiện nào 💔
+      <div style={{
+        textAlign: "center",
+        minHeight: "100vh",
+        background: "#0b0d13",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#64748b",
+        fontSize: "1.1rem",
+      }}>
+        <div style={{ fontSize: "3rem", marginBottom: 16, opacity: 0.5 }}>💚</div>
+        Bạn chưa yêu thích sự kiện nào
       </div>
     );
   }
 
   return (
-    <div className="px-6 py-10">
-      <h2 className="text-3xl font-bold mb-8 text-center text-pink-600">
-        💖 Sự kiện của tôi
-      </h2>
+    <div className="favorites-section">
+      <div className="section-header">
+        <h2 style={{ paddingLeft: "16px" }}>💚 Sự kiện yêu thích</h2>
+      </div>
 
-      {/* Lưới hiển thị card giống HomePage */}
+      {/* Lưới hiển thị card */}
       <div className="scroll-row">
         {favorites.map((event) => (
           <div className="suggest-card" key={event._id}>
-            <div className="border rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden bg-white">
-              {/* Ảnh banner */}
-              <img
-            src={event.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
-            alt={event.title}
-          />
-          <h4>{event.title}</h4>
-          <p>{event.categoryName || event.categoryId}</p>
+            {/* Ảnh banner */}
+            <img
+              src={event.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
+              alt={event.title}
+            />
 
-              
+            <h4>{event.title}</h4>
+
+            <p style={{ color: "#00E599", fontWeight: 600, fontSize: "0.82rem", textTransform: "uppercase" }}>
+              {event.categoryName || event.categoryId}
+            </p>
+
             {/* Nút tim ở góc phải trên */}
-          <button
-            className={`fav-btn ${favorites.some(f => f._id === event._id) ? "active" : ""}`}
-            onClick={() => toggleFavorite(event)}
-          >
-            {favorites.some(f => f._id === event._id) ? "❤️" : "🤍"}
-          </button>
+            <button
+              className={`fav-btn ${favorites.some(f => f._id === event._id) ? "active" : ""}`}
+              onClick={() => toggleFavorite(event)}
+            >
+              {favorites.some(f => f._id === event._id) ? "❤️" : "🤍"}
+            </button>
 
-              {/* Nội dung sự kiện */}
-              {/* <div className="p-4">
-                <h3 className="text-lg font-semibold mb-1">{event.title}</h3>
-                <p className="text-gray-600 text-sm line-clamp-2 mb-2">
-                  {event.description}
-                </p> */}
+            <p className="text-gray-500">
+              📅 {new Date(event.date).toLocaleDateString("vi-VN")}
+            </p>
+            <p className="text-gray-500">
+              🏷 {event.categoryId || "Không có danh mục"}
+            </p>
 
-                <p className="text-gray-500 text-sm mb-1">
-                  📅 {new Date(event.date).toLocaleDateString("vi-VN")}
-                </p>
-                <p className="text-gray-500 text-sm mb-4">
-                  🏷 {event.categoryId || "Không có danh mục"}
-                </p>
-
-                {/* Nút xem chi tiết */}
-                <button
-                  onClick={() => navigate(`/event/${event._id}`)}
-                  className="btn btn-info my-2"
-                >
-                  🔍 View Detail
-                </button>
-              {/* </div> */}
-            </div>
+            {/* Nút xem chi tiết */}
+            <button
+              onClick={() => navigate(`/event/${event._id}`)}
+              className="btn btn-info"
+            >
+              🔍 Xem chi tiết
+            </button>
           </div>
         ))}
       </div>
-
     </div>
   );
 }

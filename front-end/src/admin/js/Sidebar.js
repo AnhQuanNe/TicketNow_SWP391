@@ -10,6 +10,7 @@ export default function Sidebar() {
     { id: "home", path: "/admin", icon: "", label: "" },
     { id: "customers", path: "/admin/users", icon: "", label: "Users" },
     { id: "events", path: "/admin/events", icon: "", label: "Events" },
+    { id: "promotions", path: "/admin/promotions", icon: "", label: "Promotions" },
     { id: "reports", path: "/admin/reports", icon: "", label: "Reports" },
     {
       id: "notifications",

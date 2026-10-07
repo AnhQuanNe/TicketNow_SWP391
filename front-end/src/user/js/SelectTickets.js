@@ -46,7 +46,14 @@ function SelectTicket() {
       // 👉 Ràng buộc 1: Nếu là vé student và user có studentId → chỉ tối đa 1 vé
       const isStudent = type.toLowerCase() === "student";
       if (isStudent && user?.studentId && newQuantity > 1) {
-        Swal.fire("⚠️", "Bạn chỉ được mua tối đa 1 vé Student!", "warning");
+        Swal.fire({
+          icon: "warning",
+          title: "⚠️",
+          text: "Bạn chỉ được mua tối đa 1 vé Student!",
+          background: "#141824",
+          color: "#e2e8f0",
+          confirmButtonColor: "#00E599",
+        });
         return prev;
       }
 
@@ -55,7 +62,14 @@ function SelectTicket() {
       const totalAfter = totalCurrent + value;
 
       if (totalAfter > 5) {
-        Swal.fire("⚠️", "Bạn chỉ được mua tối đa 5 vé cho sự kiện này!", "warning");
+        Swal.fire({
+          icon: "warning",
+          title: "⚠️",
+          text: "Bạn chỉ được mua tối đa 5 vé cho sự kiện này!",
+          background: "#141824",
+          color: "#e2e8f0",
+          confirmButtonColor: "#00E599",
+        });
         return prev;
       }
 
@@ -73,7 +87,14 @@ function SelectTicket() {
       .filter((t) => t.quantity > 0);
 
     if (selectedTickets.length === 0) {
-      Swal.fire("⚠️", "Vui lòng chọn ít nhất 1 vé!", "warning");
+      Swal.fire({
+        icon: "warning",
+        title: "⚠️",
+        text: "Vui lòng chọn ít nhất 1 vé!",
+        background: "#141824",
+        color: "#e2e8f0",
+        confirmButtonColor: "#00E599",
+      });
       return;
     }
 
@@ -106,143 +127,124 @@ function SelectTicket() {
     navigate("/payment");
   };
 
-  if (loading) return <p>⏳ Đang tải dữ liệu...</p>;
-  if (!event) return <p>❌ Không tìm thấy sự kiện.</p>;
+  if (loading) return (
+    <div style={{
+      textAlign: "center",
+      color: "#00E599",
+      background: "#0b0d13",
+      minHeight: "100vh",
+      paddingTop: 100,
+      fontSize: "1.1rem"
+    }}>
+      ⏳ Đang tải dữ liệu...
+    </div>
+  );
+
+  if (!event) return (
+    <div style={{
+      textAlign: "center",
+      color: "#ff6b6b",
+      background: "#0b0d13",
+      minHeight: "100vh",
+      paddingTop: 100,
+      fontSize: "1.1rem"
+    }}>
+      ❌ Không tìm thấy sự kiện.
+    </div>
+  );
+
   const total = tickets.reduce((sum, t) => {
     const key = t.ticketType || t.type || "";
     return sum + (quantities[key] || 0) * t.price;
   }, 0);
 
   return (
-    <div
-      style={{
-        backgroundColor: "#FFF4E6",
-        minHeight: "100vh",
-        padding: "60px 80px",
-        color: "#333",
-        fontFamily: "Poppins, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          display: "flex",
-          gap: "40px",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* 🌸 Thông tin sự kiện */}
-        <div
-          style={{
-            flex: 1.2,
-            background: "#fff",
-            borderRadius: "16px",
-            boxShadow: "0 0 15px rgba(255, 77, 166, 0.2)",
-            overflow: "hidden",
-            border: "1px solid #ffd6eb",
-          }}
-        >
-          <img
-            src={
-              event.imageUrl ||
-              "https://via.placeholder.com/600x350?text=No+Image"
-            }
-            alt={event.title}
-            style={{ width: "100%", height: "340px", objectFit: "cover" }}
-          />
-          <div style={{ padding: "25px" }}>
-            <h2 style={{ color: "#FFA500", marginBottom: "10px" }}>
-              {event.title}
-            </h2>
-            <p style={{ opacity: 0.9, marginBottom: "10px" }}>
-              {event.description}
-            </p>
-            <p>
-              <b>📍 Địa điểm:</b> {event.locationId || "Đang cập nhật"}
-            </p>
-            <p>
-              <b>📅 Ngày diễn ra:</b>{" "}
-              {event.date
-                ? new Date(event.date).toLocaleDateString()
-                : "Chưa có"}
-            </p>
+    <div style={styles.page}>
+      <div style={styles.container}>
+        {/* 🎵 Thông tin sự kiện */}
+        <div style={styles.eventCard}>
+          <div style={styles.imgWrap}>
+            <img
+              src={
+                event.imageUrl ||
+                "https://via.placeholder.com/600x350?text=No+Image"
+              }
+              alt={event.title}
+              style={styles.eventImg}
+            />
+            <div style={styles.imgOverlay}></div>
+          </div>
+          <div style={styles.eventInfo}>
+            <h2 style={styles.eventTitle}>{event.title}</h2>
+            <p style={styles.eventDesc}>{event.description}</p>
+            <div style={styles.eventMeta}>
+              <p style={styles.metaItem}>
+                <span style={styles.metaIcon}>📍</span>
+                {event.locationId || "Đang cập nhật"}
+              </p>
+              <p style={styles.metaItem}>
+                <span style={styles.metaIcon}>📅</span>
+                {event.date
+                  ? new Date(event.date).toLocaleDateString("vi-VN")
+                  : "Chưa có"}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* 🎟️ Khung chọn vé */}
-        <div
-          style={{
-            flex: 0.9,
-            background: "#fff",
-            borderRadius: "16px",
-            padding: "25px 30px",
-            boxShadow: "0 0 15px rgba(255, 77, 166, 0.25)",
-            border: "1px solid #ffd6eb",
-          }}
-        >
-          <h3 style={{ color: "#FFA500", marginBottom: "25px" }}>
+        <div style={styles.ticketCard}>
+          <h3 style={styles.ticketTitle}>
+            <span style={styles.titleBar}></span>
             🎫 Chọn loại vé
           </h3>
 
           {tickets.length === 0 ? (
-            <p>Không có loại vé nào cho sự kiện này.</p>
+            <p style={{ color: "#64748b" }}>Không có loại vé nào cho sự kiện này.</p>
           ) : (
             tickets.map((ticket, index) => {
               const typeLabel = ticket.ticketType || ticket.type || "";
               const isStudentTicket = (typeLabel || "").toLowerCase() === "student" && (!user || !user.studentId);
+              const qty = quantities[typeLabel] || 0;
 
               return (
                 <div
                   key={index}
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    borderBottom: "1px solid #ffe0cc",
-                    padding: "12px 0",
-                    opacity: isStudentTicket ? 0.5 : 1,
+                    ...styles.ticketRow,
+                    opacity: isStudentTicket ? 0.4 : 1,
                   }}
                 >
                   <div>
-                    <b style={{ fontSize: "17px", color: "#FFA500" }}>
-                      {typeLabel}
-                    </b>
-                    <p style={{ color: "#777" }}>
+                    <div style={styles.ticketType}>{typeLabel}</div>
+                    <div style={styles.ticketPrice}>
                       {ticket?.price != null
                         ? ticket.price.toLocaleString()
                         : "—"}{" "}
                       VND
-                    </p>
+                    </div>
                     {isStudentTicket && (
-                      <p style={{ color: "#FFA500", fontSize: "13px" }}>
+                      <p style={styles.studentNote}>
                         * Chỉ dành cho sinh viên
                       </p>
                     )}
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={styles.qtyControls}>
                     <button
                       onClick={() => handleQuantityChange(typeLabel, -1)}
-                      style={btnStyle}
-                      disabled={isStudentTicket}
+                      style={{
+                        ...styles.qtyBtn,
+                        opacity: qty === 0 ? 0.4 : 1,
+                      }}
+                      disabled={isStudentTicket || qty === 0}
                     >
                       −
                     </button>
-                    <span
-                      style={{
-                        margin: "0 12px",
-                        fontSize: "16px",
-                        minWidth: "20px",
-                        textAlign: "center",
-                      }}
-                    >
-                      {quantities[typeLabel] || 0}
-                    </span>
+                    <span style={styles.qtyNumber}>{qty}</span>
                     <button
                       onClick={() => handleQuantityChange(typeLabel, 1)}
-                      style={btnStyle}
+                      style={styles.qtyBtn}
                       disabled={isStudentTicket}
                     >
                       +
@@ -253,23 +255,27 @@ function SelectTicket() {
             })
           )}
 
-          <h3 style={{ marginTop: "25px", color: "#FFA500" }}>
-            💰 Tổng: {total.toLocaleString()} VND
-          </h3>
+          {/* Tổng tiền */}
+          <div style={styles.totalRow}>
+            <span style={{ color: "#94a3b8" }}>Tổng cộng</span>
+            <span style={styles.totalPrice}>
+              {total.toLocaleString()} VND
+            </span>
+          </div>
 
           <button
             onClick={handlePayment}
-            style={payBtnStyle}
-            onMouseOver={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #FF9F00 0%, #FFB84D 100%)")
-            }
-            onMouseOut={(e) =>
-            (e.target.style.background =
-              "linear-gradient(90deg, #FF7F50 0%, #FFA500 100%)")
-            }
+            style={styles.payBtn}
+            onMouseOver={(e) => {
+              e.target.style.transform = "translateY(-2px)";
+              e.target.style.boxShadow = "0 6px 24px rgba(0, 229, 153, 0.45)";
+            }}
+            onMouseOut={(e) => {
+              e.target.style.transform = "none";
+              e.target.style.boxShadow = "0 4px 16px rgba(0, 229, 153, 0.3)";
+            }}
           >
-            Thanh toán ngay
+            💳 Thanh toán ngay
           </button>
         </div>
       </div>
@@ -277,29 +283,192 @@ function SelectTicket() {
   );
 }
 
-const btnStyle = {
-  background: "#ffd4b3",
-  color: "#ff8c42",
-  padding: "6px 12px",
-  border: "1px solid #ffb380",
-  borderRadius: "6px",
-  cursor: "pointer",
-  transition: "0.2s",
-  fontWeight: "bold",
+const styles = {
+  page: {
+    backgroundColor: "#0b0d13",
+    minHeight: "100vh",
+    padding: "48px 40px 80px",
+    color: "#e2e8f0",
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+  },
+  container: {
+    maxWidth: "1100px",
+    margin: "0 auto",
+    display: "flex",
+    gap: "32px",
+    alignItems: "flex-start",
+    flexWrap: "wrap",
+  },
+  /* Event Info Card */
+  eventCard: {
+    flex: 1.2,
+    background: "#141824",
+    borderRadius: "16px",
+    overflow: "hidden",
+    border: "1px solid rgba(255, 255, 255, 0.07)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+    transition: "border-color 0.3s ease",
+  },
+  imgWrap: {
+    position: "relative",
+    overflow: "hidden",
+  },
+  eventImg: {
+    width: "100%",
+    height: "340px",
+    objectFit: "cover",
+    display: "block",
+    transition: "transform 0.6s ease",
+  },
+  imgOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "80px",
+    background: "linear-gradient(to top, #141824, transparent)",
+    pointerEvents: "none",
+  },
+  eventInfo: {
+    padding: "20px 28px 28px",
+  },
+  eventTitle: {
+    color: "#ffffff",
+    fontSize: "1.4rem",
+    fontWeight: 800,
+    marginBottom: "12px",
+    letterSpacing: "-0.3px",
+  },
+  eventDesc: {
+    color: "#94a3b8",
+    fontSize: "0.92rem",
+    lineHeight: 1.65,
+    marginBottom: "18px",
+  },
+  eventMeta: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+  metaItem: {
+    color: "#cbd5e1",
+    fontSize: "0.92rem",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    margin: 0,
+  },
+  metaIcon: {
+    fontSize: "1rem",
+    flexShrink: 0,
+  },
+  /* Ticket Selection Card */
+  ticketCard: {
+    flex: 0.9,
+    background: "#141824",
+    borderRadius: "16px",
+    padding: "28px 30px",
+    border: "1px solid rgba(255, 255, 255, 0.07)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+  },
+  ticketTitle: {
+    color: "#ffffff",
+    fontSize: "1.15rem",
+    fontWeight: 700,
+    marginBottom: "24px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+  titleBar: {
+    display: "inline-block",
+    width: "4px",
+    height: "20px",
+    background: "linear-gradient(180deg, #00E599, #00B4D8)",
+    borderRadius: "2px",
+  },
+  ticketRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "16px 0",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+    transition: "background 0.2s ease",
+  },
+  ticketType: {
+    fontSize: "1.05rem",
+    fontWeight: 700,
+    color: "#ffffff",
+    marginBottom: "4px",
+  },
+  ticketPrice: {
+    fontSize: "0.92rem",
+    color: "#00E599",
+    fontWeight: 600,
+  },
+  studentNote: {
+    color: "#f59e0b",
+    fontSize: "0.78rem",
+    marginTop: "4px",
+    fontStyle: "italic",
+  },
+  qtyControls: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0",
+  },
+  qtyBtn: {
+    width: "36px",
+    height: "36px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "rgba(0, 229, 153, 0.1)",
+    color: "#00E599",
+    border: "1px solid rgba(0, 229, 153, 0.25)",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontSize: "1.1rem",
+    fontWeight: "700",
+    transition: "all 0.2s ease",
+  },
+  qtyNumber: {
+    margin: "0 14px",
+    fontSize: "1.1rem",
+    fontWeight: 700,
+    minWidth: "20px",
+    textAlign: "center",
+    color: "#ffffff",
+  },
+  totalRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "20px",
+    paddingTop: "18px",
+    borderTop: "1px solid rgba(0, 229, 153, 0.15)",
+  },
+  totalPrice: {
+    fontSize: "1.3rem",
+    fontWeight: 800,
+    color: "#00E599",
+    textShadow: "0 0 12px rgba(0, 229, 153, 0.3)",
+  },
+  payBtn: {
+    marginTop: "24px",
+    width: "100%",
+    padding: "14px 20px",
+    background: "linear-gradient(135deg, #00E599 0%, #00B4D8 100%)",
+    color: "#0b0d13",
+    border: "none",
+    borderRadius: "12px",
+    fontSize: "1.05rem",
+    fontWeight: "700",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 16px rgba(0, 229, 153, 0.3)",
+    letterSpacing: "0.3px",
+  },
 };
 
-const payBtnStyle = {
-  marginTop: "25px",
-  width: "100%",
-  padding: "14px 20px",
-  background: "linear-gradient(90deg, #ffa366 0%, #ff8c42 100%)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "10px",
-  fontSize: "18px",
-  fontWeight: "600",
-  cursor: "pointer",
-  transition: "0.3s",
-  boxShadow: "0 4px 12px rgba(255, 140, 66, 0.3)",
-};
 export default SelectTicket;

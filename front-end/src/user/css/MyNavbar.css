@@ -1,55 +1,84 @@
 /* Navigation Links Container */
 .nav-links {
-  background: white;
-  padding: 1rem 3rem;
+  background: rgba(15, 19, 29, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 0.5rem 2.5rem;
   display: flex;
-  gap: 2.5rem;
-  box-shadow: 0 2px 12px rgba(255, 140, 66, 0.1);
-  border-bottom: 2px solid #ffe8df;
+  gap: 1.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   align-items: center;
+  position: relative;
+  z-index: 99;
 }
 
 /* Navigation Link Items */
 .nav-links a {
-  color: #333333;
+  color: #94a3b8;
   text-decoration: none;
-  padding: 12px 24px;
-  border-radius: 15px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
   position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-  border: 1px solid transparent;
+  letter-spacing: -0.2px;
 }
 
 .nav-links a:hover {
-  background: rgba(255, 140, 66, 0.12);
-  transform: translateY(-2px);
-  border-color: rgba(255, 140, 66, 0.2);
+  color: #00E599;
+  background: rgba(0, 229, 153, 0.08);
+  transform: translateY(-1px);
 }
 
-.nav-links button {
+/* Nút Vé của tôi */
+.nav-links .my-ticket {
   margin-left: auto;
-  padding: 0.6rem 1.5rem;
-  border: 2px solid #ff8c42;
-  border-radius: 50px;
-  background: linear-gradient(135deg, #ff8c42, #ffa726);
-  color: white;
+  padding: 0.45rem 1.2rem;
+  border: 1px solid rgba(0, 229, 153, 0.4);
+  border-radius: 40px;
+  background: rgba(0, 229, 153, 0.06);
+  color: #00E599;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.25s ease;
   font-family: inherit;
 }
 
-.nav-links button:hover {
-  background: white;
-  color: #ff8c42;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
+.nav-links .my-ticket:hover {
+  background: rgba(0, 229, 153, 0.15);
+  border-color: #00E599;
+  box-shadow: 0 0 12px rgba(0, 229, 153, 0.25);
+  transform: translateY(-1px);
 }
-.nav-links button + button {
-  margin-left: 0.1rem;
+
+/* Nút Tạo sự kiện */
+.nav-links .create-events {
+  margin-left: 0.6rem;
+  padding: 0.45rem 1.3rem;
+  border: none;
+  border-radius: 40px;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #0b0d13;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 12px rgba(0, 229, 153, 0.25);
+  font-family: inherit;
+}
+
+.nav-links .create-events:hover {
+  box-shadow: 0 5px 16px rgba(0, 229, 153, 0.4);
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    padding: 0.5rem 1rem;
+    gap: 0.6rem;
+    overflow-x: auto;
+  }
 }

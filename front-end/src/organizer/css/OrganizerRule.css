@@ -1,34 +1,124 @@
+/* ========================================================
+   📜 OrganizerRule.css - Emerald Obsidian Dark Theme with Rich Depth
+   ======================================================== */
+
 .organizer-rules {
-    background: #fff;
-    border-radius: 16px;
-    padding: 25px;
-    margin: 20px 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .organizer-rules h2 {
-    text-align: center;
-    margin-bottom: 15px;
-    color: #222;
-  }
-  
-  .organizer-rules ol {
-    padding-left: 20px;
-    color: #333;
-    line-height: 1.6;
-  }
-  
-  .organizer-rules li {
-    margin-bottom: 12px;
-  }
-  
-  .agree-box {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .agree-box label {
-    margin-left: 8px;
-    font-weight: 500;
-  }
-  
+  background: linear-gradient(160deg, #131824 0%, #0d111a 100%);
+  border: 1px solid rgba(0, 229, 153, 0.22);
+  border-radius: 24px;
+  padding: 44px 48px;
+  margin: 16px auto;
+  max-width: 980px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 
+              0 0 35px rgba(0, 229, 153, 0.08),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle corner neon accent glow */
+.organizer-rules::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(0, 229, 153, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.organizer-rules h2 {
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 30%, #a7f3d0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+  position: relative;
+  padding-bottom: 18px;
+}
+
+.organizer-rules h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 4px;
+  background: linear-gradient(90deg, #00E599 0%, #00B4D8 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(0, 229, 153, 0.6);
+}
+
+.organizer-rules ol {
+  list-style: none;
+  counter-reset: rule-counter;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.organizer-rules li {
+  counter-increment: rule-counter;
+  position: relative;
+  padding: 16px 20px 16px 56px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  line-height: 1.65;
+  color: #cbd5e1;
+  font-size: 0.98rem;
+  transition: all 0.25s ease;
+}
+
+.organizer-rules li:hover {
+  background: rgba(0, 229, 153, 0.04);
+  border-color: rgba(0, 229, 153, 0.2);
+  transform: translateX(4px);
+}
+
+.organizer-rules li::before {
+  content: counter(rule-counter);
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #080a0f;
+  font-weight: 800;
+  font-size: 0.85rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 229, 153, 0.35);
+}
+
+.organizer-rules li strong {
+  color: #34d399;
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.agree-box {
+  margin-top: 36px;
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.agree-box label {
+  margin-left: 10px;
+  font-weight: 600;
+  color: #e2e8f0;
+  cursor: pointer;
+  font-size: 1rem;
+}

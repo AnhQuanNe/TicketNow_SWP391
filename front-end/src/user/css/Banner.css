@@ -1,25 +1,24 @@
 /* ==============================
-   🎟️ Banner chính (Hero Banner)
+   🎟️ Hero Banner (TicketNow Compact)
    ============================== */
 
 .banner {
   position: relative;
   flex: 1;
-  /* ✅ Chia đều không gian cho 2 banner */
-  height: 480px;
+  height: 290px;
   overflow: hidden;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  background-color: #111;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  background-color: #121622;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .banner-container {
   display: flex;
-  gap: 20px;
-  /* Khoảng cách giữa 2 banner */
-  max-width: 1280px;
-  margin: 40px auto;
-  padding: 0 20px;
+  gap: 16px;
+  max-width: 1240px;
+  margin: 18px auto 28px;
+  padding: 0 24px;
 }
 
 /* Ảnh chính */
@@ -28,19 +27,11 @@
   height: 100%;
   object-fit: cover;
   border-radius: 16px;
-  transition: transform 1s ease-in-out;
+  transition: transform 0.8s ease;
 }
 
-/* Hiệu ứng chuyển ảnh khi đổi banner */
-.banner-img.fade-enter {
-  opacity: 0;
-  transform: scale(1.05);
-}
-
-.banner-img.fade-enter-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 0.8s, transform 0.8s;
+.banner:hover .banner-img {
+  transform: scale(1.03);
 }
 
 /* Overlay chữ */
@@ -50,113 +41,114 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 60px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 30%, transparent);
+  padding: 22px;
+  background: linear-gradient(to top, rgba(11, 13, 19, 0.95) 12%, rgba(11, 13, 19, 0.3) 55%, transparent 100%);
   color: #fff;
 }
 
 /* Tiêu đề sự kiện */
 .banner-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  line-height: 1.2;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-}
-
-/* Mô tả sự kiện */
-.banner-desc {
-  font-size: 1rem;
-  max-width: 600px;
-  margin-bottom: 24px;
-  opacity: 0.9;
-  line-height: 1.5;
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  line-height: 1.25;
+  color: #ffffff;
 }
 
 /* Nút xem chi tiết */
 .banner-link {
   position: absolute;
-  display: inline-block;
-  color: #fff;
-  border-radius: 8px;
-  font-weight: 600;
-  bottom: 35px;
-  right: 256px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #0b0d13;
+  padding: 7px 18px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  bottom: 18px;
+  right: 18px;
   text-decoration: none;
-  width: fit-content;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 12px rgba(0, 229, 153, 0.3);
 }
 
-/* ==========================
-   🎯 Nút điều hướng trái/phải
-   ========================== */
+.banner-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(0, 229, 153, 0.45);
+  filter: brightness(1.1);
+}
+
+/* Nút điều hướng */
 .banner-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 48px;
-  height: 48px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: none;
-  font-size: 28px;
-  font-weight: bold;
-  color: white;
-  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: rgba(11, 13, 19, 0.65);
   backdrop-filter: blur(10px);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   z-index: 10;
 }
 
 .banner-btn:hover {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(0, 229, 153, 0.25);
+  border-color: #00E599;
+  color: #00E599;
 }
 
 .banner-btn.prev {
-  left: 20px;
+  left: 14px;
 }
 
 .banner-btn.next {
-  right: 20px;
+  right: 14px;
 }
 
-/* ==========================
-   ⚪ Dấu chấm vị trí
-   ========================== */
+/* Dấu chấm vị trí */
 .banner-dots {
   position: absolute;
   bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 22px;
   display: flex;
-  gap: 10px;
+  gap: 6px;
+  align-items: center;
+  z-index: 10;
 }
 
 .dot {
-  width: 10px;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.5);
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .dot:hover {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .dot.active {
-  width: 24px;
-  border-radius: 6px;
-  background: #ff7b00;
+  width: 18px;
+  border-radius: 8px;
+  background: #00E599;
+  box-shadow: 0 0 8px rgba(0, 229, 153, 0.6);
 }
 
-/* ==========================
-   🔘 Trạng thái không có banner
-   ========================== */
 .no-banner {
   text-align: center;
-  padding: 100px 0;
-  color: #ccc;
-  font-size: 1.2rem;
+  padding: 60px 0;
+  color: #64748b;
+  font-size: 1rem;
 }

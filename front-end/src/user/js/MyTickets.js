@@ -28,10 +28,18 @@ export default function MyTickets() {
   }, []);
 
   if (loading)
-    return <div className="flex items-center justify-center h-screen text-gray-500">Đang tải vé...</div>;
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0b0d13", color: "#00E599" }}>
+        ⏳ Đang tải vé...
+      </div>
+    );
 
   if (error)
-    return <div className="flex items-center justify-center h-screen text-red-500">{error}</div>;
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0b0d13", color: "#ef4444" }}>
+        {error}
+      </div>
+    );
 
   const tabs = ["Tất cả", "Thành công", "Đang xử lý", "Đã hủy"];
 
@@ -55,11 +63,8 @@ export default function MyTickets() {
       });
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center py-12 px-4"
-      style={{ backgroundColor: "#f8f8f8", color: "#222" }}
-    >
-      <h1 className="text-3xl font-bold mb-10">Vé của tôi</h1>
+    <div className="my-tickets-page">
+      <h1>🎟️ Vé của tôi</h1>
 
       {/* Tabs */}
       <div className="tab-container">
@@ -76,60 +81,62 @@ export default function MyTickets() {
 
       {/* Cards */}
       <div className="grid-container">
-        {filteredTickets.map((t) => {
-          const viStatus = statusMap[t.status?.toLowerCase()] || "Không xác định";
-          const statusClass =
-            viStatus === "Thành công"
-              ? "status-success"
-              : viStatus === "Đang xử lý"
-                ? "status-pending"
-                : "status-cancelled";
+        {filteredTickets.length === 0 ? (
+          <div className="empty-tickets">
+            <div className="empty-icon">🎫</div>
+            <p>Chưa có vé nào trong mục này.</p>
+          </div>
+        ) : (
+          filteredTickets.map((t) => {
+            const viStatus = statusMap[t.status?.toLowerCase()] || "Không xác định";
+            const statusClass =
+              viStatus === "Thành công"
+                ? "status-success"
+                : viStatus === "Đang xử lý"
+                  ? "status-pending"
+                  : "status-cancelled";
 
-          return (
-            <div
-              key={t._id}
-              className="ticket-card"
-              style={{ cursor: "pointer" }}
-              onClick={() => setSelectedQR(t)}   // 🔥 CLICK CARD → SHOW QR
-            >
-              <h3 className="text-lg font-semibold mb-2">{t.eventId?.title}</h3>
-              <p className="text-sm">📍 {t.eventId?.locationId || "Chưa có địa điểm"}</p>
-              <p className="text-sm">
-                📅 {t.eventId?.date ? new Date(t.eventId.date).toLocaleDateString("vi-VN") : "Chưa có"}
-              </p>
-
-              <p className="text-sm" style={{ color: "#ff7b00" }}>
-                💰 {t.totalPrice?.toLocaleString()} VNĐ
-              </p>
-
-              <p className="text-sm mb-1">
-                🎫 Loại vé: <b>{t.ticketType}</b>
-              </p>
-
-              <p className="text-xs text-gray-600 mb-3">
-                🕒 Mua lúc: {new Date(t.createdAt).toLocaleString("vi-VN")}
-              </p>
-
-              <span className={`status-tag ${statusClass}`}>{viStatus}</span>
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={t._id}
+                className="ticket-card"
+                onClick={() => setSelectedQR(t)}
+              >
+                <h3>{t.eventId?.title}</h3>
+                <p>📍 {t.eventId?.locationId || "Chưa có địa điểm"}</p>
+                <p>
+                  📅 {t.eventId?.date ? new Date(t.eventId.date).toLocaleDateString("vi-VN") : "Chưa có"}
+                </p>
+                <p className="ticket-price">
+                  💰 {t.totalPrice?.toLocaleString()} VNĐ
+                </p>
+                <p>
+                  🎫 Loại vé: <b style={{ color: "#ffffff" }}>{t.ticketType}</b>
+                </p>
+                <p className="ticket-time">
+                  🕒 Mua lúc: {new Date(t.createdAt).toLocaleString("vi-VN")}
+                </p>
+                <span className={`status-tag ${statusClass}`}>{viStatus}</span>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* 🔥 QR POPUP */}
       {selectedQR && (
         <div className="qr-overlay" onClick={() => setSelectedQR(null)}>
           <div className="qr-box" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold mb-3">{selectedQR.eventId?.title}</h2>
+            <h2>{selectedQR.eventId?.title}</h2>
 
             <img
               src={selectedQR.qrCode}
               alt="QR"
-              style={{ width: "250px", margin: "0 auto", borderRadius: "12px" }}
+              style={{ width: "220px", margin: "0 auto", display: "block" }}
             />
 
-            <p className="text-center mt-3 text-gray-500 text-sm">
-              Vé loại: {selectedQR.ticketType}
+            <p className="qr-ticket-type">
+              🎫 Vé loại: <b style={{ color: "#00E599" }}>{selectedQR.ticketType}</b>
             </p>
 
             <button className="close-btn" onClick={() => setSelectedQR(null)}>
