@@ -23,6 +23,21 @@ const eventSchema = new mongoose.Schema({
     enum: ["active", "deleted"],
     default: "active",
   },
+  // ⭐ Early Access: Thời gian mở bán công khai cho tài khoản thường
+  saleStartTime: { type: Date, default: null },
+
+  // ⭐ Member-only: Yêu cầu hạng thành viên để mua vé (NONE / PREMIUM / VIP)
+  membershipRequired: {
+    type: String,
+    enum: ["NONE", "PREMIUM", "VIP"],
+    default: "NONE",
+  },
+
+  // ⭐ Giá vé học sinh & vé thường
+  studentPrice: { type: Number, default: 0 },
+  regularPrice: { type: Number, default: 0 },
+  eventRequestId: { type: mongoose.Schema.Types.ObjectId, ref: "EventRequest" },
+
   createdAt: { type: Date, default: Date.now },
 });
 

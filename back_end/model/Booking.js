@@ -8,11 +8,13 @@ const bookingSchema = new mongoose.Schema(
     ticketType: {
       type: String,
       required: true,
-      enum: ["student", "guest"],
+      enum: ["student", "guest", "regular", "Student", "Guest", "Regular"],
     },
 
     quantity: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
+    serviceFee: { type: Number, default: 0 },
+    membershipDiscount: { type: Number, default: 0 },
 
     status: {
       type: String,

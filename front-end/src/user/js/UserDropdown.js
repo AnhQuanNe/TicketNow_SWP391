@@ -80,6 +80,9 @@ export default function UserDropdown({ user, onLogout }) {
           <li onClick={() => handleNavigate("/my-account")}>
             <span className="menu-icon">👤</span> Tài khoản của tôi
           </li>
+          <li onClick={() => handleNavigate("/membership")}>
+            <span className="menu-icon">👑</span> Gói Hội viên
+          </li>
           <li onClick={handleLogoutClick} className="logout-item">
             <span className="menu-icon">🚪</span> Đăng xuất
           </li>

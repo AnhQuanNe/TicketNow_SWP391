@@ -31,6 +31,22 @@
   transform: translateY(-1px);
 }
 
+.nav-links .nav-membership {
+  color: #fbbf24 !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 16px;
+}
+
+.nav-links .nav-membership:hover {
+  color: #fef08a !important;
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+}
+
 /* Nút Vé của tôi */
 .nav-links .my-ticket {
   margin-left: auto;

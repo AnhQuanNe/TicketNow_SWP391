@@ -15,6 +15,10 @@ function MyNavbar({ categories }) {
       <Link to="/category/workshop">Hội thảo</Link>
       <Link to="/category/sport">Thể thao</Link>
       <Link to="/category/market">Hội chợ</Link>
+      <Link to="/category/cat_esports">eSport</Link>
+      <Link to="/membership" className="nav-membership">
+        <span>👑</span> Hội viên
+      </Link>
       <button className="my-ticket" onClick={handleMyTickets}>Vé của tôi</button>
       <button className="create-events" onClick={handleCreateEvent}>Tạo sự kiện</button>
 

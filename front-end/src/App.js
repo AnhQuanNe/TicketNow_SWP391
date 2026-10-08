@@ -42,6 +42,9 @@ import EventManager from "./admin/js/EventManager";
 import PromotionManager from "./admin/js/PromotionManager";
 import VerifyEmail from "./user/js/VerifyEmail";
 import ChatWidget from "./user/js/ChatWidget";
+import MembershipPage from "./user/js/MembershipPage";
+import MembershipPaymentSuccess from "./user/js/MembershipPaymentSuccess";
+import MembershipManager from "./admin/js/MembershipManager";
 
 // 🧩 Tách phần logic ra component riêng
 function AppContent() {
@@ -95,6 +98,8 @@ function AppContent() {
         <Route path="/my-tickets" element={<MyTickets />} />
         <Route path="/payment" element={<TicketPage />} />
         <Route path="/my-account" element={<MyAccount />} />
+        <Route path="/membership" element={<MembershipPage />} />
+        <Route path="/membership/payment-success" element={<MembershipPaymentSuccess />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
 
@@ -112,6 +117,7 @@ function AppContent() {
           {/* /admin/users */}
           <Route path="events" element={<EventManager />} /> {/* /admin/events */}
           <Route path="promotions" element={<PromotionManager />} /> {/* /admin/promotions */}
+          <Route path="memberships" element={<MembershipManager />} /> {/* /admin/memberships */}
           <Route path="reports" element={<Reports />} /> {/* /admin/reports */}
           <Route path="notifications" element={<Notification />} />{" "}
           {/* /admin/notifications */}

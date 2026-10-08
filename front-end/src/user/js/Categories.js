@@ -9,6 +9,7 @@ function Categories({ categoriesFromBackend = [] }) {
     { _id: "workshop", name: "Hội thảo" },
     { _id: "sport", name: "Thể thao" },
     { _id: "market", name: "Hội chợ" },
+    { _id: "cat_esports", name: "eSport" },
   ];
 
   const allCategories = [...fixedCategories, ...categoriesFromBackend];

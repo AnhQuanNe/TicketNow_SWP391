@@ -64,14 +64,21 @@
 }
 
 /* ==== Tên người dùng ==== */
+.user-dropdown .user-name,
+.user-button .user-name,
 .user-name {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #ffffff !important;
   max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.user-button:hover .user-name {
+  color: #00E599 !important;
 }
 
 /* ==== Mũi tên ▼ ==== */

@@ -14,14 +14,47 @@ function CategoryPage() {
   const incomingKey =
     categorySlugFromParams || idFromParams || directSlug;
 
-  const categoryMap = {
+  const [dbCategories, setDbCategories] = useState([]);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setDbCategories(data);
+      })
+      .catch((err) => console.error("Lỗi lấy categories từ server:", err));
+  }, []);
+
+  const defaultCategoryMap = {
     music: { id: "cat_music", name: "Âm nhạc" },
+    cat_music: { id: "cat_music", name: "Âm nhạc" },
     workshop: { id: "cat_workshop", name: "Workshop / Kỹ năng" },
+    cat_workshop: { id: "cat_workshop", name: "Workshop / Kỹ năng" },
     sport: { id: "cat_sport", name: "Thể thao" },
+    cat_sport: { id: "cat_sport", name: "Thể thao" },
     market: { id: "cat_market", name: "Hội chợ" },
+    cat_market: { id: "cat_market", name: "Hội chợ" },
+    esport: { id: "cat_esports", name: "eSport" },
+    esports: { id: "cat_esports", name: "eSport" },
+    cat_esport: { id: "cat_esports", name: "eSport" },
+    cat_esports: { id: "cat_esports", name: "eSport" },
   };
 
-  const categoryInfo = categoryMap[incomingKey];
+  // Tìm trong DB categories trước, sau đó fallback sang defaultCategoryMap
+  const matchedDbCat = dbCategories.find(
+    (c) =>
+      c._id === incomingKey ||
+      (c._id && c._id.replace("cat_", "").toLowerCase() === incomingKey?.replace("cat_", "").toLowerCase()) ||
+      (c.name && c.name.toLowerCase() === incomingKey?.toLowerCase())
+  );
+
+  const categoryInfo = matchedDbCat
+    ? { id: matchedDbCat._id, name: matchedDbCat.name }
+    : defaultCategoryMap[incomingKey] || (
+        incomingKey?.toLowerCase().includes("esport")
+          ? { id: "cat_esports", name: "eSport" }
+          : null
+      );
 
   const [events, setEvents] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -39,19 +72,52 @@ function CategoryPage() {
       try {
         const data = await getEvents();
 
-        // 🔥 FIX CHÍNH: Hỗ trợ string hoặc object khi populate
+        // 🔥 Lọc sự kiện chính xác theo categoryId
         const filtered = data.filter((ev) => {
           // ❗ Chặn event đã bị xóa
           if (ev.status !== "active") return false;
 
           if (!ev.categoryId) return false;
 
+          const rawId = typeof ev.categoryId === "object" ? ev.categoryId._id : ev.categoryId;
+          const rawName = typeof ev.categoryId === "object" ? (ev.categoryId.name || "") : (ev.categoryName || "");
+
+          // Xử lý riêng cho trường hợp eSport / esports / cat_esports / cat_esport
+          if (
+            incomingKey === "esport" ||
+            incomingKey === "esports" ||
+            incomingKey === "cat_esport" ||
+            incomingKey === "cat_esports" ||
+            categoryInfo?.id === "cat_esports" ||
+            categoryInfo?.id === "cat_esport"
+          ) {
+            return (
+              rawId === "cat_esports" ||
+              rawId === "cat_esport" ||
+              rawId === "esport" ||
+              rawId === "esports" ||
+              rawName.toLowerCase().includes("esport")
+            );
+          }
+
+          if (rawId === categoryInfo.id || rawId === incomingKey) {
+            return true;
+          }
+
           if (typeof ev.categoryId === "string") {
-            return ev.categoryId === categoryInfo.id;
+            return (
+              ev.categoryId === categoryInfo.id ||
+              ev.categoryId === incomingKey ||
+              ev.categoryId.replace("cat_", "") === incomingKey.replace("cat_", "")
+            );
           }
 
           if (typeof ev.categoryId === "object") {
-            return ev.categoryId._id === categoryInfo.id;
+            return (
+              ev.categoryId._id === categoryInfo.id ||
+              ev.categoryId._id === incomingKey ||
+              ev.categoryId._id?.replace("cat_", "") === incomingKey.replace("cat_", "")
+            );
           }
 
           return false;

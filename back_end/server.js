@@ -37,6 +37,8 @@ import adminRoutes from "./routes/adminRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import promotionRoutes from "./routes/promotionRoutes.js";
 import { seedPromotionPlans } from "./scripts/seedPromotionPlans.js";
+import membershipRoutes from "./routes/membershipRoutes.js";
+import { seedMembershipPlans } from "./scripts/seedMembershipPlans.js";
 
 
 // 🟢 Cấu hình dotenv để đọc .env
@@ -102,6 +104,16 @@ mongoose
     } catch (e) {
       console.warn(
         "⚠️ Không thể seed PromotionPlans:",
+        e.message || e
+      );
+    }
+
+    // Seed default membership plans
+    try {
+      await seedMembershipPlans();
+    } catch (e) {
+      console.warn(
+        "⚠️ Không thể seed MembershipPlans:",
         e.message || e
       );
     }
@@ -236,6 +248,7 @@ app.use("/api/roles", roleRoutes);
 app.use("/api/organizer", organizerRoutes);
 app.use("/api/event-requests", eventRequestRoutes); // Đường dẫn xử lý tạo sự kiện
 app.use("/api/promotions", promotionRoutes); // 💰 Business & Monetization Routes
+app.use("/api/membership", membershipRoutes); // 👑 Membership & Subscriptions System
 
 // � Socket.IO basic events
 io.on("connection", (socket) => {

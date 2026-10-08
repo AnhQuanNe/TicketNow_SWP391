@@ -6,6 +6,7 @@ import User from "../model/User.js";
 import { sendTicketEmail } from "../utils/sendEmail.js";
 import { createNotification } from "../controllers/notificationController.js";
 import crypto from "crypto";
+import { getUserActiveMembership } from "./membershipController.js";
 
 // ======================================================
 // 1) Create Booking After Payment (multi-ticket + canceled)
@@ -23,6 +24,40 @@ export const createBookingAfterPayment = async (req, res) => {
 
     const event = await Event.findById(eventObj);
     if (!event) return res.status(404).json({ message: "Không tìm thấy event!" });
+
+    /* ============================================================
+       0) KIỂM TRA QUYỀN HỘI VIÊN (MEMBER-ONLY & EARLY ACCESS)
+    ============================================================= */
+    const userMembership = await getUserActiveMembership(userObj);
+    const userPlan = userMembership?.planName || "FREE";
+    const earlyMinutes = userMembership?.earlyAccessMinutes || 0;
+    const now = new Date();
+
+    // 0.1) Member-Only Events Check
+    const requiredMembership = event.membershipRequired || "NONE";
+    if (requiredMembership === "VIP" && userPlan !== "VIP") {
+      return res.status(403).json({
+        message: "❌ Sự kiện này chỉ dành riêng cho Hội viên VIP! Vui lòng nâng cấp gói.",
+      });
+    }
+    if (requiredMembership === "PREMIUM" && userPlan === "FREE") {
+      return res.status(403).json({
+        message: "❌ Sự kiện này chỉ dành cho Hội viên Premium và VIP! Vui lòng nâng cấp gói.",
+      });
+    }
+
+    // 0.2) Early Access Check
+    if (event.saleStartTime) {
+      const publicSale = new Date(event.saleStartTime);
+      if (now < publicSale) {
+        const allowedTime = new Date(publicSale.getTime() - earlyMinutes * 60 * 1000);
+        if (now < allowedTime) {
+          return res.status(403).json({
+            message: `❌ Sự kiện chưa mở bán cho tài khoản của bạn. Mở bán cho bạn lúc: ${allowedTime.toLocaleTimeString("vi-VN")}.`,
+          });
+        }
+      }
+    }
 
     let createdBookings = [];
 

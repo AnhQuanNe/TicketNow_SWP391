@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
@@ -8,6 +9,7 @@ import {
   uploadAvatar,
   updateUser,
 } from "../../api/userApi";
+import { getMyMembership } from "../../api/membershipApi";
 
 export default function MyAccount() {
   const [user, setUser] = useState({});
@@ -23,7 +25,9 @@ export default function MyAccount() {
 
   const [preview, setPreview] = useState("");
   const [message, setMessage] = useState("");
+  const [membership, setMembership] = useState(null);
 
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   // ✅ Lấy user từ localStorage khi vào trang
@@ -45,7 +49,15 @@ export default function MyAccount() {
 
       setPreview(savedUser.avatar || "");
     }
-  }, []);
+
+    if (token) {
+      getMyMembership(token)
+        .then((res) => {
+          if (res?.success) setMembership(res.data);
+        })
+        .catch((err) => console.error("Lỗi tải membership:", err));
+    }
+  }, [token]);
 
   // ✅ Khi người dùng thay đổi input
   const handleChange = (e) => {
@@ -132,6 +144,82 @@ export default function MyAccount() {
   return (
     <div className="account-page">
       <h2>Thông tin tài khoản</h2>
+
+      {/* 👑 Membership Status Section */}
+      <div
+        className={`account-membership-card ${
+          membership?.planName === "VIP"
+            ? "vip"
+            : membership?.planName === "PREMIUM"
+            ? "premium"
+            : "free"
+        }`}
+      >
+        <div className="am-header">
+          <div className="am-title-wrap">
+            <span className="am-icon">
+              {membership?.planName === "VIP"
+                ? "👑"
+                : membership?.planName === "PREMIUM"
+                ? "⭐"
+                : "🎟️"}
+            </span>
+            <div>
+              <h4 className="am-name">
+                Hội viên {membership?.displayName || membership?.planName || "FREE"}
+              </h4>
+              <span className="am-status-badge">
+                {membership?.isPaid ? "Đang hoạt động" : "Gói miễn phí"}
+              </span>
+            </div>
+          </div>
+          <span
+            style={{
+              fontWeight: 800,
+              fontSize: "1.1rem",
+              color: membership?.badgeColor || "#00E599",
+            }}
+          >
+            {membership?.planName || "FREE"}
+          </span>
+        </div>
+
+        {membership?.isPaid ? (
+          <div className="am-details">
+            <div className="am-detail-item">
+              <span className="am-detail-label">Ngày bắt đầu</span>
+              <span className="am-detail-val">
+                {new Date(membership.startDate).toLocaleDateString("vi-VN")}
+              </span>
+            </div>
+            <div className="am-detail-item">
+              <span className="am-detail-label">Ngày hết hạn</span>
+              <span className="am-detail-val">
+                {new Date(membership.endDate).toLocaleDateString("vi-VN")}
+              </span>
+            </div>
+            <div className="am-detail-item">
+              <span className="am-detail-label">Còn lại</span>
+              <span className="am-detail-val" style={{ color: "#00E599" }}>
+                {membership.daysRemaining} ngày
+              </span>
+            </div>
+          </div>
+        ) : (
+          <p style={{ color: "#94a3b8", fontSize: "0.88rem", margin: 0 }}>
+            Nâng cấp Premium/VIP để mua vé sớm hơn 30 phút và giảm đến 10% phí dịch vụ!
+          </p>
+        )}
+
+        <button
+          className="am-upgrade-btn"
+          onClick={() => navigate("/membership")}
+        >
+          {membership?.planName === "VIP"
+            ? "👑 Quản lý Gói Hội viên"
+            : "✨ Nâng cấp Gói Hội viên"}
+        </button>
+      </div>
 
       <div className="account-info">
 

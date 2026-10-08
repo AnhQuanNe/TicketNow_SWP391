@@ -210,3 +210,108 @@
     padding: 24px;
   }
 }
+
+/* ==== Membership Profile Card ==== */
+.account-membership-card {
+  margin-bottom: 28px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account-membership-card.vip {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(20, 24, 36, 0.95) 100%);
+}
+
+.account-membership-card.premium {
+  border-color: rgba(0, 229, 153, 0.4);
+  background: linear-gradient(135deg, rgba(0, 229, 153, 0.1) 0%, rgba(20, 24, 36, 0.95) 100%);
+}
+
+.am-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.am-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.am-icon {
+  font-size: 1.8rem;
+}
+
+.am-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.am-status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(0, 229, 153, 0.15);
+  color: #00E599;
+  border: 1px solid rgba(0, 229, 153, 0.3);
+}
+
+.am-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.am-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.am-detail-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.am-detail-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.am-upgrade-btn {
+  background: linear-gradient(135deg, #00E599 0%, #00B4D8 100%);
+  color: #0b0d13;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.am-upgrade-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}

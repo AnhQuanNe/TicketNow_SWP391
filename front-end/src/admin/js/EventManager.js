@@ -362,6 +362,39 @@ onChange={(e) =>
               }
             />
 
+            <label>Yêu cầu Hội viên (Member-Only)</label>
+            <select
+              value={selectedEvent.membershipRequired || "NONE"}
+              onChange={(e) =>
+                setSelectedEvent({
+                  ...selectedEvent,
+                  membershipRequired: e.target.value,
+                })
+              }
+            >
+              <option value="NONE">NONE (Mọi người đều có thể mua)</option>
+              <option value="PREMIUM">PREMIUM (Chỉ Premium và VIP)</option>
+              <option value="VIP">VIP (Chỉ riêng VIP)</option>
+            </select>
+
+            <label>Thời gian mở bán vé công khai (Early Access tính từ mốc này)</label>
+            <input
+              type="datetime-local"
+              value={
+                selectedEvent.saleStartTime
+                  ? new Date(selectedEvent.saleStartTime)
+                      .toISOString()
+                      .slice(0, 16)
+                  : ""
+              }
+              onChange={(e) =>
+                setSelectedEvent({
+                  ...selectedEvent,
+                  saleStartTime: e.target.value ? new Date(e.target.value) : null,
+                })
+              }
+            />
+
             <div className="modal-actions">
               <button className="save-btn" onClick={handleSave}>
                 💾 Lưu

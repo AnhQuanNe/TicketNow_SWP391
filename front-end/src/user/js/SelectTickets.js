@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { getMyMembership } from "../../api/membershipApi";
 
 function SelectTicket() {
   const { id } = useParams();
@@ -10,8 +11,10 @@ function SelectTicket() {
   const [tickets, setTickets] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [loading, setLoading] = useState(true);
+  const [membership, setMembership] = useState(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (!id) return;
@@ -36,8 +39,16 @@ function SelectTicket() {
       })
       .catch((err) => console.error(err));
 
-    Promise.all([fetchEvent, fetchTickets]).finally(() => setLoading(false));
-  }, [id]);
+    const fetchMember = token
+      ? getMyMembership(token)
+          .then((res) => {
+            if (res?.success) setMembership(res.data);
+          })
+          .catch(() => {})
+      : Promise.resolve();
+
+    Promise.all([fetchEvent, fetchTickets, fetchMember]).finally(() => setLoading(false));
+  }, [id, token]);
 
   const handleQuantityChange = (type, value) => {
     setQuantities((prev) => {
@@ -98,8 +109,15 @@ function SelectTicket() {
       return;
     }
 
-    const totalPrice = selectedTickets.reduce((acc, t) => acc + t.price * t.quantity, 0);
+    const ticketSubtotal = selectedTickets.reduce((acc, t) => acc + t.price * t.quantity, 0);
     const totalQuantity = selectedTickets.reduce((acc, t) => acc + t.quantity, 0);
+
+    // Tính phí dịch vụ và giảm giá theo hội viên
+    const baseServiceFee = 20000;
+    const discountPercent = membership?.discountPercent || 0;
+    const discountAmount = Math.round((baseServiceFee * discountPercent) / 100);
+    const finalServiceFee = Math.max(0, baseServiceFee - discountAmount);
+    const finalTotalPrice = ticketSubtotal + finalServiceFee;
 
     // 🔹 Lưu pendingTicket đầy đủ
     localStorage.setItem(
@@ -109,7 +127,11 @@ function SelectTicket() {
         eventId: event._id,
         tickets: selectedTickets,
         quantity: totalQuantity,
-        price: totalPrice,
+        ticketSubtotal,
+        serviceFee: finalServiceFee,
+        discountAmount,
+        membershipPlan: membership?.planName || "FREE",
+        price: finalTotalPrice,
       })
     );
 
@@ -255,11 +277,50 @@ function SelectTicket() {
             })
           )}
 
+          {/* Chi tiết thanh toán & Giảm giá Hội viên */}
+          {total > 0 && (
+            <div style={{
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.07)",
+              borderRadius: "12px",
+              padding: "16px",
+              marginBottom: "16px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              fontSize: "0.9rem"
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", color: "#94a3b8" }}>
+                <span>Tiền vé:</span>
+                <span style={{ color: "#ffffff", fontWeight: 600 }}>{total.toLocaleString()} VND</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", color: "#94a3b8" }}>
+                <span>Phí dịch vụ:</span>
+                <span>20,000 VND</span>
+              </div>
+              {membership?.discountPercent > 0 ? (
+                <div style={{ display: "flex", justifyContent: "space-between", color: "#00E599" }}>
+                  <span>Ưu đãi Hội viên {membership.planName} (-{membership.discountPercent}% phí):</span>
+                  <span>-{Math.round((20000 * membership.discountPercent) / 100).toLocaleString()} VND</span>
+                </div>
+              ) : (
+                <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b", fontSize: "0.82rem" }}>
+                  <span>Ưu đãi phí dịch vụ (Free):</span>
+                  <span>0 VND (Nâng cấp Premium -5%, VIP -10%)</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Tổng tiền */}
           <div style={styles.totalRow}>
-            <span style={{ color: "#94a3b8" }}>Tổng cộng</span>
+            <span style={{ color: "#94a3b8" }}>Tổng thanh toán</span>
             <span style={styles.totalPrice}>
-              {total.toLocaleString()} VND
+              {(total > 0
+                ? total + (20000 - Math.round((20000 * (membership?.discountPercent || 0)) / 100))
+                : 0
+              ).toLocaleString()}{" "}
+              VND
             </span>
           </div>
 

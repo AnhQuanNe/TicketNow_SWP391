@@ -11,6 +11,7 @@ export default function Sidebar() {
     { id: "customers", path: "/admin/users", icon: "", label: "Users" },
     { id: "events", path: "/admin/events", icon: "", label: "Events" },
     { id: "promotions", path: "/admin/promotions", icon: "", label: "Promotions" },
+    { id: "memberships", path: "/admin/memberships", icon: "", label: "Memberships" },
     { id: "reports", path: "/admin/reports", icon: "", label: "Reports" },
     {
       id: "notifications",

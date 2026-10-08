@@ -183,6 +183,8 @@ export const adminUpdateEvent = async (req, res) => {
       "ticketsAvailable", // thêm
       "ticketTotal", // thêm (nếu có)
       "status", // ✅ THÊM FIELD NÀY để cho phép restore
+      "saleStartTime", // ⭐ Early Access sale start time
+      "membershipRequired", // ⭐ Member-only requirement (NONE, PREMIUM, VIP)
     ];
 
     const updateData = {};

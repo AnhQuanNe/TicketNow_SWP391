@@ -1,4 +1,5 @@
 // controllers/EventRequestController.js
+import mongoose from "mongoose";
 import EventRequest from "../model/EventRequest.js";
 import Event from '../model/Event.js';
 import User from '../model/User.js';
@@ -158,8 +159,11 @@ export const updateEventStatus = async (req, res) => {
         locationId: eventRequest.locationId || eventRequest.eventLocation || null,
         date: eventRequest.eventDate,  // Ngày tổ chức từ EventRequest
         ticketsAvailable: eventRequest.ticketCount,  // Số lượng vé từ EventRequest
-ticketTotal: eventRequest.ticketCount, // Tổng số vé ban đầu (không giảm khi bán)
-imageUrl: eventRequest.coverImage,  // Hình ảnh sự kiện từ EventRequest
+        ticketTotal: eventRequest.ticketCount, // Tổng số vé ban đầu (không giảm khi bán)
+        studentPrice: Number(eventRequest.studentPrice) || 0,
+        regularPrice: Number(eventRequest.regularPrice) || 0,
+        eventRequestId: eventRequest._id,
+        imageUrl: eventRequest.coverImage,  // Hình ảnh sự kiện từ EventRequest
         createdAt: Date.now(),  // Thời gian tạo mới sự kiện
       });
       // Kiểm tra xem đối tượng mới có phải là instance của Mongoose không
@@ -168,6 +172,41 @@ imageUrl: eventRequest.coverImage,  // Hình ảnh sự kiện từ EventRequest
       // Lưu sự kiện vào collection 'Event'
       await newEvent.save();  // Save sự kiện mới vào collection 'Event'
       console.log("Sự kiện đã được lưu vào collection 'Event'");
+
+      // 🎟️ TẠO CÁC LOẠI VÉ CHO SỰ KIỆN TRONG COLLECTION 'Tickets'
+      try {
+        const sPrice = Number(eventRequest.studentPrice) || 0;
+        const rPrice = Number(eventRequest.regularPrice) || 0;
+        const tCount = Number(eventRequest.ticketCount) || 100;
+        const sQty = Math.floor(tCount / 2);
+        const rQty = tCount - sQty;
+
+        await mongoose.connection.collection("Tickets").insertMany([
+          {
+            eventId: newEvent._id,
+            type: "Student",
+            ticketType: "Student",
+            price: sPrice,
+            quantity: sQty,
+            eligible: "student",
+            status: "available",
+            createdAt: new Date(),
+          },
+          {
+            eventId: newEvent._id,
+            type: "Guest",
+            ticketType: "Guest",
+            price: rPrice,
+            quantity: rQty,
+            eligible: "guest",
+            status: "available",
+            createdAt: new Date(),
+          },
+        ]);
+        console.log(`🎟️ Đã tạo vé thành công cho sự kiện ${newEvent._id}: Student (${sPrice}), Guest (${rPrice})`);
+      } catch (ticketErr) {
+        console.error("❌ Lỗi khi tạo vé cho sự kiện:", ticketErr);
+      }
 
       // Cập nhật trạng thái sự kiện trong EventRequest
       eventRequest.status = 'approved';

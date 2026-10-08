@@ -1,0 +1,434 @@
+/* MembershipPage.css */
+
+.membership-page {
+  min-height: 100vh;
+  background-color: #0b0d13;
+  color: #e2e8f0;
+  padding: 60px 20px 100px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.membership-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Banner */
+.membership-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.membership-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(0, 229, 153, 0.1);
+  border: 1px solid rgba(0, 229, 153, 0.3);
+  color: #00E599;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.membership-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.membership-title span {
+  background: linear-gradient(135deg, #00E599 0%, #00b4d8 50%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.membership-subtitle {
+  font-size: 1.15rem;
+  color: #94a3b8;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Current Status Banner */
+.current-status-card {
+  background: linear-gradient(135deg, #141824 0%, #1e2436 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px 32px;
+  margin-bottom: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.current-status-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.status-badge-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-meta h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-tag {
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.status-tag.active {
+  background: rgba(0, 229, 153, 0.15);
+  color: #00E599;
+  border: 1px solid rgba(0, 229, 153, 0.3);
+}
+
+.status-meta p {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.current-status-stats {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.status-stat-item {
+  text-align: right;
+}
+
+.status-stat-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.status-stat-val {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.status-stat-val.highlight {
+  color: #00E599;
+}
+
+/* Plans Grid */
+.membership-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  align-items: stretch;
+}
+
+@media (max-width: 992px) {
+  .membership-grid {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
+.plan-card {
+  background: #141824;
+  border-radius: 24px;
+  padding: 36px 30px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.plan-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Card variants */
+.plan-card.free {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.plan-card.premium {
+  border: 1px solid rgba(0, 229, 153, 0.4);
+  background: linear-gradient(180deg, #16202c 0%, #141824 100%);
+  box-shadow: 0 10px 30px rgba(0, 229, 153, 0.1);
+}
+
+.plan-card.premium:hover {
+  border-color: #00E599;
+  box-shadow: 0 20px 45px rgba(0, 229, 153, 0.25);
+}
+
+.plan-card.vip {
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: linear-gradient(180deg, #241d18 0%, #141824 100%);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.12);
+}
+
+.plan-card.vip:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 20px 45px rgba(245, 158, 11, 0.3);
+}
+
+.plan-ribbon {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #00E599 0%, #00b4d8 100%);
+  color: #0b0d13;
+  padding: 4px 18px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 229, 153, 0.4);
+}
+
+.plan-ribbon.vip-ribbon {
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);
+}
+
+.plan-header {
+  margin-bottom: 24px;
+}
+
+.plan-icon-wrapper {
+  font-size: 2.2rem;
+  margin-bottom: 14px;
+}
+
+.plan-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.plan-desc {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  min-height: 40px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.plan-price-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.plan-price {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.plan-currency {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.plan-period {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* Features list */
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px 0;
+  flex: 1;
+}
+
+.plan-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.feature-check {
+  color: #00E599;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.plan-card.vip .feature-check {
+  color: #f59e0b;
+}
+
+/* Action button */
+.plan-action-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-free {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  cursor: default;
+}
+
+.btn-current {
+  background: rgba(0, 229, 153, 0.15);
+  color: #00E599;
+  border: 1px solid rgba(0, 229, 153, 0.3);
+  cursor: default;
+}
+
+.btn-premium {
+  background: #00E599;
+  color: #0b0d13;
+  box-shadow: 0 6px 20px rgba(0, 229, 153, 0.35);
+}
+
+.btn-premium:hover {
+  background: #00f5a3;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 229, 153, 0.5);
+}
+
+.btn-vip {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.btn-vip:hover {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6);
+}
+
+.plan-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* FAQ or Info Section */
+.membership-perks-section {
+  margin-top: 80px;
+  background: #141824;
+  border-radius: 24px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.perks-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.perks-header h3 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.perks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+@media (max-width: 768px) {
+  .perks-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.perk-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.perk-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 229, 153, 0.2);
+}
+
+.perk-icon {
+  font-size: 2rem;
+  margin-bottom: 14px;
+}
+
+.perk-item h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.perk-item p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
+}
