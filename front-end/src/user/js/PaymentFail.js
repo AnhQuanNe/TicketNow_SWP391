@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { API_BASE_URL } from "../../config.js";
 
 function PaymentFail() {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ function PaymentFail() {
       }
 
       // 🟢 Gửi request và CHỜ nó chạy xong
-      await fetch("http://localhost:5000/api/bookings/create", {
+      await fetch(`${API_BASE_URL}/api/bookings/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

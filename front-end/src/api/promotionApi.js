@@ -1,6 +1,7 @@
 import axios from "axios";
+import { API_BASE_URL } from "../config.js";
 
-const API_BASE = "http://localhost:5000/api/promotions";
+const API_BASE = `${API_BASE_URL}/api/promotions`;
 
 const getAuthHeaders = () => {
   const token =

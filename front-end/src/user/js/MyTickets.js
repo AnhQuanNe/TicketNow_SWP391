@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../user/css/MyTicket.css";
+import { API_BASE_URL } from "../../config.js";
 
 export default function MyTickets() {
   const [tickets, setTickets] = useState([]);
@@ -17,7 +18,7 @@ export default function MyTickets() {
       return;
     }
 
-    fetch(`http://localhost:5000/api/bookings/${user._id}`)
+    fetch(`${API_BASE_URL}/api/bookings/${user._id}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.bookings)) setTickets(data.bookings);

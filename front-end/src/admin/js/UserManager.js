@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import "../css/UserManager.css";
+import { API_BASE_URL } from "../../config.js";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -29,10 +30,10 @@ export default function UserManagement() {
 
         // Fetch users & roles song song
         const [usersRes, rolesRes] = await Promise.all([
-          fetch("http://localhost:5000/api/admin/users", {
+          fetch(`${API_BASE_URL}/api/admin/users`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5000/api/roles", {
+          fetch(`${API_BASE_URL}/api/roles`, {
             headers: { Authorization: `Bearer ${token}` }, // nếu sau này bảo vệ role API
           }),
         ]);
@@ -92,7 +93,7 @@ const token =
     if (window.confirm(`Bạn có chắc muốn xóa ${user.name}?`)) {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/admin/users/${user._id}`,
+          `${API_BASE_URL}/api/admin/users/${user._id}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
@@ -130,7 +131,7 @@ const token =
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/users/${selectedUser._id}/ban`,
+        `${API_BASE_URL}/api/admin/users/${selectedUser._id}/ban`,
         {
           method: "PUT",
           headers: {
@@ -166,7 +167,7 @@ const token =
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/users/${user._id}/ban`,
+        `${API_BASE_URL}/api/admin/users/${user._id}/ban`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },

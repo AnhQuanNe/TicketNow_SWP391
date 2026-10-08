@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import EventSection from "./EventSection";
 import { getEvents } from "../../api/eventApi";
+import { API_BASE_URL } from "../../config.js";
 
 function CategoryPage() {
   const params = useParams();
@@ -17,7 +18,7 @@ function CategoryPage() {
   const [dbCategories, setDbCategories] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/categories`)
+    fetch(`${API_BASE_URL}/api/categories`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setDbCategories(data);

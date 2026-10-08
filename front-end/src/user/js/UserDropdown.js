@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/UserDropdown.css";
+import { API_BASE_URL } from "../../config.js";
 
 export default function UserDropdown({ user, onLogout }) {
   const [open, setOpen] = useState(false);
@@ -53,7 +54,7 @@ export default function UserDropdown({ user, onLogout }) {
               src={
                 user.avatar.startsWith("http")
                   ? user.avatar
-                  : `http://localhost:5000${user.avatar}`
+                  : `${API_BASE_URL}${user.avatar}`
               }
               alt="avatar"
               className="user-avatar-img"

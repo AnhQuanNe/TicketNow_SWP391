@@ -10,6 +10,7 @@ import {
   updateUser,
 } from "../../api/userApi";
 import { getMyMembership } from "../../api/membershipApi";
+import { API_BASE_URL } from "../../config.js";
 
 export default function MyAccount() {
   const [user, setUser] = useState({});
@@ -97,7 +98,7 @@ export default function MyAccount() {
 
         setUser(updated);
 
-        setPreview(`http://localhost:5000${res.data.avatar}`);
+        setPreview(`${API_BASE_URL}${res.data.avatar}`);
       }
     } catch (err) {
       console.error("❌ Upload avatar lỗi:", err);
@@ -127,7 +128,7 @@ export default function MyAccount() {
         setUser(res.data);
 
         if (res.data.avatar) {
-          setPreview(`http://localhost:5000${res.data.avatar}`);
+          setPreview(`${API_BASE_URL}${res.data.avatar}`);
         }
       }
     } catch (err) {
@@ -230,7 +231,7 @@ export default function MyAccount() {
               src={
                 preview?.startsWith("http")
                   ? preview
-                  : `http://localhost:5000${
+                  : `${API_BASE_URL}${
                       preview ||
                       user.avatar ||
                       "/uploads/default.png"

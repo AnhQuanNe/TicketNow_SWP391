@@ -8,6 +8,7 @@ import {
   MdStarOutline,
 } from "react-icons/md";
 import { FaCrown, FaTicketAlt, FaChartLine } from "react-icons/fa";
+import { API_BASE_URL } from "../../config.js";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -50,7 +51,7 @@ export default function Reports() {
           localStorage.getItem("token") ||
           localStorage.getItem("organizerToken") ||
           localStorage.getItem("adminToken");
-        const res = await fetch("http://localhost:5000/api/organizer/reports", {
+        const res = await fetch(`${API_BASE_URL}/api/organizer/reports`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!res.ok) throw new Error("Không thể tải dữ liệu báo cáo");

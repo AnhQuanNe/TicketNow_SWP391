@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { API_BASE_URL } from "../../config.js";
 
 function Payment() {
   const [loading, setLoading] = useState(true);
@@ -33,7 +34,7 @@ function Payment() {
       try {
         const orderCode = Date.now(); // 👉 dùng làm paymentId duy nhất
 
-        const res = await fetch("http://localhost:5000/api/payment/create-payment", {
+        const res = await fetch(`${API_BASE_URL}/api/payment/create-payment`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

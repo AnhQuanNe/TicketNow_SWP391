@@ -3,6 +3,7 @@ import StatsCard from './StatsCard';
 import RevenueChart from './RevenueChart';
 import WebsiteVisitors from './WebVisitor';
 import "../css/Dashboard.css"
+import { API_BASE_URL } from "../../config.js";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -26,7 +27,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     // Fetch dashboard data from API
-    fetch('http://localhost:5000/api/dashboard/stats')
+    fetch(`${API_BASE_URL}/api/dashboard/stats`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error('Error fetching stats:', err));

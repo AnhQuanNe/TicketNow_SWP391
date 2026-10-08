@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config.js";
 
 function SelectTicket() {
   const location = useLocation();
@@ -12,7 +13,7 @@ function SelectTicket() {
   // 🔹 Lấy danh sách vé từ database
   useEffect(() => {
     if (!event) return;
-    fetch(`http://localhost:5000/api/tickets?eventId=${event._id}`)
+    fetch(`${API_BASE_URL}/api/tickets?eventId=${event._id}`)
       .then((res) => res.json())
       .then((data) => {
         setTickets(data);

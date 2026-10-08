@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import "../css/EventManager.css";
 import * as XLSX from "xlsx";
+import { API_BASE_URL } from "../../config.js";
 
 // API
 import {
@@ -32,7 +33,7 @@ export default function EventManager() {
   };
 
   const loadCategories = async () => {
-    const res = await fetch("http://localhost:5000/api/categories");
+    const res = await fetch(`${API_BASE_URL}/api/categories`);
     const data = await res.json();
     if (Array.isArray(data)) setCategories(data);
   };
@@ -71,7 +72,7 @@ export default function EventManager() {
     if (!window.confirm("Khôi phục sự kiện này?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/events/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/events/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

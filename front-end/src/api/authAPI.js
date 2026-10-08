@@ -1,5 +1,5 @@
-// src/api/authAPI.js
-const API_URL = "http://localhost:5000/api/auth";
+import { API_BASE_URL } from "../config.js";
+const API_URL = `${API_BASE_URL}/api/auth`;
 
 /* ----------------------- LOGIN ----------------------- */
 export async function loginUser(credentials) {

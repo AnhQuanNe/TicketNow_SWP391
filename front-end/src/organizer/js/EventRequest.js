@@ -3,6 +3,7 @@ import React, { useState, useRef } from "react";
 import OrganizerRules from "./OrganizerRule.js";
 import "../css/EventRequest.css";
 import { createEventRequest } from "../../api/organizerApi"; // Import hàm API
+import { API_BASE_URL } from "../../config.js";
 // import { useNavigate } from "react-router-dom";
 
 export default function EventRequestForm() {
@@ -32,7 +33,7 @@ export default function EventRequestForm() {
 
   // load categories to populate select
   React.useEffect(() => {
-    fetch("http://localhost:5000/api/categories")
+    fetch(`${API_BASE_URL}/api/categories`)
       .then((res) => res.json())
       .then((data) => setCategories(data || []))
       .catch((err) => {

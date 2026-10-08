@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { QrReader } from "react-qr-reader";
 import Swal from "sweetalert2";
+import { API_BASE_URL } from "../../config.js";
 
 export default function QRScanner({ mode = "checkin" }) {
   const [scanResult, setScanResult] = useState("");
@@ -22,7 +23,7 @@ export default function QRScanner({ mode = "checkin" }) {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/bookings/${mode}`,
+        `${API_BASE_URL}/api/bookings/${mode}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

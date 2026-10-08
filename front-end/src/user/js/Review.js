@@ -4,13 +4,14 @@ import {
     getReviewsByEvent,
     createReview,
 } from "../../api/reviewApi";
+import { API_BASE_URL } from "../../config.js";
 
 let socketSingleton = null;
 
 const getSocket = async () => {
     if (socketSingleton) return socketSingleton;
     const { io } = await import("socket.io-client");
-    socketSingleton = io("http://localhost:5000", { transports: ["websocket"] });
+    socketSingleton = io(API_BASE_URL, { transports: ["websocket"] });
     return socketSingleton;
 };
 

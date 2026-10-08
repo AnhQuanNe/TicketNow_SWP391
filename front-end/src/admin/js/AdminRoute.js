@@ -1,6 +1,6 @@
-// src/admin/js/AdminRoute.js
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config.js";
 
 export default function AdminRoute({ children }) {
   const [loading, setLoading] = useState(true);
@@ -16,7 +16,7 @@ export default function AdminRoute({ children }) {
       }
 
       try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
+        const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {

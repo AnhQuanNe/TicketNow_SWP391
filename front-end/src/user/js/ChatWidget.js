@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "../css/ChatGPT.css";
+import { API_BASE_URL } from "../../config.js";
 
 function cleanBotMessage(text) {
   if (!text) return "";
@@ -54,7 +55,7 @@ export default function ChatWidget() {
         setUserAvatar(user.profilePic);
       } else {
         // Avatar dạng filename => thêm đường dẫn uploads
-        setUserAvatar(`http://localhost:5000/uploads/${user.profilePic}`);
+        setUserAvatar(`${API_BASE_URL}/uploads/${user.profilePic}`);
       }
     } else {
       setUserAvatar("/guest.jpg");
@@ -95,7 +96,7 @@ export default function ChatWidget() {
     // Bot đang suy nghĩ
     setIsTyping(true);
 
-    const res = await fetch("http://localhost:5000/api/ai/chat", {
+    const res = await fetch(`${API_BASE_URL}/api/ai/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

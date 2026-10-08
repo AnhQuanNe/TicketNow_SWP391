@@ -48,12 +48,24 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
-  cors: { origin: /http:\/\/localhost:\d+/, methods: ["GET", "POST"] },
+  cors: {
+    origin: (origin, callback) => {
+      // Cho phép kết nối từ mọi nguồn hợp lệ (Localhost, Vercel, Netlify, mobile,...)
+      callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  },
 });
 app.set("io", io);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -235,7 +247,6 @@ app.get("/api/events/:id", async (req, res) => {
   }
 });
 // 🟢 🔑 API: Đăng ký & đăng nhập người dùng
-app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);  // api ticket
 app.use("/api/payment", paymentRoutes); // api router

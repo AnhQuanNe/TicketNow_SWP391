@@ -7,6 +7,7 @@ import { IoReturnDownBackOutline } from "react-icons/io5";
 // charts
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line, Bar, Pie } from 'react-chartjs-2';
+import { API_BASE_URL } from "../../config.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -61,7 +62,7 @@ export default function OrganizerEventDetail({ eventId, setActivePage }) {
   useEffect(() => {
     if (!eventId) return;
     setLoadingEvent(true);
-    fetch(`http://localhost:5000/api/events/${eventId}`)
+    fetch(`${API_BASE_URL}/api/events/${eventId}`)
       .then((r) => {
         if (!r.ok) throw new Error("Không tìm thấy sự kiện");
         return r.json();
@@ -75,7 +76,7 @@ export default function OrganizerEventDetail({ eventId, setActivePage }) {
     if (!eventId) return;
     setLoadingBookings(true);
     setError("");
-    fetch(`http://localhost:5000/api/bookings/event/${eventId}?page=${page}&limit=${limit}`)
+    fetch(`${API_BASE_URL}/api/bookings/event/${eventId}?page=${page}&limit=${limit}`)
       .then((r) => r.json())
         .then((data) => {
           if (data && Array.isArray(data.bookings)) {
@@ -100,7 +101,7 @@ export default function OrganizerEventDetail({ eventId, setActivePage }) {
   // fetch stats (revenue by month, rating distribution, tickets)
   useEffect(() => {
     if (!eventId) return;
-    fetch(`http://localhost:5000/api/events/${eventId}/stats`)
+    fetch(`${API_BASE_URL}/api/events/${eventId}/stats`)
       .then((r) => r.json())
       .then((data) => {
         if (data) {

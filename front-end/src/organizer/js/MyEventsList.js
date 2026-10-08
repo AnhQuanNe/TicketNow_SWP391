@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { getOrganizerProfile } from "../../api/organizerApi";
 import "../css/organizer.css";
+import { API_BASE_URL } from "../../config.js";
 
 // MyEventsList: hiển thị danh sách event của organizer, có search + filter status
 export default function MyEventsList({ setActivePage, setSelectedEventId }) {
@@ -31,7 +32,7 @@ export default function MyEventsList({ setActivePage, setSelectedEventId }) {
 				}
 				setOrganizer(org);
 
-				const res = await axios.get(`http://localhost:5000/api/events/search?organizerId=${org._id}`);
+				const res = await axios.get(`${API_BASE_URL}/api/events/search?organizerId=${org._id}`);
 				setEvents(res.data || []);
 			} catch (err) {
 				console.error("Lỗi khi tải sự kiện organizer:", err);

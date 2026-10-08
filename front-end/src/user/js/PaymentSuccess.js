@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { API_BASE_URL } from "../../config.js";
 
 function PaymentSuccess() {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ function PaymentSuccess() {
           type: t.type.toLowerCase()
         }));
 
-        const res = await fetch("http://localhost:5000/api/bookings/create", {
+        const res = await fetch(`${API_BASE_URL}/api/bookings/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

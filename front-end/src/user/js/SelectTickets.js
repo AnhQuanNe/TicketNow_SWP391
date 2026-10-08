@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getMyMembership } from "../../api/membershipApi";
+import { API_BASE_URL } from "../../config.js";
 
 function SelectTicket() {
   const { id } = useParams();
@@ -20,12 +21,12 @@ function SelectTicket() {
     if (!id) return;
     setLoading(true);
 
-    const fetchEvent = fetch(`http://localhost:5000/api/events/${id}`)
+    const fetchEvent = fetch(`${API_BASE_URL}/api/events/${id}`)
       .then((res) => res.json())
       .then((data) => setEvent(data))
       .catch((err) => console.error(err));
 
-    const fetchTickets = fetch(`http://localhost:5000/api/tickets/event/${id}`)
+    const fetchTickets = fetch(`${API_BASE_URL}/api/tickets/event/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setTickets(data || []);

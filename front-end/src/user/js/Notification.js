@@ -2,12 +2,13 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IoNotifications } from "react-icons/io5";
 
 import "../css/Notification.css";
+import { API_BASE_URL } from "../../config.js";
 
 let socketSingleton = null;
 const getSocket = async () => {
     if (socketSingleton) return socketSingleton;
     const { io } = await import("socket.io-client");
-    socketSingleton = io("http://localhost:5000", { transports: ["websocket"] });
+    socketSingleton = io(API_BASE_URL, { transports: ["websocket"] });
     return socketSingleton;
 };
 
@@ -39,7 +40,7 @@ const Notification = ({ user }) => {
         try {
             setLoading(true);
             isFetchingRef.current = true;
-            const res = await fetch(`http://localhost:5000/api/notifications?page=${p}&limit=${LIMIT}` , {
+            const res = await fetch(`${API_BASE_URL}/api/notifications?page=${p}&limit=${LIMIT}` , {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const json = await res.json();
@@ -124,7 +125,7 @@ const Notification = ({ user }) => {
 
     const markAsRead = async (id) => {
         try {
-            await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
+            await fetch(`${API_BASE_URL}/api/notifications/${id}/read`, {
                 method: 'PATCH',
                 headers: { Authorization: `Bearer ${token}` },
             });

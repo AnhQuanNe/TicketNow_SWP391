@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { updateEventStatus } from '../../api/organizerApi'; // Import API cập nhật trạng thái sự kiện
+import { API_BASE_URL } from '../../config.js';
 
 export default function Notification() {
   const [events, setEvents] = useState([]);
@@ -13,7 +14,7 @@ export default function Notification() {
     return;
   }
 
-  fetch('http://localhost:5000/api/event-requests', {
+  fetch(`${API_BASE_URL}/api/event-requests`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
