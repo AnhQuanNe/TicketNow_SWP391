@@ -24,12 +24,16 @@ router.post("/create-payment", async (req, res) => {
   try {
     const { amount, orderCode, description } = req.body;
 
+    // Lấy URL frontend từ biến môi trường
+    const CLIENT_URL = (process.env.CLIENT_URL || "http://localhost:3000"
+    ).replace(/\/+$/, "");
+
     const payment = await payos.paymentRequests.create({
       orderCode,
       amount,
       description,
-      cancelUrl: "http://localhost:3000/payment-fail?status-cancel",
-      returnUrl: `http://localhost:3000/payment-success?status=PAID`,
+      cancelUrl: `${CLIENT_URL}/payment-fail?status=CANCELLED`,
+      returnUrl: `${CLIENT_URL}/payment-success?status=PAID`,
     });
 
     res.json({ checkoutUrl: payment.checkoutUrl });
@@ -87,7 +91,7 @@ router.post("/payment-success", async (req, res) => {
       quantity,
       totalPrice,
       ticketType: ticketType || null,
-paymentId,
+      paymentId,
       orderCode: paymentId,
       status: "confirmed",
       createdAt: new Date(),
@@ -180,9 +184,9 @@ router.post("/verify", async (req, res) => {
     const { orderCode, paymentId } = req.body || {};
     if (!orderCode && !paymentId)
       return res.status(400).json({ error: "Missing orderCode or paymentId" });
-let paymentInfo = null;
+    let paymentInfo = null;
     try {
-if (orderCode && typeof payos.paymentRequests.get === "function") {
+      if (orderCode && typeof payos.paymentRequests.get === "function") {
         paymentInfo = await payos.paymentRequests.get(orderCode);
       } else if (paymentId && typeof payos.payments.get === "function") {
         paymentInfo = await payos.payments.get(paymentId);
