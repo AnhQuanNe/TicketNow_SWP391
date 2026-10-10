@@ -9,6 +9,7 @@ import {
   resetPassword,
 } from "../../api/authAPI";
 import { GoogleLogin } from "@react-oauth/google";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginRegisterModal({
   type,
@@ -20,6 +21,7 @@ export default function LoginRegisterModal({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
     phone: "",
     studentId: "",
   });
@@ -32,6 +34,7 @@ export default function LoginRegisterModal({
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -75,8 +78,14 @@ export default function LoginRegisterModal({
 
         setTimeout(onClose, 500);
       } else {
-        // GỌI API REGISTER trực tiếp
-        await registerUser({
+        // Kiểm tra xác nhận mật khẩu
+        if (form.password !== form.confirmPassword) {
+          setLoading(false);
+          return setMessage("❌ Mật khẩu xác nhận không khớp!");
+        }
+
+        // GỌI API REGISTER trực tiếp (tự động kích hoạt tài khoản)
+        const data = await registerUser({
           name: form.name,
           email: form.email,
           passwordHash: form.password,
@@ -84,10 +93,33 @@ export default function LoginRegisterModal({
           studentId: form.studentId,
         });
 
+        // Đăng ký xong tự động lưu token & user để vào luôn
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data));
+          onLoginSuccess?.(data);
 
-        setMessage(
-          "🎉 Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản."
-        );
+          const roleName = data.role?.name || data.role || "user";
+          if (roleName === "admin") {
+            localStorage.setItem("adminToken", data.token);
+          }
+
+          setMessage("🎉 Đăng ký thành công! Đang chuyển hướng...");
+
+          setTimeout(() => {
+            if (roleName === "admin") {
+              window.location.href = "/admin";
+            } else if (roleName === "organizer") {
+              window.location.href = "/organizer";
+            } else {
+              window.location.href = "/";
+            }
+            onClose();
+          }, 800);
+        } else {
+          setMessage(data.message || "🎉 Đăng ký thành công!");
+          setTimeout(onClose, 800);
+        }
       }
     } catch (err) {
       setMessage("❌ " + (err.message || "Lỗi kết nối"));
@@ -248,11 +280,7 @@ e.key === "Backspace" &&
               className="toggle-password"
               onClick={() => setShowNewPass(!showNewPass)}
             >
-              {showNewPass ? (
-                <i className="fa-regular fa-eye-slash"></i>
-              ) : (
-                <i className="fa-regular fa-eye"></i>
-              )}
+              {showNewPass ? <EyeOff size={18} /> : <Eye size={18} />}
             </span>
           </div>
 
@@ -267,11 +295,7 @@ e.key === "Backspace" &&
               className="toggle-password"
               onClick={() => setShowConfirm(!showConfirm)}
             >
-              {showConfirm ? (
-                <i className="fa-regular fa-eye-slash"></i>
-              ) : (
-                <i className="fa-regular fa-eye"></i>
-              )}
+              {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
             </span>
           </div>
 
@@ -338,6 +362,7 @@ required
                   name="password"
                   placeholder="Nhập mật khẩu"
                   type={showPassword ? "text" : "password"}
+                  value={form.password}
                   onChange={handleChange}
                   required
                 />
@@ -345,17 +370,36 @@ required
                   className="toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? (
-                    <i className="fa-regular fa-eye-slash"></i>
-                  ) : (
-                    <i className="fa-regular fa-eye"></i>
-                  )}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </span>
               </div>
 
+              {type === "register" && (
+                <div className="password-field">
+                  <input
+                    name="confirmPassword"
+                    placeholder="Xác nhận lại mật khẩu"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    required
+                  />
+                  <span
+                    className="toggle-password"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </span>
+                </div>
+              )}
+
               <button type="submit" disabled={loading}>
                 {loading
-                  ? "Đang xác minh..."
+                  ? "Đang xử lý..."
                   : type === "login"
                     ? "Đăng nhập"
                     : "Đăng ký"}
@@ -394,13 +438,27 @@ required
               {type === "login" ? (
                 <p>
                   Chưa có tài khoản?{" "}
-                  <span onClick={() => switchType("register")}>Tạo ngay</span>
+                  <span
+                    onClick={() => {
+                      setMessage("");
+                      switchType("register");
+                    }}
+                  >
+                    Tạo ngay
+                  </span>
                 </p>
               ) : (
                 <p>
                   Đã có tài khoản?{" "}
-                  <span onClick={() => switchType("login")}>Đăng nhập</span>
-</p>
+                  <span
+                    onClick={() => {
+                      setMessage("");
+                      switchType("login");
+                    }}
+                  >
+                    Đăng nhập
+                  </span>
+                </p>
               )}
             </div>
           </>

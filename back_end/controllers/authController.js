@@ -22,8 +22,6 @@ export const register = async (req, res) => {
   try {
     const { name, email, passwordHash, phone, studentId } =
       req.body;
-
-    
     // =========================================================
     // 🆕 1️⃣ Kiểm tra mật khẩu mạnh
     // =========================================================
@@ -141,14 +139,7 @@ if (!name || !email || !passwordHash || !phone) {
       return res.status(500).json({ message: "Không tìm thấy Role mặc định" });
     }
 
-    // =========================================================
-    // 🆕 4️⃣ Tạo email verify token
-    // =========================================================
-    const emailToken = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    // 🟢 4️⃣ Tạo user mới
+    // 🟢 4️⃣ Tạo user mới (Tự động kích hoạt tài khoản, không cần gửi mail)
     const user = await User.create({
       name,
       email,
@@ -157,48 +148,34 @@ if (!name || !email || !passwordHash || !phone) {
       studentId: studentId?.trim() || null,
       roleId,
       authProvider: "local",
-
-      // 🆕 thêm 2 field mới
-      emailVerified: false,
-      emailVerifyToken: emailToken,
+      emailVerified: true,
+      emailVerifyToken: null,
     });
-
-    // =========================================================
-    // 🆕 5️⃣ Gửi email xác thực
-    // =========================================================
-    try {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-
-      const verifyURL = `${process.env.CLIENT_URL}/verify-email/${emailToken}`;
-
-      await transporter.sendMail({
-        from: `"TicketNow" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: "Xác thực tài khoản TicketNow",
-        html: `
-          <h3>Xin chào ${name},</h3>
-          <p>Vui lòng nhấn vào link bên dưới để kích hoạt tài khoản:</p>
-<a href="${verifyURL}">${verifyURL}</a>
-          <p>Link hết hạn sau 24 giờ.</p>
-        `,
-      });
-    } catch (err) {
-      console.error("❌ Lỗi gửi email verify:", err);
-    }
 
     // 🆕 Cập nhật log đăng ký thành công
     await RegisterLog.updateOne({ email }, { success: true });
 
-    // 🟢 5️⃣ Trả kết quả
+    let roleName = "user";
+    if (user.roleId) {
+      const r = await Role.findById(user.roleId).lean();
+      if (r?.name) roleName = r.name;
+    }
+
+    const token = generateToken(user._id);
+
+    // 🟢 5️⃣ Trả kết quả đăng ký thành công & thông tin user + token để đăng nhập luôn
     return res.status(201).json({
-      message:
-        "🎉 Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.",
+      message: "🎉 Đăng ký thành công!",
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      studentId: user.studentId,
+      avatar: user.avatar,
+      gender: user.gender,
+      dob: user.dob,
+      role: roleName,
+      token,
     });
   } catch (err) {
     console.error("⚠️ Lỗi đăng ký chi tiết:", err);
@@ -220,7 +197,7 @@ if (!name || !email || !passwordHash || !phone) {
 };
 
 // ============================================================================
-// 🟢 Đăng nhập người dùng (giữ nguyên – chỉ thêm check emailVerified)
+// 🟢 Đăng nhập người dùng
 // ============================================================================
 export const login = async (req, res) => {
   try {
@@ -229,13 +206,6 @@ export const login = async (req, res) => {
 
     if (!user)
       return res.status(401).json({ message: "Email hoặc mật khẩu không đúng!" });
-
-    // 🆕 CHẶN ĐĂNG NHẬP NẾU CHƯA VERIFY EMAIL
-    if (!user.emailVerified) {
-      return res.status(403).json({
-        message: "Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email.",
-      });
-    }
 
     if (user && user.isBanned) {
       return res.status(403).json({

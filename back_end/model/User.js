@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
     gender: { type: String, default: "" },
     // 🟢 Vai trò của người dùng (liên kết tới bảng Roles)
     roleId: { type: mongoose.Schema.Types.ObjectId, ref: "Role", required: true },
-    emailVerified: { type: Boolean, default: false },
+    emailVerified: { type: Boolean, default: true },
     emailVerifyToken: { type: String, default: null },
 
     // 🧡 [THÊM NGAY DƯỚI ĐÂY]
